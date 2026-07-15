@@ -35,6 +35,7 @@ func _run() -> void:
 	_check(aim_texture != null and aim_texture.region.size == Vector2(512, 512), "sniper frames use a wide unclipped canvas")
 	_check(aim_texture != null and aim_texture.atlas.get_width() == 4096, "execute sheet contains all eight sniper poses")
 	_check(player.footstep_stream != null, "rooftop concrete footstep is assigned")
+	_check(player.footstep_stream_alt_a != null and player.footstep_stream_alt_b != null, "rooftop footsteps rotate through three samples")
 	_check(rooftop.get_node("Audio/Wind").playing, "rooftop wind ambience loops")
 	_check(rooftop.get_node("Audio/Birds").playing, "positional rooftop birds loop")
 	var sheltered_wind_db: float = rooftop.get_node("Audio/Wind").volume_db
@@ -46,7 +47,9 @@ func _run() -> void:
 	_check(player.global_position.x > 1040.0, "player reaches the dirty footprints on the right")
 	_check(rooftop.execute_available, "footprint zone enables Execute Plan")
 	_check(rooftop.get_node("HUD/PlanPrompt").visible, "Execute Plan prompt is visible")
-	_check("footstep:0" in audio_cues or "footstep:3" in audio_cues, "concrete footsteps follow walk contact frames")
+	var footstep_count := audio_cues.count("footstep:0")
+	_check(footstep_count >= 6 and footstep_count <= 10, "footsteps use a restrained one-per-cycle cadence")
+	_check("footstep:3" not in audio_cues, "secondary walk frames no longer over-trigger footsteps")
 	_check(rooftop.get_node("Audio/Wind").volume_db > sheltered_wind_db + 4.0, "wind grows from sheltered door to exposed roof")
 
 	rooftop.execute_plan()

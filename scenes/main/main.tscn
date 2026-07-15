@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bcqv7ohsbm8oi"]
+[gd_scene load_steps=25 format=3 uid="uid://bcqv7ohsbm8oi"]
 
 [ext_resource type="Texture2D" uid="uid://u86ktm3db4dt" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="1_hyk8p"]
 [ext_resource type="Texture2D" uid="uid://dqqus8j8oj71v" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/1234.png" id="1_l3cfh"]
@@ -12,6 +12,8 @@
 [ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step.ogg" id="10_steps"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/stairwell-room.mp3" id="11_room"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/stairwell-electrical.mp3" id="12_electrical"]
+[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step-02.ogg" id="13_steps_alt_a"]
+[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step-03.ogg" id="14_steps_alt_b"]
 
 [sub_resource type="RectangleShape2D" id="Middle_landing_trigger"]
 size = Vector2(140, 240)
@@ -123,6 +125,8 @@ texture = ExtResource("3_6q06x")
 z_index = 10
 position = Vector2(259, 462)
 footstep_stream = ExtResource("10_steps")
+footstep_stream_alt_a = ExtResource("13_steps_alt_a")
+footstep_stream_alt_b = ExtResource("14_steps_alt_b")
 
 [node name="Audio" type="Node2D" parent="."]
 

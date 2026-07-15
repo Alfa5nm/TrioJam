@@ -12,6 +12,8 @@ signal foley_cue_played(cue: StringName, animation_frame: int)
 @export var fall_limit := 850.0
 @export var allow_jump := false
 @export var footstep_stream: AudioStream
+@export var footstep_stream_alt_a: AudioStream
+@export var footstep_stream_alt_b: AudioStream
 @export var bag_search_stream: AudioStream
 @export var rifle_assembly_stream: AudioStream
 
@@ -35,11 +37,19 @@ var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 var _was_on_floor := false
 var _alternate_step := false
+var _footstep_cooldown := 0.0
+var _footstep_variant_index := 0
+var _footstep_variants: Array[AudioStream] = []
+
+const FOOTSTEP_COOLDOWN := 0.56
 
 
 func _ready() -> void:
 	audio_listener.make_current()
 	footstep_player.stream = footstep_stream
+	for candidate in [footstep_stream, footstep_stream_alt_a, footstep_stream_alt_b]:
+		if candidate != null:
+			_footstep_variants.append(candidate)
 	bag_search_player.stream = bag_search_stream
 	rifle_assembly_player.stream = rifle_assembly_stream
 	animated_sprite.frame_changed.connect(_on_animation_frame_changed)
@@ -52,6 +62,7 @@ func _exit_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_footstep_cooldown = maxf(_footstep_cooldown - delta, 0.0)
 	if not controls_enabled:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 		move_and_slide()
@@ -121,16 +132,25 @@ func play_execute_plan() -> void:
 
 
 func _on_animation_frame_changed() -> void:
-	if animated_sprite.animation == &"walk" and animated_sprite.frame in [0, 3]:
-		if controls_enabled and is_on_floor() and absf(velocity.x) > 8.0:
-			_alternate_step = not _alternate_step
-			footstep_player.pitch_scale = 1.035 if _alternate_step else 0.965
-			_play_foley(footstep_player, &"footstep")
+	if animated_sprite.animation == &"walk" and animated_sprite.frame == 0:
+		if controls_enabled and is_on_floor() and absf(velocity.x) > 8.0 and _footstep_cooldown <= 0.0:
+			_play_next_footstep()
 	elif animated_sprite.animation == &"execute":
 		if animated_sprite.frame == 1:
 			_play_foley(bag_search_player, &"bag_search")
 		elif animated_sprite.frame == 3:
 			_play_foley(rifle_assembly_player, &"rifle_assembly")
+
+
+func _play_next_footstep() -> void:
+	if _footstep_variants.is_empty():
+		return
+	footstep_player.stream = _footstep_variants[_footstep_variant_index]
+	_footstep_variant_index = (_footstep_variant_index + 1) % _footstep_variants.size()
+	_alternate_step = not _alternate_step
+	footstep_player.pitch_scale = 1.025 if _alternate_step else 0.975
+	_footstep_cooldown = FOOTSTEP_COOLDOWN
+	_play_foley(footstep_player, &"footstep")
 
 
 func _play_foley(audio_player: AudioStreamPlayer2D, cue: StringName) -> void:

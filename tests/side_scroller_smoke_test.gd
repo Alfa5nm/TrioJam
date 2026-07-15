@@ -23,6 +23,7 @@ func _run() -> void:
 	var player := level.get_node("Player") as Player
 	_check(player.animated_sprite.scale.x >= 0.6, "character scale matches the stairwell architecture")
 	_check(player.footstep_stream != null, "stairwell concrete footstep is assigned")
+	_check(player.footstep_stream_alt_a != null and player.footstep_stream_alt_b != null, "stairwell footsteps rotate through three samples")
 	_check(level.get_node("Audio/RoomTone").playing, "interior room tone loops")
 	_check(level.get_node("Audio/Electrical").playing, "electrical ambience loops from the landing fixture")
 	var lower_room_tone_db: float = level.get_node("Audio/RoomTone").volume_db
