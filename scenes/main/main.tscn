@@ -1,430 +1,189 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=18 format=3 uid="uid://bcqv7ohsbm8oi"]
 
-[ext_resource type="Script" path="res://scripts/world/stairwell_level.gd" id="1_world"]
-[ext_resource type="Texture2D" path="res://assets/art/environment/stairwell-base.png" id="2_background"]
-[ext_resource type="Texture2D" path="res://assets/art/environment/stairwell-normal.png" id="3_normal"]
+[ext_resource type="Texture2D" uid="uid://u86ktm3db4dt" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="1_hyk8p"]
+[ext_resource type="Texture2D" uid="uid://dqqus8j8oj71v" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/1234.png" id="1_l3cfh"]
+[ext_resource type="Texture2D" uid="uid://dwp3og62c2b5u" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/top stair.png" id="3_6q06x"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="4_player"]
-[ext_resource type="Script" path="res://scripts/world/cinematic_camera.gd" id="5_camera"]
-[ext_resource type="Script" path="res://scripts/world/parallax_plane.gd" id="6_parallax"]
-[ext_resource type="Script" path="res://scripts/interactions/stairwell_interaction.gd" id="7_interaction"]
+[ext_resource type="Script" path="res://scripts/world/rooftop_stairwell.gd" id="5_world"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_02_props_and_lighting.png" id="6_props"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_03_midground_railings.png" id="7_midground"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_04_foreground.png" id="8_foreground"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_06_debris.png" id="9_debris"]
 
-[sub_resource type="CanvasTexture" id="Canvas_environment"]
-diffuse_texture = ExtResource("2_background")
-normal_texture = ExtResource("3_normal")
-specular_color = Color(0.16, 0.18, 0.21, 1)
-specular_shininess = 0.22
+[sub_resource type="RectangleShape2D" id="Middle_landing_trigger"]
+size = Vector2(140, 240)
 
-[sub_resource type="RectangleShape2D" id="Floor_lower"]
-size = Vector2(650, 90)
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_shadow_multiply"]
+blend_mode = 3
 
-[sub_resource type="ConvexPolygonShape2D" id="Ramp_lower"]
-points = PackedVector2Array(550, 603, 1060, 420, 1357, 420, 1357, 780, 550, 780)
+[sub_resource type="Shader" id="Shader_checker_cleanup"]
+code = "shader_type canvas_item;\n\nvoid fragment() {\n\tvec4 pixel = texture(TEXTURE, UV);\n\tfloat brightest = max(pixel.r, max(pixel.g, pixel.b));\n\tfloat darkest = min(pixel.r, min(pixel.g, pixel.b));\n\tbool neutral_checker = darkest > 0.70 && (brightest - darkest) < 0.09;\n\tif (neutral_checker) {\n\t\tpixel.a = 0.0;\n\t}\n\tCOLOR = pixel * COLOR;\n}\n"
 
-[sub_resource type="SegmentShape2D" id="Landing_right"]
-a = Vector2(987, 420)
-b = Vector2(1357, 420)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_checker_cleanup"]
+shader = SubResource("Shader_checker_cleanup")
 
-[sub_resource type="SegmentShape2D" id="Ramp_upper"]
-a = Vector2(548, 125)
-b = Vector2(1060, 420)
+[sub_resource type="Shader" id="Shader_props_cleanup"]
+code = "shader_type canvas_item;\n\nvoid fragment() {\n\tvec4 pixel = texture(TEXTURE, UV);\n\tfloat brightest = max(pixel.r, max(pixel.g, pixel.b));\n\tfloat darkest = min(pixel.r, min(pixel.g, pixel.b));\n\tfloat luminance = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));\n\tbool inside_baked_glow = UV.x > 0.68 && UV.y < 0.56;\n\tbool glow_checker = inside_baked_glow && luminance > 0.30 && luminance < 0.82 && (brightest - darkest) < 0.28;\n\tif (glow_checker) {\n\t\tpixel.a = 0.0;\n\t}\n\tCOLOR = pixel * COLOR;\n}\n"
 
-[sub_resource type="SegmentShape2D" id="Landing_upper"]
-a = Vector2(-102, 125)
-b = Vector2(548, 125)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_props_cleanup"]
+shader = SubResource("Shader_props_cleanup")
 
-[sub_resource type="RectangleShape2D" id="Trigger_middle"]
-size = Vector2(120, 180)
+[sub_resource type="Gradient" id="Gradient_warm_light"]
+offsets = PackedFloat32Array(0, 0.62, 1)
+colors = PackedColorArray(1, 0.94, 0.78, 1, 1, 0.78, 0.46, 0.26, 1, 0.62, 0.3, 0)
 
-[sub_resource type="RectangleShape2D" id="Interaction_hose"]
-size = Vector2(120, 150)
-
-[sub_resource type="RectangleShape2D" id="Interaction_door"]
-size = Vector2(100, 150)
-
-[sub_resource type="Gradient" id="Gradient_light"]
-offsets = PackedFloat32Array(0, 0.58, 1)
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.28, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="Texture_light"]
-gradient = SubResource("Gradient_light")
-width = 512
-height = 512
+[sub_resource type="GradientTexture2D" id="GradientTexture_warm_light"]
+gradient = SubResource("Gradient_warm_light")
+width = 384
+height = 384
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
-[sub_resource type="Gradient" id="Gradient_dust"]
-offsets = PackedFloat32Array(0, 0.4, 1)
-colors = PackedColorArray(1, 0.9, 0.69, 0.9, 1, 0.9, 0.69, 0.52, 1, 0.9, 0.69, 0)
+[node name="RooftopStairwell" type="Node2D" unique_id=1932270179]
+script = ExtResource("5_world")
 
-[sub_resource type="GradientTexture2D" id="Texture_dust"]
-gradient = SubResource("Gradient_dust")
-width = 16
-height = 16
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(0.5, 0)
+[node name="Backdrop" type="Polygon2D" parent="."]
+z_index = -100
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
+color = Color(0.045, 0.058, 0.09, 1)
 
-[sub_resource type="ParticleProcessMaterial" id="Particles_dust"]
-particle_flag_disable_z = true
-emission_shape = 3
-emission_box_extents = Vector3(650, 330, 1)
-direction = Vector3(0, -1, 0)
-spread = 180.0
-gravity = Vector3(0, -1.2, 0)
-initial_velocity_min = 1.0
-initial_velocity_max = 4.0
-scale_min = 0.4
-scale_max = 1.25
-color = Color(0.91, 0.84, 0.67, 0.24)
-
-[sub_resource type="StyleBoxFlat" id="Panel_prompt"]
-bg_color = Color(0.025, 0.035, 0.043, 0.88)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.65, 0.72, 0.72, 0.28)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="Panel_message"]
-bg_color = Color(0.018, 0.027, 0.034, 0.94)
-border_width_left = 2
-border_color = Color(0.64, 0.74, 0.68, 0.8)
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-
-[node name="FireExitStairwell" type="Node2D"]
-script = ExtResource("1_world")
-
-[node name="Environment" type="Node2D" parent="."]
+[node name="1234" type="Sprite2D" parent="." unique_id=987585862]
 z_index = -20
+material = SubResource("CanvasItemMaterial_shadow_multiply")
+position = Vector2(641.5, 360.5)
+scale = Vector2(0.66822916, 0.6982422)
+texture = ExtResource("1_l3cfh")
 
-[node name="Background" type="Sprite2D" parent="Environment"]
-texture = SubResource("Canvas_environment")
-centered = false
-scale = Vector2(0.82, 0.82)
-texture_filter = 1
+[node name="Layer01BackgroundShell" type="Sprite2D" parent="." unique_id=645904589]
+z_index = -30
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = ExtResource("1_hyk8p")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="Environment"]
-color = Color(0.79, 0.84, 0.94, 1)
+[node name="PropsAndLighting" type="Sprite2D" parent="."]
+z_index = -10
+material = SubResource("ShaderMaterial_props_cleanup")
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = ExtResource("6_props")
 
-[node name="WarmPractical" type="PointLight2D" parent="Environment"]
-position = Vector2(1134, 205)
-color = Color(1, 0.72, 0.39, 1)
-energy = 1.15
-texture = SubResource("Texture_light")
-texture_scale = 1.18
+[node name="MidgroundRailings" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_checker_cleanup")
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = ExtResource("7_midground")
 
-[node name="EmergencyGlow" type="PointLight2D" parent="Environment"]
-position = Vector2(190, 407)
-color = Color(0.31, 0.93, 0.69, 1)
-energy = 0.44
-texture = SubResource("Texture_light")
-texture_scale = 0.7
+[node name="Debris" type="Sprite2D" parent="."]
+z_index = 5
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = ExtResource("9_debris")
 
-[node name="Dust" type="GPUParticles2D" parent="Environment"]
-position = Vector2(685, 360)
-amount = 48
-lifetime = 7.0
-preprocess = 7.0
-randomness = 0.7
-visibility_rect = Rect2(-700, -380, 1400, 760)
-process_material = SubResource("Particles_dust")
-texture = SubResource("Texture_dust")
+[node name="railing" type="Sprite2D" parent="." unique_id=716696726]
+z_index = 30
+material = SubResource("ShaderMaterial_checker_cleanup")
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = ExtResource("8_foreground")
 
-[node name="StairCollision" type="Node2D" parent="."]
+[node name="WarmLandingLight" type="PointLight2D" parent="."]
+position = Vector2(1078, 108)
+color = Color(1, 0.72, 0.42, 1)
+energy = 0.38
+texture = SubResource("GradientTexture_warm_light")
+texture_scale = 0.92
+height = 90.0
 
-[node name="Ground" type="StaticBody2D" parent="StairCollision"]
+[node name="TopStairRailing" type="Sprite2D" parent="." unique_id=668441413]
+z_index = 20
+position = Vector2(762.00006, 188)
+scale = Vector2(0.7421874, 0.74218756)
+texture = ExtResource("3_6q06x")
+
+[node name="Player" parent="." unique_id=1107255841 instance=ExtResource("4_player")]
+z_index = 10
+position = Vector2(259, 462)
+scale = Vector2(2.0693192, 2.0693192)
+
+[node name="Line2DFloorToMidflightCollider" type="Line2D" parent="." unique_id=1966460224]
+visible = false
+position = Vector2(172, 547)
+points = PackedVector2Array(-190.6496, 31.778809, 31.601105, 32.231476, 300.3504, 32.77881, 692.3504, -173.22119, 969.3504, -174.22119)
+default_color = Color(0, 0, 0, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Line2DFloorToMidflightCollider" unique_id=1156443360]
+z_index = 2
+position = Vector2(35.350403, 23.778809)
 collision_layer = 2
 
-[node name="LowerFloor" type="CollisionShape2D" parent="StairCollision/Ground"]
-position = Vector2(245, 648)
-shape = SubResource("Floor_lower")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Line2DFloorToMidflightCollider/StaticBody2D" unique_id=1730429122]
+z_index = 1
+polygon = PackedVector2Array(-221, 0, 262, 2, 690, -200, 930, -200, 933, -192, 691, -191, 262, 17, -10.106262, 14.741852, -220, 13)
 
-[node name="LowerFlight" type="StaticBody2D" parent="StairCollision"]
+[node name="Line2DFloorToMidflightCollider2" type="Line2D" parent="." unique_id=850691008]
+visible = false
+position = Vector2(191, 539)
+points = PackedVector2Array(-194, -344, -33, -343, 327, -340, 663, -168, 962, -165)
+default_color = Color(0, 0, 0, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Line2DFloorToMidflightCollider2" unique_id=457681687]
+z_index = 2
+position = Vector2(35.350403, 23.778809)
 collision_layer = 2
 
-[node name="LowerRamp" type="CollisionShape2D" parent="StairCollision/LowerFlight"]
-shape = SubResource("Ramp_lower")
-
-[node name="MiddleLanding" type="StaticBody2D" parent="StairCollision"]
-collision_layer = 2
-
-[node name="RightLanding" type="CollisionShape2D" parent="StairCollision/MiddleLanding"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Line2DFloorToMidflightCollider2/StaticBody2D" unique_id=153653966]
 disabled = true
-shape = SubResource("Landing_right")
-
-[node name="UpperFlight" type="StaticBody2D" parent="StairCollision"]
-collision_layer = 2
-
-[node name="UpperRamp" type="CollisionShape2D" parent="StairCollision/UpperFlight"]
-disabled = true
-shape = SubResource("Ramp_upper")
-
-[node name="TopLanding" type="StaticBody2D" parent="StairCollision"]
-collision_layer = 2
-
-[node name="UpperLanding" type="CollisionShape2D" parent="StairCollision/TopLanding"]
-shape = SubResource("Landing_upper")
+polygon = PackedVector2Array(926.6496, -197.77881, 623.6496, -192.77881, 299.6496, -369.7788, -218.3504, -366.7788, -225.3504, -348.7788, 281.6496, -355.7788, 617.6496, -176.77881, 927.6496, -180.77881)
 
 [node name="MiddleLandingTrigger" type="Area2D" parent="."]
-position = Vector2(1170, 350)
+position = Vector2(1050, 280)
 collision_layer = 0
 collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MiddleLandingTrigger"]
-shape = SubResource("Trigger_middle")
+shape = SubResource("Middle_landing_trigger")
 
-[node name="HoseCabinet" type="Area2D" parent="." groups=["stairwell_interactions"]]
-position = Vector2(434, 515)
-collision_layer = 4
-collision_mask = 1
-script = ExtResource("7_interaction")
-prompt_text = "E  INSPECT FIRE HOSE"
-message_text = "The cabinet glass is cold. The hose inside has not moved in years."
+[node name="StairHighlights" type="Node2D" parent="."]
+z_index = 25
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HoseCabinet"]
-shape = SubResource("Interaction_hose")
+[node name="LowerRoute" type="Node2D" parent="StairHighlights"]
 
-[node name="RightExit" type="Area2D" parent="." groups=["stairwell_interactions"]]
-position = Vector2(1225, 348)
-collision_layer = 4
-collision_mask = 1
-script = ExtResource("7_interaction")
-prompt_text = "E  OPEN DOOR"
-message_text = "The service door is sealed. The rooftop stairs continue above."
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RightExit"]
-shape = SubResource("Interaction_door")
-
-[node name="UpperDoor" type="Area2D" parent="." groups=["stairwell_interactions"]]
-position = Vector2(275, 78)
-collision_layer = 4
-collision_mask = 1
-script = ExtResource("7_interaction")
-prompt_text = "E  OPEN ROOFTOP DOOR"
-message_text = "Cold night air slips through the frame."
-completes_scene = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="UpperDoor"]
-shape = SubResource("Interaction_door")
-
-[node name="Player" parent="." instance=ExtResource("4_player")]
-position = Vector2(116, 602)
-z_index = 5
-
-[node name="CinematicCamera" type="Camera2D" parent="."]
-zoom = Vector2(1.18, 1.18)
-limit_left = 0
-limit_top = 0
-limit_right = 1371
-limit_bottom = 772
-target_path = NodePath("../Player")
-script = ExtResource("5_camera")
-
-[node name="Foreground" type="Node2D" parent="."]
-z_index = 20
-script = ExtResource("6_parallax")
-camera_path = NodePath("../CinematicCamera")
-motion_scale = Vector2(1.055, 1.022)
-
-[node name="LowerFlightRail" type="Node2D" parent="Foreground"]
-
-[node name="MainRail" type="Line2D" parent="Foreground/LowerFlightRail"]
-points = PackedVector2Array(284, 737, 558, 548, 714, 548, 1018, 408)
-width = 9.0
-default_color = Color(0.018, 0.028, 0.036, 0.72)
+[node name="Glow" type="Line2D" parent="StairHighlights/LowerRoute"]
+points = PackedVector2Array(0, 571, 470, 573, 898, 371, 1138, 371)
+width = 22.0
+default_color = Color(1, 0.67, 0.28, 0.075)
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
 antialiased = true
 
-[node name="RightRail" type="Line2D" parent="Foreground/LowerFlightRail"]
-points = PackedVector2Array(1052, 628, 1180, 565, 1375, 464)
-width = 11.0
-default_color = Color(0.012, 0.02, 0.027, 0.78)
+[node name="Edge" type="Line2D" parent="StairHighlights/LowerRoute"]
+points = PackedVector2Array(0, 571, 470, 573, 898, 371, 1138, 371)
+width = 4.0
+default_color = Color(1, 0.78, 0.43, 0.34)
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
 antialiased = true
 
-[node name="UpperFlightRail" type="Node2D" parent="Foreground"]
-modulate = Color(1, 1, 1, 0.52)
+[node name="UpperRoute" type="Node2D" parent="StairHighlights"]
+modulate = Color(1, 1, 1, 0.12)
 
-[node name="TopRail" type="Line2D" parent="Foreground/UpperFlightRail"]
-points = PackedVector2Array(530, 25, 690, 25, 1060, 300)
-width = 9.0
-default_color = Color(0.014, 0.024, 0.032, 0.82)
+[node name="Glow" type="Line2D" parent="StairHighlights/UpperRoute"]
+points = PackedVector2Array(1153, 365, 850, 370, 526, 193, 8, 196)
+width = 22.0
+default_color = Color(1, 0.67, 0.28, 0.075)
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
 antialiased = true
 
-[node name="Post01" type="Line2D" parent="Foreground/UpperFlightRail"]
-points = PackedVector2Array(700, 32, 700, 213)
-width = 6.0
-default_color = Color(0.014, 0.024, 0.032, 0.78)
+[node name="Edge" type="Line2D" parent="StairHighlights/UpperRoute"]
+points = PackedVector2Array(1153, 365, 850, 370, 526, 193, 8, 196)
+width = 4.0
+default_color = Color(1, 0.78, 0.43, 0.34)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
-
-[node name="Post02" type="Line2D" parent="Foreground/UpperFlightRail"]
-points = PackedVector2Array(820, 122, 820, 282)
-width = 6.0
-default_color = Color(0.014, 0.024, 0.032, 0.78)
-antialiased = true
-
-[node name="Post03" type="Line2D" parent="Foreground/UpperFlightRail"]
-points = PackedVector2Array(940, 211, 940, 351)
-width = 6.0
-default_color = Color(0.014, 0.024, 0.032, 0.78)
-antialiased = true
-
-[node name="Post04" type="Line2D" parent="Foreground/UpperFlightRail"]
-points = PackedVector2Array(1055, 296, 1055, 417)
-width = 6.0
-default_color = Color(0.014, 0.024, 0.032, 0.78)
-antialiased = true
-
-[connection signal="body_entered" from="MiddleLandingTrigger" to="." method="_on_middle_landing_body_entered"]
-
-[node name="HUD" type="CanvasLayer" parent="."]
-
-[node name="SceneTitle" type="VBoxContainer" parent="HUD"]
-modulate = Color(1, 1, 1, 0)
-offset_left = 54.0
-offset_top = 48.0
-offset_right = 420.0
-offset_bottom = 118.0
-theme_override_constants/separation = 2
-
-[node name="Title" type="Label" parent="HUD/SceneTitle"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.9, 0.88, 0.95)
-theme_override_font_sizes/font_size = 24
-text = "FIRE EXIT"
-
-[node name="Time" type="Label" parent="HUD/SceneTitle"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.68, 0.68, 0.85)
-theme_override_font_sizes/font_size = 14
-text = "DAY 0  ·  22:41"
-
-[node name="Prompt" type="PanelContainer" parent="HUD"]
-visible = false
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -135.0
-offset_top = -75.0
-offset_right = 135.0
-offset_bottom = -32.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_styles/panel = SubResource("Panel_prompt")
-
-[node name="Margin" type="MarginContainer" parent="HUD/Prompt"]
-layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 9
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 9
-
-[node name="Label" type="Label" parent="HUD/Prompt/Margin"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.87, 0.85, 1)
-theme_override_font_sizes/font_size = 15
-text = "E  INTERACT"
-horizontal_alignment = 1
-
-[node name="Message" type="PanelContainer" parent="HUD"]
-visible = false
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -360.0
-offset_top = -138.0
-offset_right = 360.0
-offset_bottom = -78.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_styles/panel = SubResource("Panel_message")
-
-[node name="Margin" type="MarginContainer" parent="HUD/Message"]
-layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 13
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 13
-
-[node name="Label" type="Label" parent="HUD/Message/Margin"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.84, 0.87, 0.85, 1)
-theme_override_font_sizes/font_size = 17
-text = "The stairwell is quiet."
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Completion" type="Control" parent="HUD"]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Shade" type="ColorRect" parent="HUD/Completion"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.012, 0.018, 0.024, 0.42)
-mouse_filter = 2
-
-[node name="Text" type="VBoxContainer" parent="HUD/Completion"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -55.0
-offset_right = 260.0
-offset_bottom = 55.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 8
-
-[node name="Title" type="Label" parent="HUD/Completion/Text"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.86, 0.7, 1)
-theme_override_font_sizes/font_size = 24
-text = "THE DOOR OPENS"
-horizontal_alignment = 1
-
-[node name="Hint" type="Label" parent="HUD/Completion/Text"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.68, 0.72, 0.72, 0.9)
-theme_override_font_sizes/font_size = 15
-text = "Press R to replay the scene"
-horizontal_alignment = 1
-
-[node name="Fade" type="ColorRect" parent="HUD"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.007, 0.012, 0.016, 1)
