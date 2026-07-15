@@ -1,6 +1,8 @@
 class_name RooftopScene
 extends Node2D
 
+@export var auto_advance_to_scope := true
+
 var execute_available := false
 var plan_executed := false
 var _spawn_position := Vector2.ZERO
@@ -63,6 +65,18 @@ func execute_plan() -> void:
 	completion.modulate.a = 0.0
 	var reveal := create_tween()
 	reveal.tween_property(completion, "modulate:a", 1.0, 0.45)
+	if auto_advance_to_scope:
+		_advance_to_scope()
+
+
+func _advance_to_scope() -> void:
+	await get_tree().create_timer(0.9).timeout
+	if not is_inside_tree():
+		return
+	var transition := create_tween()
+	transition.tween_property(fade, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await transition.finished
+	get_tree().change_scene_to_file("res://scenes/gameplay/scoped_target_scene.tscn")
 
 
 func _on_execute_zone_entered(body: Node2D) -> void:

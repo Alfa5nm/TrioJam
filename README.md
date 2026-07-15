@@ -14,6 +14,17 @@ The scene includes switchback stair collisions, cinematic camera framing, foregr
 
 The original generated runtime assets and their derived normal maps are stored under `assets/art/`. Keep replacement art aligned to the existing 16:9 composition and atlas regions.
 
+## Current vertical slice
+
+The connected playable sequence is now:
+
+1. `Scene0` — climb the fire-exit stairwell and enter the rooftop door.
+2. `Scene1` — cross the rooftop, execute the plan, and shoulder the makeshift rifle.
+3. `Scene2` — aim through the scope, reject non-target office workers, and identify the smoking official on the balcony.
+4. `Broadcast Interface` — construct the government-mandated Cause / Conflict / Outcome report from the shooting.
+
+Scene2 uses mouse movement to aim and the left mouse button to fire. Its scope mask deliberately leaves the peripheral view visible at lower opacity.
+
 ## Open the project
 
 Import `project.godot` from the Godot Project Manager, or run:

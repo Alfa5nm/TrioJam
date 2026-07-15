@@ -16,6 +16,8 @@ func _run() -> void:
 		return
 
 	var rooftop := packed_scene.instantiate()
+	_check(rooftop.auto_advance_to_scope, "rooftop plan is wired to the scoped target scene")
+	rooftop.auto_advance_to_scope = false
 	root.add_child(rooftop)
 	for _frame in 90:
 		await physics_frame

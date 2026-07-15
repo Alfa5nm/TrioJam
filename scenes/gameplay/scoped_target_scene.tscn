@@ -1,0 +1,140 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/scoped_target_scene.gd" id="1_scene"]
+[ext_resource type="Script" path="res://scripts/gameplay/scope_reticle.gd" id="2_reticle"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 2/office-target-building.png" id="3_background"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-wind.mp3" id="4_wind"]
+
+[sub_resource type="Shader" id="Shader_scope_mask"]
+code = "shader_type canvas_item;\n\nuniform vec2 viewport_size = vec2(1280.0, 720.0);\nuniform vec2 scope_center = vec2(640.0, 360.0);\nuniform float scope_radius = 245.0;\n\nvoid fragment() {\n\tvec2 pixel = UV * viewport_size;\n\tfloat distance_from_scope = distance(pixel, scope_center);\n\tfloat outside = smoothstep(scope_radius - 5.0, scope_radius + 5.0, distance_from_scope);\n\tfloat glass_edge = smoothstep(scope_radius * 0.72, scope_radius, distance_from_scope);\n\tfloat alpha = mix(0.035 + glass_edge * 0.08, 0.67, outside);\n\tCOLOR = vec4(0.006, 0.01, 0.016, alpha);\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scope_mask"]
+shader = SubResource("Shader_scope_mask")
+
+[node name="ScopedTargetScene" type="Node2D"]
+script = ExtResource("1_scene")
+
+[node name="Background" type="Sprite2D" parent="."]
+texture = ExtResource("3_background")
+centered = false
+texture_filter = 1
+
+[node name="Occupants" type="Node2D" parent="."]
+
+[node name="Typist" type="AnimatedSprite2D" parent="Occupants"]
+position = Vector2(200, 355)
+scale = Vector2(0.75, 0.75)
+texture_filter = 1
+
+[node name="Clerk" type="AnimatedSprite2D" parent="Occupants"]
+position = Vector2(500, 355)
+scale = Vector2(0.75, 0.75)
+texture_filter = 1
+
+[node name="Employee" type="AnimatedSprite2D" parent="Occupants"]
+position = Vector2(735, 350)
+scale = Vector2(0.75, 0.75)
+texture_filter = 1
+
+[node name="Target" type="AnimatedSprite2D" parent="Occupants"]
+position = Vector2(1025, 390)
+scale = Vector2(0.84, 0.84)
+texture_filter = 1
+
+[node name="Wind" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_wind")
+volume_db = -16.0
+
+[node name="ScopeUI" type="CanvasLayer" parent="."]
+
+[node name="ScopeMask" type="ColorRect" parent="ScopeUI"]
+material = SubResource("ShaderMaterial_scope_mask")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Reticle" type="Control" parent="ScopeUI"]
+custom_minimum_size = Vector2(160, 160)
+offset_right = 160.0
+offset_bottom = 160.0
+mouse_filter = 2
+script = ExtResource("2_reticle")
+
+[node name="Brief" type="Label" parent="ScopeUI"]
+offset_left = 32.0
+offset_top = 24.0
+offset_right = 655.0
+offset_bottom = 56.0
+theme_override_colors/font_color = Color(0.9, 0.94, 0.9, 0.92)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.86)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "IDENTIFY  //  SILVER-HAIRED OFFICIAL  //  BALCONY"
+
+[node name="Instructions" type="Label" parent="ScopeUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -420.0
+offset_top = 25.0
+offset_right = -30.0
+offset_bottom = 55.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.8, 0.86, 0.82, 0.84)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+text = "MOVE MOUSE TO AIM   •   LEFT CLICK TO FIRE"
+horizontal_alignment = 2
+
+[node name="Feedback" type="Label" parent="ScopeUI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_top = -84.0
+offset_right = 360.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.88, 0.68, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
+text = "Find the silver-haired official on the balcony."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Shots" type="Label" parent="ScopeUI"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = -58.0
+offset_right = 200.0
+offset_bottom = -28.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.84, 0.9, 0.85, 0.88)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 16
+text = "SHOTS  00"
+
+[node name="Fade" type="ColorRect" parent="ScopeUI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.005, 0.008, 0.014, 1)

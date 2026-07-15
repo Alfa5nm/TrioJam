@@ -1,6 +1,8 @@
 # Function Reference
 
-How every script in the project works, grouped by system. Godot 4.7, GDScript.
+How every script in the project works, grouped by system. Godot 4.6, GDScript.
+
+Current playable flow: stairwell (`Scene0`) → rooftop (`Scene1`) → scoped target identification (`Scene2`) → Broadcast Interface.
 
 ---
 
@@ -8,7 +10,17 @@ How every script in the project works, grouped by system. Godot 4.7, GDScript.
 
 The Storyteller-style news-report puzzle: drag a scene and up to two characters into each of the CAUSE / CONFLICT / OUTCOME frames, then BROADCAST. A resulting `BroadcastSequence` match drives a line-by-line reporter narration with frame highlighting.
 
-Entry point: `scenes/gameplay/broadcast_interface.tscn`. Launch directly via the Godot MCP `run_project` tool with `scene: res://scenes/gameplay/broadcast_interface.tscn`, or in-editor with F6 — it is not wired into `main.tscn`'s game flow.
+Entry point: `scenes/gameplay/broadcast_interface.tscn`. It is reached after the correct target is selected in Scene2 and loads the Day 0 rooftop report by default.
+
+## Scoped target identification (`scoped_target_scene.tscn`)
+
+`ScopedTargetScene` bridges the rooftop plan animation and the first Broadcast Interface report.
+
+- Mouse movement drives a gently stabilized scope position; left click fires.
+- A shader keeps the circular scope opening clear while the surrounding scene remains visible at reduced opacity.
+- Four generated character rows provide four-frame idle loops: smoking target, typist, clerk, and copier employee.
+- `attempt_shot_at(screen_position)` resolves the subject beneath the reticle. Non-targets cycle internal-monologue rejection lines without ending the scene; the balcony official emits `target_confirmed` and advances to the Broadcast Interface.
+- `ScopeReticle` draws the code-native crosshair and switches to a confirmed color after the correct selection.
 
 ### Data model — `scripts/data/`
 
@@ -92,7 +104,7 @@ Wires everything together and owns the reporter-playback state machine.
 
 ## Side-scroller placeholder (`scripts/player/`, `scripts/interactions/`, `scripts/world/`)
 
-The original vertical-slice level (`scenes/main/main.tscn`) — separate from, and not currently connected to, the Broadcast Interface above.
+The opening stairwell level (`scenes/main/main.tscn`) begins the connected sequence leading to the Broadcast Interface.
 
 **`player.gd` — `Player extends CharacterBody2D`**
 Platformer movement with coyote time and jump buffering.
@@ -122,9 +134,11 @@ Ties the pieces above into the playable loop.
 
 ## Tests (`tests/`)
 
-Both are headless `SceneTree` scripts run via `godot --headless -s <path>`. Pattern: `_init()` prints `SMOKE_TEST_START` and defers to `_run()`; a local `_check(condition, description)` helper prints `PASS`/pushes an error and increments `failures`; the script exits via `quit(failures)`, printing `SMOKE_TEST_PASS` only if nothing failed.
+The headless `SceneTree` smoke tests run via `godot --headless -s <path>`. Each script exits non-zero when an assertion fails.
 
-- **`side_scroller_smoke_test.gd`** — instantiates `main.tscn`, verifies the player spawns/settles/falls-and-recovers, and drives both `ReportPoint`s and the `NewsroomGate` end-to-end to confirm the collection → unlock → completion loop.
+- **`side_scroller_smoke_test.gd`** — verifies stair collision switching, traversal, railing depth, audio zones, door access, and fall recovery.
+- **`rooftop_plan_smoke_test.gd`** — verifies rooftop traversal, restrained footstep cadence, plan prompt, rifle animation/audio cues, and the Scene2 connection.
+- **`scoped_target_smoke_test.gd`** — verifies all four idle loops, the scope mask, three non-target rejection paths, correct target resolution, and the Broadcast Interface connection.
 - **`broadcast_interface_smoke_test.gd`** — instantiates `broadcast_interface.tscn` and exercises: node wiring, the scene-first drop rule, the 2-character cap, the truthful/propaganda/unrecognized resolution paths for the checkpoint report, and the full Day 0 reporter-playback sequence (line-by-line text and per-frame highlighting) including the CONTINUE passthrough when no playback is active.
 
 **Note:** whenever a new `class_name` script is added, Godot's global class cache must be refreshed before headless tests can resolve it by name — run `godot --headless --editor --path <project> --quit-after 60` once first.
