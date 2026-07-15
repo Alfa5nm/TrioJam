@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+
+[sub_resource type="CapsuleShape2D" id="Capsule_player"]
+radius = 18.0
+height = 64.0
+
+[node name="Player" type="CharacterBody2D"]
+collision_mask = 2
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Capsule_player")
+
+[node name="BodyVisual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-16, -24, 16, -24, 18, 22, 10, 31, -10, 31, -18, 22)
+color = Color(0.243, 0.761, 0.91, 1)
+
+[node name="Coat" type="Polygon2D" parent="BodyVisual"]
+polygon = PackedVector2Array(-13, -5, 13, -5, 16, 22, -16, 22)
+color = Color(0.086, 0.192, 0.302, 1)
+
+[node name="Face" type="Polygon2D" parent="BodyVisual"]
+polygon = PackedVector2Array(-10, -22, 10, -22, 11, -6, -10, -6)
+color = Color(0.953, 0.733, 0.537, 1)
+
+[node name="Eye" type="Polygon2D" parent="BodyVisual"]
+polygon = PackedVector2Array(4, -17, 7, -17, 7, -14, 4, -14)
+color = Color(0.027, 0.043, 0.067, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -70)
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+limit_left = 0
+limit_top = 0
+limit_right = 2400
+limit_bottom = 720

@@ -1,43 +1,233 @@
-[gd_scene format=3]
+[gd_scene load_steps=13 format=3]
 
-[node name="Main" type="Control"]
-layout_mode = 3
-anchors_preset = 15
+[ext_resource type="Script" path="res://scripts/world/placeholder_level.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/interactions/report_point.tscn" id="3_report"]
+[ext_resource type="PackedScene" path="res://scenes/interactions/newsroom_gate.tscn" id="4_gate"]
+
+[sub_resource type="RectangleShape2D" id="Ground_left"]
+size = Vector2(1100, 100)
+
+[sub_resource type="RectangleShape2D" id="Ground_right"]
+size = Vector2(1350, 100)
+
+[sub_resource type="RectangleShape2D" id="Platform_wide"]
+size = Vector2(220, 24)
+
+[sub_resource type="RectangleShape2D" id="Platform_small"]
+size = Vector2(120, 24)
+
+[sub_resource type="StyleBoxFlat" id="Panel_hud"]
+bg_color = Color(0.027, 0.043, 0.067, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.243, 0.761, 0.91, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="Panel_complete"]
+bg_color = Color(0.027, 0.043, 0.067, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.294, 0.812, 0.49, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="PlaceholderSideScroller" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="Background" type="Node2D" parent="."]
+
+[node name="Sky" type="Polygon2D" parent="Background"]
+polygon = PackedVector2Array(-200, -100, 2600, -100, 2600, 720, -200, 720)
+color = Color(0.071, 0.114, 0.18, 1)
+
+[node name="Moon" type="Polygon2D" parent="Background"]
+position = Vector2(1030, 145)
+polygon = PackedVector2Array(-45, -45, 20, -48, 50, 0, 25, 47, -42, 42, -62, 0)
+color = Color(0.855, 0.82, 0.631, 1)
+
+[node name="DistantCity" type="Polygon2D" parent="Background"]
+polygon = PackedVector2Array(0, 570, 0, 350, 120, 350, 120, 430, 250, 430, 250, 300, 390, 300, 390, 410, 510, 410, 510, 270, 650, 270, 650, 390, 790, 390, 790, 330, 950, 330, 950, 420, 1120, 420, 1120, 280, 1280, 280, 1280, 390, 1420, 390, 1420, 310, 1580, 310, 1580, 420, 1740, 420, 1740, 260, 1900, 260, 1900, 380, 2070, 380, 2070, 300, 2240, 300, 2240, 400, 2400, 400, 2400, 570)
+color = Color(0.102, 0.145, 0.216, 1)
+
+[node name="RoadLeft" type="Polygon2D" parent="Background"]
+polygon = PackedVector2Array(-200, 600, 900, 600, 900, 720, -200, 720)
+color = Color(0.086, 0.094, 0.118, 1)
+
+[node name="RoadRight" type="Polygon2D" parent="Background"]
+polygon = PackedVector2Array(1050, 600, 2600, 600, 2600, 720, 1050, 720)
+color = Color(0.086, 0.094, 0.118, 1)
+
+[node name="Level" type="Node2D" parent="."]
+
+[node name="GroundLeft" type="StaticBody2D" parent="Level"]
+position = Vector2(350, 650)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/GroundLeft"]
+shape = SubResource("Ground_left")
+
+[node name="GroundRight" type="StaticBody2D" parent="Level"]
+position = Vector2(1725, 650)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/GroundRight"]
+shape = SubResource("Ground_right")
+
+[node name="GapPlatform" type="StaticBody2D" parent="Level"]
+position = Vector2(975, 535)
+collision_layer = 2
+
+[node name="Visual" type="Polygon2D" parent="Level/GapPlatform"]
+polygon = PackedVector2Array(-60, -12, 60, -12, 60, 12, -60, 12)
+color = Color(0.424, 0.463, 0.51, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/GapPlatform"]
+shape = SubResource("Platform_small")
+
+[node name="HighPlatform" type="StaticBody2D" parent="Level"]
+position = Vector2(1260, 475)
+collision_layer = 2
+
+[node name="Visual" type="Polygon2D" parent="Level/HighPlatform"]
+polygon = PackedVector2Array(-110, -12, 110, -12, 110, 12, -110, 12)
+color = Color(0.424, 0.463, 0.51, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/HighPlatform"]
+shape = SubResource("Platform_wide")
+
+[node name="ReportOne" parent="Level" instance=ExtResource("3_report")]
+position = Vector2(520, 558)
+report_id = &"soldier_incident"
+headline = "Soldier incident"
+
+[node name="ReportTwo" parent="Level" instance=ExtResource("3_report")]
+position = Vector2(1510, 558)
+report_id = &"market_unrest"
+headline = "Market unrest"
+
+[node name="NewsroomGate" parent="Level" instance=ExtResource("4_gate")]
+position = Vector2(2210, 600)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(130, 555)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="MarginContainer" parent="HUD"]
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 20.0
+offset_right = -22.0
+offset_bottom = 112.0
 grow_horizontal = 2
-grow_vertical = 2
 
-[node name="Center" type="CenterContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Content" type="VBoxContainer" parent="Center"]
+[node name="Panel" type="PanelContainer" parent="HUD/TopBar"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_styles/panel = SubResource("Panel_hud")
+
+[node name="Margin" type="MarginContainer" parent="HUD/TopBar/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
+
+[node name="Rows" type="HBoxContainer" parent="HUD/TopBar/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Title" type="Label" parent="HUD/TopBar/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.243, 0.761, 0.91, 1)
+theme_override_font_sizes/font_size = 22
+text = "DAY 1  •  CITY STREETS"
+
+[node name="Spacer" type="Control" parent="HUD/TopBar/Panel/Margin/Rows"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Reports" type="Label" parent="HUD/TopBar/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "REPORTS  0 / 2"
+
+[node name="Controls" type="Label" parent="HUD/TopBar/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.71, 0.745, 0.81, 1)
+theme_override_font_sizes/font_size = 16
+text = "A/D MOVE   SPACE JUMP   E INTERACT   R RESTART"
+
+[node name="Message" type="Label" parent="HUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -72.0
+offset_right = 340.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
+theme_override_font_sizes/font_size = 18
+text = "Collect both reports, then return to City News."
+horizontal_alignment = 1
+
+[node name="Completion" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -105.0
+offset_right = 260.0
+offset_bottom = 105.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Panel_complete")
+
+[node name="Margin" type="MarginContainer" parent="HUD/Completion"]
+layout_mode = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 28
+
+[node name="Text" type="VBoxContainer" parent="HUD/Completion/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Title" type="Label" parent="Center/Content"]
+[node name="Title" type="Label" parent="HUD/Completion/Margin/Text"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.41, 0.86, 1, 1)
-theme_override_font_sizes/font_size = 56
-text = "TRIO JAM"
+theme_override_colors/font_color = Color(0.294, 0.812, 0.49, 1)
+theme_override_font_sizes/font_size = 34
+text = "REPORTS DELIVERED"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="Center/Content"]
+[node name="Subtitle" type="Label" parent="HUD/Completion/Margin/Text"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
-theme_override_font_sizes/font_size = 22
-text = "Three creators. One game."
+theme_override_font_sizes/font_size = 18
+text = "Placeholder side-scroller loop complete."
 horizontal_alignment = 1
 
-[node name="Status" type="Label" parent="Center/Content"]
+[node name="Restart" type="Label" parent="HUD/Completion/Margin/Text"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.95, 0.68, 1)
+theme_override_colors/font_color = Color(0.71, 0.745, 0.81, 1)
 theme_override_font_sizes/font_size = 16
-text = "Project setup complete"
+text = "Press R to play again"
 horizontal_alignment = 1

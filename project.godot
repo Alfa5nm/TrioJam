@@ -22,6 +22,39 @@ window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 
+[input]
+
+move_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":65,"unicode":97)]
+}
+move_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":68,"unicode":100)]
+}
+jump={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":32,"unicode":32), Object(InputEventKey,"physical_keycode":87,"unicode":119)]
+}
+interact={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":69,"unicode":101)]
+}
+restart={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":82,"unicode":114)]
+}
+
+[layer_names]
+
+2d_physics/layer_1="Player"
+2d_physics/layer_2="World"
+2d_physics/layer_3="Interactions"
+
+[physics]
+
+2d/default_gravity=1450.0
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/interactions/newsroom_gate.gd" id="1_gate"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_gate"]
+size = Vector2(130, 180)
+
+[node name="NewsroomGate" type="Area2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_gate")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -60)
+shape = SubResource("Rectangle_gate")
+
+[node name="Building" type="Polygon2D" parent="."]
+position = Vector2(0, -125)
+polygon = PackedVector2Array(-110, -115, 110, -115, 110, 125, -110, 125)
+color = Color(0.141, 0.18, 0.247, 1)
+
+[node name="Sign" type="Label" parent="."]
+offset_left = -100.0
+offset_top = -222.0
+offset_right = 100.0
+offset_bottom = -184.0
+text = "CITY NEWS"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="Door" type="Polygon2D" parent="."]
+position = Vector2(0, -55)
+polygon = PackedVector2Array(-42, -65, 42, -65, 42, 65, -42, 65)
+color = Color(0.714, 0.275, 0.31, 1)
+
+[node name="Prompt" type="Label" parent="."]
+offset_left = -150.0
+offset_top = -300.0
+offset_right = 150.0
+offset_bottom = -264.0
+text = "COLLECT BOTH REPORTS"
+horizontal_alignment = 1
+theme_override_colors/font_outline_color = Color(0.027, 0.043, 0.067, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18

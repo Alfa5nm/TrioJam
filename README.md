@@ -2,6 +2,18 @@
 
 Placeholder Godot 4 project for a three-person game-jam team.
 
+## Placeholder side-scroller
+
+The current main scene is a playable Day 1 blockout:
+
+- Move with `A` and `D`.
+- Jump with `Space` or `W`.
+- Press `E` near orange report markers to collect them.
+- Deliver both reports to the City News building at the end of the level.
+- Press `R` at any time to restart.
+
+The blockout includes camera follow, reusable player movement, collisions, a platforming gap, fall recovery, report interactions, a locked objective, and a completion screen. Visuals are intentionally made from primitive shapes so art can be replaced independently.
+
 ## Open the project
 
 Import `project.godot` from the Godot Project Manager, or run:

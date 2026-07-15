@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/interactions/report_point.gd" id="1_report"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_report"]
+size = Vector2(90, 110)
+
+[node name="ReportPoint" type="Area2D" groups=["report_points"]]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_report")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -20)
+shape = SubResource("Rectangle_report")
+
+[node name="Marker" type="Polygon2D" parent="."]
+position = Vector2(0, -10)
+polygon = PackedVector2Array(-24, -40, 24, -40, 24, 40, -24, 40)
+color = Color(0.925, 0.557, 0.227, 1)
+
+[node name="Paper" type="Polygon2D" parent="Marker"]
+polygon = PackedVector2Array(-14, -25, 14, -25, 14, 25, -14, 25)
+color = Color(0.969, 0.933, 0.82, 1)
+
+[node name="Title" type="Label" parent="."]
+offset_left = -100.0
+offset_top = -88.0
+offset_right = 100.0
+offset_bottom = -60.0
+text = "Street incident"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+
+[node name="Prompt" type="Label" parent="."]
+offset_left = -120.0
+offset_top = -124.0
+offset_right = 120.0
+offset_bottom = -92.0
+text = "E  COLLECT REPORT"
+horizontal_alignment = 1
+theme_override_colors/font_outline_color = Color(0.027, 0.043, 0.067, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
