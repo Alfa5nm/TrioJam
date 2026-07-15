@@ -4,10 +4,11 @@ extends CharacterBody2D
 signal fell
 
 @export var move_speed := 280.0
-@export var acceleration := 1800.0
-@export var friction := 2200.0
+@export var acceleration := 900.0
+@export var friction := 1250.0
 @export var jump_velocity := -540.0
 @export var fall_limit := 850.0
+@export var allow_jump := false
 
 const COYOTE_TIME := 0.12
 const JUMP_BUFFER_TIME := 0.12
@@ -18,7 +19,12 @@ var _jump_buffer_timer := 0.0
 var _fall_reported := false
 var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 
-@onready var body_visual: Polygon2D = $BodyVisual
+@onready var visual: Node2D = $Visual
+@onready var animated_sprite: AnimatedSprite2D = $Visual/Sprite
+@onready var shadow: Polygon2D = $Shadow
+@onready var footstep_dust: CPUParticles2D = $FootstepDust
+
+var _was_on_floor := false
 
 
 func _physics_process(delta: float) -> void:
@@ -33,7 +39,7 @@ func _physics_process(delta: float) -> void:
 		_coyote_timer = maxf(_coyote_timer - delta, 0.0)
 		velocity.y += _gravity * delta
 
-	if Input.is_action_just_pressed("jump"):
+	if allow_jump and Input.is_action_just_pressed("jump"):
 		_jump_buffer_timer = JUMP_BUFFER_TIME
 	else:
 		_jump_buffer_timer = maxf(_jump_buffer_timer - delta, 0.0)
@@ -43,17 +49,19 @@ func _physics_process(delta: float) -> void:
 		_jump_buffer_timer = 0.0
 		_coyote_timer = 0.0
 
-	if Input.is_action_just_released("jump") and velocity.y < jump_velocity * 0.45:
+	if allow_jump and Input.is_action_just_released("jump") and velocity.y < jump_velocity * 0.45:
 		velocity.y = jump_velocity * 0.45
 
 	var direction := Input.get_axis("move_left", "move_right")
 	var change_rate := acceleration if not is_zero_approx(direction) else friction
 	velocity.x = move_toward(velocity.x, direction * move_speed, change_rate * delta)
 
-	if not is_zero_approx(direction):
-		body_visual.scale.x = signf(direction)
-
 	move_and_slide()
+	_update_presentation(direction, delta)
+
+	if is_on_floor() and not _was_on_floor:
+		_play_landing_effect()
+	_was_on_floor = is_on_floor()
 
 	if global_position.y > fall_limit and not _fall_reported:
 		_fall_reported = true
@@ -65,3 +73,37 @@ func reset_to(spawn_position: Vector2) -> void:
 	velocity = Vector2.ZERO
 	_fall_reported = false
 	controls_enabled = true
+
+
+func play_interaction() -> void:
+	animated_sprite.play(&"interact")
+	var tween := create_tween()
+	tween.tween_interval(0.45)
+	tween.tween_callback(func():
+		if is_instance_valid(animated_sprite):
+			animated_sprite.play(&"idle")
+	)
+
+
+func _update_presentation(direction: float, delta: float) -> void:
+	var moving := absf(velocity.x) > 8.0 and controls_enabled
+	if moving:
+		if animated_sprite.animation != &"walk":
+			animated_sprite.play(&"walk")
+	else:
+		if animated_sprite.animation != &"idle" and animated_sprite.animation != &"interact":
+			animated_sprite.play(&"idle")
+
+	if not is_zero_approx(direction):
+		animated_sprite.flip_h = direction < 0.0
+
+	var target_rotation := clampf(velocity.x / move_speed, -1.0, 1.0) * 0.025
+	visual.rotation = lerpf(visual.rotation, target_rotation, 1.0 - exp(-9.0 * delta))
+	shadow.scale.x = lerpf(shadow.scale.x, 1.18 if moving else 1.0, 1.0 - exp(-8.0 * delta))
+	footstep_dust.emitting = moving and is_on_floor()
+
+
+func _play_landing_effect() -> void:
+	var tween := create_tween()
+	visual.scale = Vector2(1.07, 0.93)
+	tween.tween_property(visual, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

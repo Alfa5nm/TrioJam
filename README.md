@@ -1,18 +1,18 @@
 # TrioJam
 
-Placeholder Godot 4 project for a three-person game-jam team.
+Godot 4 narrative side-scroller for a three-person game-jam team.
 
-## Placeholder side-scroller
+## First scene: Fire Exit
 
-The current main scene is a playable Day 1 blockout:
+The current main scene is a cinematic 2.5D fire-exit stairwell based on the team's layout sketch.
 
 - Move with `A` and `D`.
-- Jump with `Space` or `W`.
-- Press `E` near orange report markers to collect them.
-- Deliver both reports to the City News building at the end of the level.
+- Press `E` near the hose cabinet or doors to interact.
 - Press `R` at any time to restart.
 
-The blockout includes camera follow, reusable player movement, collisions, a platforming gap, fall recovery, report interactions, a locked objective, and a completion screen. Visuals are intentionally made from primitive shapes so art can be replaced independently.
+The scene includes switchback stair collisions, cinematic camera framing, foreground parallax, generated environment and character art, an animated four-frame walk cycle, normal maps, dynamic practical lights, ambient dust, contextual UI, interaction beats, and fall recovery.
+
+The original generated runtime assets and their derived normal maps are stored under `assets/art/`. Keep replacement art aligned to the existing 16:9 composition and atlas regions.
 
 ## Open the project
 

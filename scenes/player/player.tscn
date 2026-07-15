@@ -1,39 +1,104 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/office-worker-sheet.png" id="2_sheet"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/office-worker-sheet-normal.png" id="3_normal"]
+
+[sub_resource type="CanvasTexture" id="Canvas_character"]
+diffuse_texture = ExtResource("2_sheet")
+normal_texture = ExtResource("3_normal")
+
+[sub_resource type="AtlasTexture" id="Idle_1"]
+atlas = SubResource("Canvas_character")
+region = Rect2(0, 0, 384, 512)
+
+[sub_resource type="AtlasTexture" id="Idle_2"]
+atlas = SubResource("Canvas_character")
+region = Rect2(384, 0, 384, 512)
+
+[sub_resource type="AtlasTexture" id="Interact"]
+atlas = SubResource("Canvas_character")
+region = Rect2(1152, 0, 384, 512)
+
+[sub_resource type="AtlasTexture" id="Walk_1"]
+atlas = SubResource("Canvas_character")
+region = Rect2(0, 512, 384, 512)
+
+[sub_resource type="AtlasTexture" id="Walk_2"]
+atlas = SubResource("Canvas_character")
+region = Rect2(384, 512, 384, 512)
+
+[sub_resource type="AtlasTexture" id="Walk_3"]
+atlas = SubResource("Canvas_character")
+region = Rect2(768, 512, 384, 512)
+
+[sub_resource type="AtlasTexture" id="Walk_4"]
+atlas = SubResource("Canvas_character")
+region = Rect2(1152, 512, 384, 512)
+
+[sub_resource type="SpriteFrames" id="Frames_character"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("Idle_1")}, {"duration": 1.0, "texture": SubResource("Idle_2")}],
+"loop": true,
+"name": &"idle",
+"speed": 1.7
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Interact")}],
+"loop": false,
+"name": &"interact",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Walk_1")}, {"duration": 1.0, "texture": SubResource("Walk_2")}, {"duration": 1.0, "texture": SubResource("Walk_3")}, {"duration": 1.0, "texture": SubResource("Walk_4")}],
+"loop": true,
+"name": &"walk",
+"speed": 6.5
+}]
 
 [sub_resource type="CapsuleShape2D" id="Capsule_player"]
-radius = 18.0
-height = 64.0
+radius = 15.0
+height = 92.0
 
 [node name="Player" type="CharacterBody2D"]
+floor_stop_on_slope = true
+floor_snap_length = 14.0
 collision_mask = 2
 script = ExtResource("1_player")
+move_speed = 165.0
+fall_limit = 790.0
+allow_jump = false
+
+[node name="Shadow" type="Polygon2D" parent="."]
+position = Vector2(0, 1)
+polygon = PackedVector2Array(-29, -5, 29, -5, 35, 0, 27, 5, -27, 5, -35, 0)
+color = Color(0.015, 0.023, 0.03, 0.46)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -46)
 shape = SubResource("Capsule_player")
 
-[node name="BodyVisual" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-16, -24, 16, -24, 18, 22, 10, 31, -10, 31, -18, 22)
-color = Color(0.243, 0.761, 0.91, 1)
+[node name="Visual" type="Node2D" parent="."]
 
-[node name="Coat" type="Polygon2D" parent="BodyVisual"]
-polygon = PackedVector2Array(-13, -5, 13, -5, 16, 22, -16, 22)
-color = Color(0.086, 0.192, 0.302, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Visual"]
+position = Vector2(-3, -57)
+sprite_frames = SubResource("Frames_character")
+animation = &"idle"
+autoplay = "idle"
+scale = Vector2(0.27, 0.27)
+texture_filter = 1
 
-[node name="Face" type="Polygon2D" parent="BodyVisual"]
-polygon = PackedVector2Array(-10, -22, 10, -22, 11, -6, -10, -6)
-color = Color(0.953, 0.733, 0.537, 1)
-
-[node name="Eye" type="Polygon2D" parent="BodyVisual"]
-polygon = PackedVector2Array(4, -17, 7, -17, 7, -14, 4, -14)
-color = Color(0.027, 0.043, 0.067, 1)
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(0, -70)
-position_smoothing_enabled = true
-position_smoothing_speed = 6.0
-limit_left = 0
-limit_top = 0
-limit_right = 2400
-limit_bottom = 720
+[node name="FootstepDust" type="CPUParticles2D" parent="."]
+position = Vector2(0, -2)
+emitting = false
+amount = 7
+lifetime = 0.42
+randomness = 0.55
+emission_shape = 3
+emission_rect_extents = Vector2(8, 1)
+direction = Vector2(0, -1)
+spread = 50.0
+gravity = Vector2(0, 22)
+initial_velocity_min = 8.0
+initial_velocity_max = 18.0
+scale_amount_min = 0.7
+scale_amount_max = 1.8
+color = Color(0.48, 0.53, 0.55, 0.28)

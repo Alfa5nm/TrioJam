@@ -1,233 +1,364 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=22 format=3]
 
-[ext_resource type="Script" path="res://scripts/world/placeholder_level.gd" id="1_world"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://scenes/interactions/report_point.tscn" id="3_report"]
-[ext_resource type="PackedScene" path="res://scenes/interactions/newsroom_gate.tscn" id="4_gate"]
+[ext_resource type="Script" path="res://scripts/world/stairwell_level.gd" id="1_world"]
+[ext_resource type="Texture2D" path="res://assets/art/environment/stairwell-base.png" id="2_background"]
+[ext_resource type="Texture2D" path="res://assets/art/environment/stairwell-normal.png" id="3_normal"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="4_player"]
+[ext_resource type="Script" path="res://scripts/world/cinematic_camera.gd" id="5_camera"]
+[ext_resource type="Script" path="res://scripts/world/parallax_plane.gd" id="6_parallax"]
+[ext_resource type="Script" path="res://scripts/interactions/stairwell_interaction.gd" id="7_interaction"]
 
-[sub_resource type="RectangleShape2D" id="Ground_left"]
-size = Vector2(1100, 100)
+[sub_resource type="CanvasTexture" id="Canvas_environment"]
+diffuse_texture = ExtResource("2_background")
+normal_texture = ExtResource("3_normal")
+specular_color = Color(0.16, 0.18, 0.21, 1)
+specular_shininess = 0.22
 
-[sub_resource type="RectangleShape2D" id="Ground_right"]
-size = Vector2(1350, 100)
+[sub_resource type="RectangleShape2D" id="Floor_lower"]
+size = Vector2(650, 90)
 
-[sub_resource type="RectangleShape2D" id="Platform_wide"]
-size = Vector2(220, 24)
+[sub_resource type="SegmentShape2D" id="Ramp_lower"]
+a = Vector2(550, 603)
+b = Vector2(1002, 420)
 
-[sub_resource type="RectangleShape2D" id="Platform_small"]
-size = Vector2(120, 24)
+[sub_resource type="RectangleShape2D" id="Landing_right"]
+size = Vector2(370, 80)
 
-[sub_resource type="StyleBoxFlat" id="Panel_hud"]
-bg_color = Color(0.027, 0.043, 0.067, 0.92)
+[sub_resource type="SegmentShape2D" id="Ramp_upper"]
+a = Vector2(548, 125)
+b = Vector2(1002, 420)
+
+[sub_resource type="RectangleShape2D" id="Landing_upper"]
+size = Vector2(650, 80)
+
+[sub_resource type="RectangleShape2D" id="Interaction_hose"]
+size = Vector2(120, 150)
+
+[sub_resource type="RectangleShape2D" id="Interaction_door"]
+size = Vector2(100, 150)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.58, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.28, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="Texture_light"]
+gradient = SubResource("Gradient_light")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_dust"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 0.9, 0.69, 0.9, 1, 0.9, 0.69, 0.52, 1, 0.9, 0.69, 0)
+
+[sub_resource type="GradientTexture2D" id="Texture_dust"]
+gradient = SubResource("Gradient_dust")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_dust"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(650, 330, 1)
+direction = Vector3(0, -1, 0)
+spread = 180.0
+gravity = Vector3(0, -1.2, 0)
+initial_velocity_min = 1.0
+initial_velocity_max = 4.0
+scale_min = 0.4
+scale_max = 1.25
+color = Color(0.91, 0.84, 0.67, 0.24)
+
+[sub_resource type="StyleBoxFlat" id="Panel_prompt"]
+bg_color = Color(0.025, 0.035, 0.043, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.65, 0.72, 0.72, 0.28)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Panel_message"]
+bg_color = Color(0.018, 0.027, 0.034, 0.94)
 border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 0.7)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.64, 0.74, 0.68, 0.8)
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
 
-[sub_resource type="StyleBoxFlat" id="Panel_complete"]
-bg_color = Color(0.027, 0.043, 0.067, 0.96)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.294, 0.812, 0.49, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[node name="PlaceholderSideScroller" type="Node2D"]
+[node name="FireExitStairwell" type="Node2D"]
 script = ExtResource("1_world")
 
-[node name="Background" type="Node2D" parent="."]
+[node name="Environment" type="Node2D" parent="."]
+z_index = -20
 
-[node name="Sky" type="Polygon2D" parent="Background"]
-polygon = PackedVector2Array(-200, -100, 2600, -100, 2600, 720, -200, 720)
-color = Color(0.071, 0.114, 0.18, 1)
+[node name="Background" type="Sprite2D" parent="Environment"]
+texture = SubResource("Canvas_environment")
+centered = false
+scale = Vector2(0.82, 0.82)
+texture_filter = 1
 
-[node name="Moon" type="Polygon2D" parent="Background"]
-position = Vector2(1030, 145)
-polygon = PackedVector2Array(-45, -45, 20, -48, 50, 0, 25, 47, -42, 42, -62, 0)
-color = Color(0.855, 0.82, 0.631, 1)
+[node name="CanvasModulate" type="CanvasModulate" parent="Environment"]
+color = Color(0.79, 0.84, 0.94, 1)
 
-[node name="DistantCity" type="Polygon2D" parent="Background"]
-polygon = PackedVector2Array(0, 570, 0, 350, 120, 350, 120, 430, 250, 430, 250, 300, 390, 300, 390, 410, 510, 410, 510, 270, 650, 270, 650, 390, 790, 390, 790, 330, 950, 330, 950, 420, 1120, 420, 1120, 280, 1280, 280, 1280, 390, 1420, 390, 1420, 310, 1580, 310, 1580, 420, 1740, 420, 1740, 260, 1900, 260, 1900, 380, 2070, 380, 2070, 300, 2240, 300, 2240, 400, 2400, 400, 2400, 570)
-color = Color(0.102, 0.145, 0.216, 1)
+[node name="WarmPractical" type="PointLight2D" parent="Environment"]
+position = Vector2(1134, 205)
+color = Color(1, 0.72, 0.39, 1)
+energy = 1.15
+texture = SubResource("Texture_light")
+texture_scale = 1.18
 
-[node name="RoadLeft" type="Polygon2D" parent="Background"]
-polygon = PackedVector2Array(-200, 600, 900, 600, 900, 720, -200, 720)
-color = Color(0.086, 0.094, 0.118, 1)
+[node name="EmergencyGlow" type="PointLight2D" parent="Environment"]
+position = Vector2(190, 407)
+color = Color(0.31, 0.93, 0.69, 1)
+energy = 0.44
+texture = SubResource("Texture_light")
+texture_scale = 0.7
 
-[node name="RoadRight" type="Polygon2D" parent="Background"]
-polygon = PackedVector2Array(1050, 600, 2600, 600, 2600, 720, 1050, 720)
-color = Color(0.086, 0.094, 0.118, 1)
+[node name="Dust" type="GPUParticles2D" parent="Environment"]
+position = Vector2(685, 360)
+amount = 48
+lifetime = 7.0
+preprocess = 7.0
+randomness = 0.7
+visibility_rect = Rect2(-700, -380, 1400, 760)
+process_material = SubResource("Particles_dust")
+texture = SubResource("Texture_dust")
 
-[node name="Level" type="Node2D" parent="."]
-
-[node name="GroundLeft" type="StaticBody2D" parent="Level"]
-position = Vector2(350, 650)
+[node name="WorldCollision" type="StaticBody2D" parent="."]
 collision_layer = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/GroundLeft"]
-shape = SubResource("Ground_left")
+[node name="LowerFloor" type="CollisionShape2D" parent="WorldCollision"]
+position = Vector2(245, 648)
+shape = SubResource("Floor_lower")
 
-[node name="GroundRight" type="StaticBody2D" parent="Level"]
-position = Vector2(1725, 650)
-collision_layer = 2
+[node name="LowerRamp" type="CollisionShape2D" parent="WorldCollision"]
+shape = SubResource("Ramp_lower")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/GroundRight"]
-shape = SubResource("Ground_right")
+[node name="RightLanding" type="CollisionShape2D" parent="WorldCollision"]
+position = Vector2(1172, 460)
+shape = SubResource("Landing_right")
 
-[node name="GapPlatform" type="StaticBody2D" parent="Level"]
-position = Vector2(975, 535)
-collision_layer = 2
+[node name="UpperRamp" type="CollisionShape2D" parent="WorldCollision"]
+shape = SubResource("Ramp_upper")
 
-[node name="Visual" type="Polygon2D" parent="Level/GapPlatform"]
-polygon = PackedVector2Array(-60, -12, 60, -12, 60, 12, -60, 12)
-color = Color(0.424, 0.463, 0.51, 1)
+[node name="UpperLanding" type="CollisionShape2D" parent="WorldCollision"]
+position = Vector2(223, 165)
+shape = SubResource("Landing_upper")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/GapPlatform"]
-shape = SubResource("Platform_small")
+[node name="HoseCabinet" type="Area2D" parent="." groups=["stairwell_interactions"]]
+position = Vector2(434, 515)
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("7_interaction")
+prompt_text = "E  INSPECT FIRE HOSE"
+message_text = "The cabinet glass is cold. The hose inside has not moved in years."
 
-[node name="HighPlatform" type="StaticBody2D" parent="Level"]
-position = Vector2(1260, 475)
-collision_layer = 2
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HoseCabinet"]
+shape = SubResource("Interaction_hose")
 
-[node name="Visual" type="Polygon2D" parent="Level/HighPlatform"]
-polygon = PackedVector2Array(-110, -12, 110, -12, 110, 12, -110, 12)
-color = Color(0.424, 0.463, 0.51, 1)
+[node name="RightExit" type="Area2D" parent="." groups=["stairwell_interactions"]]
+position = Vector2(1225, 348)
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("7_interaction")
+prompt_text = "E  OPEN DOOR"
+message_text = "A warmer light waits on the other side."
+completes_scene = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/HighPlatform"]
-shape = SubResource("Platform_wide")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightExit"]
+shape = SubResource("Interaction_door")
 
-[node name="ReportOne" parent="Level" instance=ExtResource("3_report")]
-position = Vector2(520, 558)
-report_id = &"soldier_incident"
-headline = "Soldier incident"
+[node name="UpperDoor" type="Area2D" parent="." groups=["stairwell_interactions"]]
+position = Vector2(275, 78)
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("7_interaction")
+prompt_text = "E  TRY DOOR"
+message_text = "Locked from the other side."
 
-[node name="ReportTwo" parent="Level" instance=ExtResource("3_report")]
-position = Vector2(1510, 558)
-report_id = &"market_unrest"
-headline = "Market unrest"
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UpperDoor"]
+shape = SubResource("Interaction_door")
 
-[node name="NewsroomGate" parent="Level" instance=ExtResource("4_gate")]
-position = Vector2(2210, 600)
+[node name="Player" parent="." instance=ExtResource("4_player")]
+position = Vector2(116, 602)
+z_index = 5
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(130, 555)
+[node name="CinematicCamera" type="Camera2D" parent="."]
+zoom = Vector2(1.18, 1.18)
+limit_left = 0
+limit_top = 0
+limit_right = 1371
+limit_bottom = 772
+target_path = NodePath("../Player")
+script = ExtResource("5_camera")
+
+[node name="Foreground" type="Node2D" parent="."]
+z_index = 20
+script = ExtResource("6_parallax")
+camera_path = NodePath("../CinematicCamera")
+motion_scale = Vector2(1.055, 1.022)
+
+[node name="MainRail" type="Line2D" parent="Foreground"]
+points = PackedVector2Array(284, 737, 558, 548, 714, 548, 1018, 408)
+width = 9.0
+default_color = Color(0.018, 0.028, 0.036, 0.72)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
+
+[node name="RightRail" type="Line2D" parent="Foreground"]
+points = PackedVector2Array(1052, 628, 1180, 565, 1375, 464)
+width = 11.0
+default_color = Color(0.012, 0.02, 0.027, 0.78)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="TopBar" type="MarginContainer" parent="HUD"]
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 22.0
-offset_top = 20.0
-offset_right = -22.0
-offset_bottom = 112.0
-grow_horizontal = 2
+[node name="SceneTitle" type="VBoxContainer" parent="HUD"]
+modulate = Color(1, 1, 1, 0)
+offset_left = 54.0
+offset_top = 48.0
+offset_right = 420.0
+offset_bottom = 118.0
+theme_override_constants/separation = 2
 
-[node name="Panel" type="PanelContainer" parent="HUD/TopBar"]
+[node name="Title" type="Label" parent="HUD/SceneTitle"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("Panel_hud")
+theme_override_colors/font_color = Color(0.86, 0.9, 0.88, 0.95)
+theme_override_font_sizes/font_size = 24
+text = "FIRE EXIT"
 
-[node name="Margin" type="MarginContainer" parent="HUD/TopBar/Panel"]
+[node name="Time" type="Label" parent="HUD/SceneTitle"]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 12
+theme_override_colors/font_color = Color(0.62, 0.68, 0.68, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "DAY 0  ·  22:41"
 
-[node name="Rows" type="HBoxContainer" parent="HUD/TopBar/Panel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 40
-
-[node name="Title" type="Label" parent="HUD/TopBar/Panel/Margin/Rows"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.243, 0.761, 0.91, 1)
-theme_override_font_sizes/font_size = 22
-text = "DAY 1  •  CITY STREETS"
-
-[node name="Spacer" type="Control" parent="HUD/TopBar/Panel/Margin/Rows"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Reports" type="Label" parent="HUD/TopBar/Panel/Margin/Rows"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "REPORTS  0 / 2"
-
-[node name="Controls" type="Label" parent="HUD/TopBar/Panel/Margin/Rows"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.71, 0.745, 0.81, 1)
-theme_override_font_sizes/font_size = 16
-text = "A/D MOVE   SPACE JUMP   E INTERACT   R RESTART"
-
-[node name="Message" type="Label" parent="HUD"]
+[node name="Prompt" type="PanelContainer" parent="HUD"]
+visible = false
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -340.0
-offset_top = -72.0
-offset_right = 340.0
-offset_bottom = -28.0
+offset_left = -135.0
+offset_top = -75.0
+offset_right = 135.0
+offset_bottom = -32.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
-theme_override_font_sizes/font_size = 18
-text = "Collect both reports, then return to City News."
+theme_override_styles/panel = SubResource("Panel_prompt")
+
+[node name="Margin" type="MarginContainer" parent="HUD/Prompt"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 9
+
+[node name="Label" type="Label" parent="HUD/Prompt/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.87, 0.85, 1)
+theme_override_font_sizes/font_size = 15
+text = "E  INTERACT"
 horizontal_alignment = 1
 
-[node name="Completion" type="PanelContainer" parent="HUD"]
+[node name="Message" type="PanelContainer" parent="HUD"]
 visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_top = -138.0
+offset_right = 360.0
+offset_bottom = -78.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("Panel_message")
+
+[node name="Margin" type="MarginContainer" parent="HUD/Message"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 13
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 13
+
+[node name="Label" type="Label" parent="HUD/Message/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.87, 0.85, 1)
+theme_override_font_sizes/font_size = 17
+text = "The stairwell is quiet."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Completion" type="Control" parent="HUD"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Shade" type="ColorRect" parent="HUD/Completion"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012, 0.018, 0.024, 0.42)
+mouse_filter = 2
+
+[node name="Text" type="VBoxContainer" parent="HUD/Completion"]
+layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -260.0
-offset_top = -105.0
+offset_top = -55.0
 offset_right = 260.0
-offset_bottom = 105.0
+offset_bottom = 55.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("Panel_complete")
+theme_override_constants/separation = 8
 
-[node name="Margin" type="MarginContainer" parent="HUD/Completion"]
+[node name="Title" type="Label" parent="HUD/Completion/Text"]
 layout_mode = 2
-theme_override_constants/margin_left = 34
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 34
-theme_override_constants/margin_bottom = 28
-
-[node name="Text" type="VBoxContainer" parent="HUD/Completion/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="Title" type="Label" parent="HUD/Completion/Margin/Text"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.294, 0.812, 0.49, 1)
-theme_override_font_sizes/font_size = 34
-text = "REPORTS DELIVERED"
+theme_override_colors/font_color = Color(0.94, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 24
+text = "THE DOOR OPENS"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="HUD/Completion/Margin/Text"]
+[node name="Hint" type="Label" parent="HUD/Completion/Text"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Placeholder side-scroller loop complete."
+theme_override_colors/font_color = Color(0.68, 0.72, 0.72, 0.9)
+theme_override_font_sizes/font_size = 15
+text = "Press R to replay the scene"
 horizontal_alignment = 1
 
-[node name="Restart" type="Label" parent="HUD/Completion/Margin/Text"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.71, 0.745, 0.81, 1)
-theme_override_font_sizes/font_size = 16
-text = "Press R to play again"
-horizontal_alignment = 1
+[node name="Fade" type="ColorRect" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.007, 0.012, 0.016, 1)
