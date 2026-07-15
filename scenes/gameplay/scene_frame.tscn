@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/scene_frame.gd" id="1_frame"]
+
+[sub_resource type="StyleBoxFlat" id="ScreenStyle"]
+bg_color = Color(0.016, 0.026, 0.043, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.243, 0.761, 0.91, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="SceneFrame" type="PanelContainer"]
+custom_minimum_size = Vector2(150, 90)
+theme_override_styles/panel = SubResource("ScreenStyle")
+script = ExtResource("1_frame")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="SceneLabel" type="Label" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.243, 0.761, 0.91, 1)
+theme_override_font_sizes/font_size = 14
+text = "— click SCENE —"
