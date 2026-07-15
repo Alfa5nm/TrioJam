@@ -1,0 +1,116 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/rooftop_scene.gd" id="1_world"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_rooftop"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+
+[sub_resource type="SegmentShape2D" id="Floor_shape"]
+a = Vector2(0, 650)
+b = Vector2(1280, 650)
+
+[sub_resource type="RectangleShape2D" id="Execute_shape"]
+size = Vector2(210, 220)
+
+[sub_resource type="StyleBoxFlat" id="Prompt_panel"]
+bg_color = Color(0.025, 0.03, 0.052, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.94, 0.72, 0.48, 0.58)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Completion_panel"]
+bg_color = Color(0.02, 0.024, 0.043, 0.9)
+border_width_top = 1
+border_color = Color(0.88, 0.7, 0.48, 0.6)
+
+[node name="Rooftop" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -20
+texture = ExtResource("2_rooftop")
+centered = false
+scale = Vector2(0.76555, 0.76555)
+texture_filter = 1
+
+[node name="WorldCollision" type="StaticBody2D" parent="."]
+collision_layer = 2
+
+[node name="Floor" type="CollisionShape2D" parent="WorldCollision"]
+shape = SubResource("Floor_shape")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(120, 640)
+z_index = 10
+fall_limit = 760.0
+
+[node name="ExecuteZone" type="Area2D" parent="."]
+position = Vector2(1165, 545)
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExecuteZone"]
+shape = SubResource("Execute_shape")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="PlanPrompt" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -76.0
+offset_right = 140.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("Prompt_panel")
+
+[node name="Label" type="Label" parent="HUD/PlanPrompt"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.91, 0.82, 1)
+theme_override_font_sizes/font_size = 17
+text = "E  EXECUTE PLAN"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Completion" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -118.0
+offset_right = 250.0
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("Completion_panel")
+
+[node name="Label" type="Label" parent="HUD/Completion"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.84, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+text = "THE PLAN IS IN MOTION"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.008, 0.012, 0.022, 1)

@@ -56,6 +56,11 @@ func _run() -> void:
 	Input.action_release(&"move_left")
 	_check(player.global_position.x < 620.0, "player reverses onto the top staircase")
 	_check(player.global_position.y < 260.0, "player reaches the upper landing")
+	Input.action_press(&"move_left")
+	for _frame in 24:
+		await physics_frame
+	Input.action_release(&"move_left")
+	_check(level.get_node("HUD/DoorPrompt").visible, "top door offers the rooftop transition")
 
 	player.global_position.y = player.fall_limit + 20.0
 	await physics_frame

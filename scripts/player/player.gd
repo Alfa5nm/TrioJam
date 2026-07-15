@@ -2,6 +2,7 @@ class_name Player
 extends CharacterBody2D
 
 signal fell
+signal execute_plan_finished
 
 @export var move_speed := 280.0
 @export var acceleration := 900.0
@@ -83,6 +84,17 @@ func play_interaction() -> void:
 		if is_instance_valid(animated_sprite):
 			animated_sprite.play(&"idle")
 	)
+
+
+func play_execute_plan() -> void:
+	controls_enabled = false
+	velocity = Vector2.ZERO
+	animated_sprite.flip_h = false
+	visual.rotation = 0.0
+	animated_sprite.play(&"execute")
+	await animated_sprite.animation_finished
+	animated_sprite.play(&"aim")
+	execute_plan_finished.emit()
 
 
 func _update_presentation(direction: float, delta: float) -> void:

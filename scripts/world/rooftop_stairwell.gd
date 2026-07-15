@@ -4,6 +4,8 @@ extends Node2D
 var upper_route_active := false
 var _spawn_position := Vector2.ZERO
 var _highlight_tween: Tween
+var _door_available := false
+var _transitioning := false
 
 @onready var player: Player = $Player
 @onready var lower_surface: CollisionPolygon2D = $Line2DFloorToMidflightCollider/StaticBody2D/CollisionPolygon2D
@@ -11,13 +13,27 @@ var _highlight_tween: Tween
 @onready var landing_trigger: Area2D = $MiddleLandingTrigger
 @onready var lower_highlight: Node2D = $StairHighlights/LowerRoute
 @onready var upper_highlight: Node2D = $StairHighlights/UpperRoute
+@onready var top_door_area: Area2D = $TopDoorArea
+@onready var door_prompt: PanelContainer = $HUD/DoorPrompt
+@onready var fade: ColorRect = $HUD/Fade
 
 
 func _ready() -> void:
 	_spawn_position = player.global_position
 	player.fell.connect(_on_player_fell)
 	landing_trigger.body_entered.connect(_on_middle_landing_entered)
+	top_door_area.body_entered.connect(_on_top_door_body_entered)
+	top_door_area.body_exited.connect(_on_top_door_body_exited)
+	door_prompt.visible = false
+	fade.modulate.a = 0.0
 	_reset_route()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"restart"):
+		get_tree().reload_current_scene()
+	elif event.is_action_pressed(&"interact") and _door_available and not _transitioning:
+		_enter_rooftop()
 
 
 func _on_middle_landing_entered(body: Node2D) -> void:
@@ -65,3 +81,24 @@ func _start_highlight_pulse(route: Node2D) -> void:
 func _on_player_fell() -> void:
 	_reset_route()
 	player.reset_to(_spawn_position)
+
+
+func _on_top_door_body_entered(body: Node2D) -> void:
+	if body == player and upper_route_active:
+		_door_available = true
+		door_prompt.visible = true
+
+
+func _on_top_door_body_exited(body: Node2D) -> void:
+	if body == player:
+		_door_available = false
+		door_prompt.visible = false
+
+
+func _enter_rooftop() -> void:
+	_transitioning = true
+	player.controls_enabled = false
+	door_prompt.visible = false
+	var transition := create_tween()
+	transition.tween_property(fade, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	transition.tween_callback(func(): get_tree().change_scene_to_file("res://scenes/rooftop/rooftop.tscn"))
