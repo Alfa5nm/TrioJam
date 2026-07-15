@@ -10,6 +10,8 @@ var _spawn_position := Vector2.ZERO
 @onready var plan_prompt: PanelContainer = $HUD/PlanPrompt
 @onready var completion: PanelContainer = $HUD/Completion
 @onready var fade: ColorRect = $HUD/Fade
+@onready var wind: AudioStreamPlayer = $Audio/Wind
+@onready var birds: AudioStreamPlayer2D = $Audio/Birds
 
 
 func _ready() -> void:
@@ -19,9 +21,28 @@ func _ready() -> void:
 	execute_zone.body_exited.connect(_on_execute_zone_exited)
 	plan_prompt.visible = false
 	completion.visible = false
+	_start_loop(wind)
+	_start_loop(birds)
 	fade.modulate.a = 1.0
 	var intro := create_tween()
 	intro.tween_property(fade, "modulate:a", 0.0, 0.65).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _process(delta: float) -> void:
+	# The left doorway shelters the player; wind opens up across the roof.
+	var exposure := smoothstep(100.0, 720.0, player.global_position.x)
+	wind.volume_db = move_toward(wind.volume_db, lerpf(-22.0, -10.5, exposure), 8.0 * delta)
+	# Birds remain a fixed world source and naturally pan/attenuate around the player listener.
+	birds.volume_db = move_toward(birds.volume_db, lerpf(-17.0, -10.0, exposure), 6.0 * delta)
+
+
+func _exit_tree() -> void:
+	wind.stop()
+	birds.stop()
+	_set_stream_loop(wind.stream, false)
+	_set_stream_loop(birds.stream, false)
+	wind.stream = null
+	birds.stream = null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,3 +80,16 @@ func _on_execute_zone_exited(body: Node2D) -> void:
 func _on_player_fell() -> void:
 	if not plan_executed:
 		player.reset_to(_spawn_position)
+
+
+func _start_loop(audio_player) -> void:
+	var audio_stream: AudioStream = audio_player.stream
+	_set_stream_loop(audio_stream, true)
+	audio_player.play()
+
+
+func _set_stream_loop(audio_stream: AudioStream, enabled: bool) -> void:
+	if audio_stream is AudioStreamMP3:
+		(audio_stream as AudioStreamMP3).loop = enabled
+	elif audio_stream is AudioStreamOggVorbis:
+		(audio_stream as AudioStreamOggVorbis).loop = enabled

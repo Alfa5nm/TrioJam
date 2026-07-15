@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://bcqv7ohsbm8oi"]
+[gd_scene load_steps=23 format=3 uid="uid://bcqv7ohsbm8oi"]
 
 [ext_resource type="Texture2D" uid="uid://u86ktm3db4dt" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="1_hyk8p"]
 [ext_resource type="Texture2D" uid="uid://dqqus8j8oj71v" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/1234.png" id="1_l3cfh"]
@@ -9,6 +9,9 @@
 [ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_03_midground_railings.png" id="7_midground"]
 [ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_04_foreground.png" id="8_foreground"]
 [ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_06_debris.png" id="9_debris"]
+[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step.ogg" id="10_steps"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/stairwell-room.mp3" id="11_room"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/stairwell-electrical.mp3" id="12_electrical"]
 
 [sub_resource type="RectangleShape2D" id="Middle_landing_trigger"]
 size = Vector2(140, 240)
@@ -119,6 +122,20 @@ texture = ExtResource("3_6q06x")
 [node name="Player" parent="." unique_id=1107255841 instance=ExtResource("4_player")]
 z_index = 10
 position = Vector2(259, 462)
+footstep_stream = ExtResource("10_steps")
+
+[node name="Audio" type="Node2D" parent="."]
+
+[node name="RoomTone" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("11_room")
+volume_db = -13.0
+
+[node name="Electrical" type="AudioStreamPlayer2D" parent="Audio"]
+position = Vector2(1078, 108)
+stream = ExtResource("12_electrical")
+volume_db = -8.0
+max_distance = 1050.0
+attenuation = 1.7
 
 [node name="Line2DFloorToMidflightCollider" type="Line2D" parent="." unique_id=1966460224]
 visible = false

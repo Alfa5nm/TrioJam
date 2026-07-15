@@ -137,12 +137,28 @@ shape = SubResource("Capsule_player")
 [node name="Visual" type="Node2D" parent="."]
 
 [node name="Sprite" type="AnimatedSprite2D" parent="Visual"]
-position = Vector2(0, -103)
+position = Vector2(0, -128)
 sprite_frames = SubResource("Frames_character")
 animation = &"idle"
 autoplay = "idle"
-scale = Vector2(0.48, 0.48)
+scale = Vector2(0.6, 0.6)
 texture_filter = 1
+
+[node name="AudioListener2D" type="AudioListener2D" parent="."]
+
+[node name="Footsteps" type="AudioStreamPlayer2D" parent="."]
+volume_db = -5.0
+max_distance = 900.0
+
+[node name="BagSearch" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(-12, -86)
+volume_db = -3.0
+max_distance = 900.0
+
+[node name="RifleAssembly" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(24, -100)
+volume_db = -1.0
+max_distance = 1000.0
 
 [node name="FootstepDust" type="CPUParticles2D" parent="."]
 position = Vector2(0, -2)

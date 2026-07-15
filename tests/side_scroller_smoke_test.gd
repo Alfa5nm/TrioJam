@@ -21,6 +21,11 @@ func _run() -> void:
 		await physics_frame
 
 	var player := level.get_node("Player") as Player
+	_check(player.animated_sprite.scale.x >= 0.6, "character scale matches the stairwell architecture")
+	_check(player.footstep_stream != null, "stairwell concrete footstep is assigned")
+	_check(level.get_node("Audio/RoomTone").playing, "interior room tone loops")
+	_check(level.get_node("Audio/Electrical").playing, "electrical ambience loops from the landing fixture")
+	var lower_room_tone_db: float = level.get_node("Audio/RoomTone").volume_db
 	var lower_surface := level.get_node("Line2DFloorToMidflightCollider/StaticBody2D/CollisionPolygon2D") as CollisionPolygon2D
 	var upper_surface := level.get_node("Line2DFloorToMidflightCollider2/StaticBody2D/CollisionPolygon2D") as CollisionPolygon2D
 	var lower_highlight := level.get_node("StairHighlights/LowerRoute") as Node2D
@@ -56,6 +61,7 @@ func _run() -> void:
 	Input.action_release(&"move_left")
 	_check(player.global_position.x < 620.0, "player reverses onto the top staircase")
 	_check(player.global_position.y < 260.0, "player reaches the upper landing")
+	_check(level.get_node("Audio/RoomTone").volume_db < lower_room_tone_db - 2.0, "room tone recedes toward the electrical landing")
 	Input.action_press(&"move_left")
 	for _frame in 24:
 		await physics_frame
@@ -70,7 +76,8 @@ func _run() -> void:
 	_check(player.global_position.distance_to(Vector2(259.0, 462.0)) < 40.0, "fall recovery returns the player to the entrance")
 
 	level.queue_free()
-	await process_frame
+	for _frame in 4:
+		await process_frame
 	if failures == 0:
 		print("ROOFTOP_STAIRWELL_TEST_PASS")
 	quit(failures)

@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 signal fell
 signal execute_plan_finished
+signal foley_cue_played(cue: StringName, animation_frame: int)
 
 @export var move_speed := 280.0
 @export var acceleration := 900.0
@@ -10,6 +11,9 @@ signal execute_plan_finished
 @export var jump_velocity := -540.0
 @export var fall_limit := 850.0
 @export var allow_jump := false
+@export var footstep_stream: AudioStream
+@export var bag_search_stream: AudioStream
+@export var rifle_assembly_stream: AudioStream
 
 const COYOTE_TIME := 0.12
 const JUMP_BUFFER_TIME := 0.12
@@ -24,8 +28,27 @@ var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 @onready var animated_sprite: AnimatedSprite2D = $Visual/Sprite
 @onready var shadow: Polygon2D = $Shadow
 @onready var footstep_dust: CPUParticles2D = $FootstepDust
+@onready var audio_listener: AudioListener2D = $AudioListener2D
+@onready var footstep_player: AudioStreamPlayer2D = $Footsteps
+@onready var bag_search_player: AudioStreamPlayer2D = $BagSearch
+@onready var rifle_assembly_player: AudioStreamPlayer2D = $RifleAssembly
 
 var _was_on_floor := false
+var _alternate_step := false
+
+
+func _ready() -> void:
+	audio_listener.make_current()
+	footstep_player.stream = footstep_stream
+	bag_search_player.stream = bag_search_stream
+	rifle_assembly_player.stream = rifle_assembly_stream
+	animated_sprite.frame_changed.connect(_on_animation_frame_changed)
+
+
+func _exit_tree() -> void:
+	footstep_player.stop()
+	bag_search_player.stop()
+	rifle_assembly_player.stop()
 
 
 func _physics_process(delta: float) -> void:
@@ -95,6 +118,27 @@ func play_execute_plan() -> void:
 	await animated_sprite.animation_finished
 	animated_sprite.play(&"aim")
 	execute_plan_finished.emit()
+
+
+func _on_animation_frame_changed() -> void:
+	if animated_sprite.animation == &"walk" and animated_sprite.frame in [0, 3]:
+		if controls_enabled and is_on_floor() and absf(velocity.x) > 8.0:
+			_alternate_step = not _alternate_step
+			footstep_player.pitch_scale = 1.035 if _alternate_step else 0.965
+			_play_foley(footstep_player, &"footstep")
+	elif animated_sprite.animation == &"execute":
+		if animated_sprite.frame == 1:
+			_play_foley(bag_search_player, &"bag_search")
+		elif animated_sprite.frame == 3:
+			_play_foley(rifle_assembly_player, &"rifle_assembly")
+
+
+func _play_foley(audio_player: AudioStreamPlayer2D, cue: StringName) -> void:
+	if audio_player.stream == null:
+		return
+	audio_player.stop()
+	audio_player.play()
+	foley_cue_played.emit(cue, animated_sprite.frame)
 
 
 func _update_presentation(direction: float, delta: float) -> void:

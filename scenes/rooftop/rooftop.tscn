@@ -1,8 +1,13 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/rooftop_scene.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_rooftop"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-rooftop-step.ogg" id="4_steps"]
+[ext_resource type="AudioStream" path="res://assets/audio/foley/bag-search-cue.ogg" id="5_bag"]
+[ext_resource type="AudioStream" path="res://assets/audio/foley/sniper-assemble-cue.ogg" id="6_rifle"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-wind.mp3" id="7_wind"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-birds.mp3" id="8_birds"]
 
 [sub_resource type="SegmentShape2D" id="Floor_shape"]
 a = Vector2(0, 650)
@@ -48,6 +53,22 @@ shape = SubResource("Floor_shape")
 position = Vector2(120, 640)
 z_index = 10
 fall_limit = 760.0
+footstep_stream = ExtResource("4_steps")
+bag_search_stream = ExtResource("5_bag")
+rifle_assembly_stream = ExtResource("6_rifle")
+
+[node name="Audio" type="Node2D" parent="."]
+
+[node name="Wind" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("7_wind")
+volume_db = -22.0
+
+[node name="Birds" type="AudioStreamPlayer2D" parent="Audio"]
+position = Vector2(1080, 230)
+stream = ExtResource("8_birds")
+volume_db = -10.0
+max_distance = 1350.0
+attenuation = 1.35
 
 [node name="ExecuteZone" type="Area2D" parent="."]
 position = Vector2(1165, 545)

@@ -16,6 +16,8 @@ var _transitioning := false
 @onready var top_door_area: Area2D = $TopDoorArea
 @onready var door_prompt: PanelContainer = $HUD/DoorPrompt
 @onready var fade: ColorRect = $HUD/Fade
+@onready var room_tone: AudioStreamPlayer = $Audio/RoomTone
+@onready var electrical: AudioStreamPlayer2D = $Audio/Electrical
 
 
 func _ready() -> void:
@@ -25,8 +27,26 @@ func _ready() -> void:
 	top_door_area.body_entered.connect(_on_top_door_body_entered)
 	top_door_area.body_exited.connect(_on_top_door_body_exited)
 	door_prompt.visible = false
+	_start_loop(room_tone)
+	_start_loop(electrical)
 	fade.modulate.a = 0.0
 	_reset_route()
+
+
+func _process(delta: float) -> void:
+	# The enclosed lower flight carries more room tone; the upper landing is
+	# dominated by the positional electrical fixture near the exit.
+	var upper_mix := clampf((500.0 - player.global_position.y) / 360.0, 0.0, 1.0)
+	room_tone.volume_db = move_toward(room_tone.volume_db, lerpf(-12.5, -18.0, upper_mix), 5.0 * delta)
+
+
+func _exit_tree() -> void:
+	room_tone.stop()
+	electrical.stop()
+	_set_stream_loop(room_tone.stream, false)
+	_set_stream_loop(electrical.stream, false)
+	room_tone.stream = null
+	electrical.stream = null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -102,3 +122,16 @@ func _enter_rooftop() -> void:
 	var transition := create_tween()
 	transition.tween_property(fade, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	transition.tween_callback(func(): get_tree().change_scene_to_file("res://scenes/rooftop/rooftop.tscn"))
+
+
+func _start_loop(audio_player) -> void:
+	var audio_stream: AudioStream = audio_player.stream
+	_set_stream_loop(audio_stream, true)
+	audio_player.play()
+
+
+func _set_stream_loop(audio_stream: AudioStream, enabled: bool) -> void:
+	if audio_stream is AudioStreamMP3:
+		(audio_stream as AudioStreamMP3).loop = enabled
+	elif audio_stream is AudioStreamOggVorbis:
+		(audio_stream as AudioStreamOggVorbis).loop = enabled
