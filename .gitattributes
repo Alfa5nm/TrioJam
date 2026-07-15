@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+# Godot text resources should remain mergeable text.
+*.gd text eol=lf
+*.godot text eol=lf
+*.tscn text eol=lf
+*.tres text eol=lf
+
+# Common binary assets should not be text-merged.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.ttf binary
+*.otf binary

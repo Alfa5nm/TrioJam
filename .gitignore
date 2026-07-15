@@ -1,0 +1,17 @@
+# Godot-generated cache and imported assets
+.godot/
+
+# Exported builds
+builds/
+exports/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# C# generated files (safe if the project later adopts C#)
+.mono/
+data_*/
+mono_crash.*.json
