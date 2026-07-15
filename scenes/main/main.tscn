@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stairwell_level.gd" id="1_world"]
 [ext_resource type="Texture2D" path="res://assets/art/environment/stairwell-base.png" id="2_background"]
@@ -17,19 +17,23 @@ specular_shininess = 0.22
 [sub_resource type="RectangleShape2D" id="Floor_lower"]
 size = Vector2(650, 90)
 
-[sub_resource type="SegmentShape2D" id="Ramp_lower"]
-a = Vector2(550, 603)
-b = Vector2(1002, 420)
+[sub_resource type="ConvexPolygonShape2D" id="Ramp_lower"]
+points = PackedVector2Array(550, 603, 1060, 420, 1357, 420, 1357, 780, 550, 780)
 
-[sub_resource type="RectangleShape2D" id="Landing_right"]
-size = Vector2(370, 80)
+[sub_resource type="SegmentShape2D" id="Landing_right"]
+a = Vector2(987, 420)
+b = Vector2(1357, 420)
 
 [sub_resource type="SegmentShape2D" id="Ramp_upper"]
 a = Vector2(548, 125)
-b = Vector2(1002, 420)
+b = Vector2(1060, 420)
 
-[sub_resource type="RectangleShape2D" id="Landing_upper"]
-size = Vector2(650, 80)
+[sub_resource type="SegmentShape2D" id="Landing_upper"]
+a = Vector2(-102, 125)
+b = Vector2(548, 125)
+
+[sub_resource type="RectangleShape2D" id="Trigger_middle"]
+size = Vector2(120, 180)
 
 [sub_resource type="RectangleShape2D" id="Interaction_hose"]
 size = Vector2(120, 150)
@@ -132,26 +136,48 @@ visibility_rect = Rect2(-700, -380, 1400, 760)
 process_material = SubResource("Particles_dust")
 texture = SubResource("Texture_dust")
 
-[node name="WorldCollision" type="StaticBody2D" parent="."]
+[node name="StairCollision" type="Node2D" parent="."]
+
+[node name="Ground" type="StaticBody2D" parent="StairCollision"]
 collision_layer = 2
 
-[node name="LowerFloor" type="CollisionShape2D" parent="WorldCollision"]
+[node name="LowerFloor" type="CollisionShape2D" parent="StairCollision/Ground"]
 position = Vector2(245, 648)
 shape = SubResource("Floor_lower")
 
-[node name="LowerRamp" type="CollisionShape2D" parent="WorldCollision"]
+[node name="LowerFlight" type="StaticBody2D" parent="StairCollision"]
+collision_layer = 2
+
+[node name="LowerRamp" type="CollisionShape2D" parent="StairCollision/LowerFlight"]
 shape = SubResource("Ramp_lower")
 
-[node name="RightLanding" type="CollisionShape2D" parent="WorldCollision"]
-position = Vector2(1172, 460)
+[node name="MiddleLanding" type="StaticBody2D" parent="StairCollision"]
+collision_layer = 2
+
+[node name="RightLanding" type="CollisionShape2D" parent="StairCollision/MiddleLanding"]
+disabled = true
 shape = SubResource("Landing_right")
 
-[node name="UpperRamp" type="CollisionShape2D" parent="WorldCollision"]
+[node name="UpperFlight" type="StaticBody2D" parent="StairCollision"]
+collision_layer = 2
+
+[node name="UpperRamp" type="CollisionShape2D" parent="StairCollision/UpperFlight"]
+disabled = true
 shape = SubResource("Ramp_upper")
 
-[node name="UpperLanding" type="CollisionShape2D" parent="WorldCollision"]
-position = Vector2(223, 165)
+[node name="TopLanding" type="StaticBody2D" parent="StairCollision"]
+collision_layer = 2
+
+[node name="UpperLanding" type="CollisionShape2D" parent="StairCollision/TopLanding"]
 shape = SubResource("Landing_upper")
+
+[node name="MiddleLandingTrigger" type="Area2D" parent="."]
+position = Vector2(1170, 350)
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MiddleLandingTrigger"]
+shape = SubResource("Trigger_middle")
 
 [node name="HoseCabinet" type="Area2D" parent="." groups=["stairwell_interactions"]]
 position = Vector2(434, 515)
@@ -170,8 +196,7 @@ collision_layer = 4
 collision_mask = 1
 script = ExtResource("7_interaction")
 prompt_text = "E  OPEN DOOR"
-message_text = "A warmer light waits on the other side."
-completes_scene = true
+message_text = "The service door is sealed. The rooftop stairs continue above."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RightExit"]
 shape = SubResource("Interaction_door")
@@ -181,8 +206,9 @@ position = Vector2(275, 78)
 collision_layer = 4
 collision_mask = 1
 script = ExtResource("7_interaction")
-prompt_text = "E  TRY DOOR"
-message_text = "Locked from the other side."
+prompt_text = "E  OPEN ROOFTOP DOOR"
+message_text = "Cold night air slips through the frame."
+completes_scene = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="UpperDoor"]
 shape = SubResource("Interaction_door")
@@ -206,7 +232,9 @@ script = ExtResource("6_parallax")
 camera_path = NodePath("../CinematicCamera")
 motion_scale = Vector2(1.055, 1.022)
 
-[node name="MainRail" type="Line2D" parent="Foreground"]
+[node name="LowerFlightRail" type="Node2D" parent="Foreground"]
+
+[node name="MainRail" type="Line2D" parent="Foreground/LowerFlightRail"]
 points = PackedVector2Array(284, 737, 558, 548, 714, 548, 1018, 408)
 width = 9.0
 default_color = Color(0.018, 0.028, 0.036, 0.72)
@@ -215,7 +243,7 @@ begin_cap_mode = 2
 end_cap_mode = 2
 antialiased = true
 
-[node name="RightRail" type="Line2D" parent="Foreground"]
+[node name="RightRail" type="Line2D" parent="Foreground/LowerFlightRail"]
 points = PackedVector2Array(1052, 628, 1180, 565, 1375, 464)
 width = 11.0
 default_color = Color(0.012, 0.02, 0.027, 0.78)
@@ -223,6 +251,44 @@ joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
 antialiased = true
+
+[node name="UpperFlightRail" type="Node2D" parent="Foreground"]
+modulate = Color(1, 1, 1, 0.52)
+
+[node name="TopRail" type="Line2D" parent="Foreground/UpperFlightRail"]
+points = PackedVector2Array(530, 25, 690, 25, 1060, 300)
+width = 9.0
+default_color = Color(0.014, 0.024, 0.032, 0.82)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
+
+[node name="Post01" type="Line2D" parent="Foreground/UpperFlightRail"]
+points = PackedVector2Array(700, 32, 700, 213)
+width = 6.0
+default_color = Color(0.014, 0.024, 0.032, 0.78)
+antialiased = true
+
+[node name="Post02" type="Line2D" parent="Foreground/UpperFlightRail"]
+points = PackedVector2Array(820, 122, 820, 282)
+width = 6.0
+default_color = Color(0.014, 0.024, 0.032, 0.78)
+antialiased = true
+
+[node name="Post03" type="Line2D" parent="Foreground/UpperFlightRail"]
+points = PackedVector2Array(940, 211, 940, 351)
+width = 6.0
+default_color = Color(0.014, 0.024, 0.032, 0.78)
+antialiased = true
+
+[node name="Post04" type="Line2D" parent="Foreground/UpperFlightRail"]
+points = PackedVector2Array(1055, 296, 1055, 417)
+width = 6.0
+default_color = Color(0.014, 0.024, 0.032, 0.78)
+antialiased = true
+
+[connection signal="body_entered" from="MiddleLandingTrigger" to="." method="_on_middle_landing_body_entered"]
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

@@ -31,11 +31,25 @@ func _run() -> void:
 		await physics_frame
 		_check(player.global_position.distance_to(Vector2(116.0, 602.0)) < 30.0, "fall recovery returns to scene entrance")
 		Input.action_press(&"move_right")
-		for _frame in 315:
+		for _frame in 390:
 			await physics_frame
 		Input.action_release(&"move_right")
 		_check(player.global_position.x > 850.0, "player traverses horizontally through the stairwell")
 		_check(player.global_position.y < 520.0, "slope collision carries player upward on the stairs")
+		_check(level.is_upper_route_active(), "middle landing activates the rooftop route")
+		await physics_frame
+		var lower_ramp := level.get_node("StairCollision/LowerFlight/LowerRamp") as CollisionShape2D
+		var middle_landing := level.get_node("StairCollision/MiddleLanding/RightLanding") as CollisionShape2D
+		var upper_ramp := level.get_node("StairCollision/UpperFlight/UpperRamp") as CollisionShape2D
+		_check(lower_ramp.disabled, "lower-flight collision retires at the switchback")
+		_check(not middle_landing.disabled, "middle landing remains solid during the depth switch")
+		_check(not upper_ramp.disabled, "upper-flight collision enables at the switchback")
+		Input.action_press(&"move_left")
+		for _frame in 350:
+			await physics_frame
+		Input.action_release(&"move_left")
+		_check(player.global_position.x < 620.0, "player reverses direction onto the upper flight")
+		_check(player.global_position.y < 240.0, "player reaches the rooftop landing")
 
 	var camera := level.get_node_or_null("CinematicCamera") as CinematicCamera
 	_check(camera != null, "cinematic follow camera exists")
@@ -44,25 +58,27 @@ func _run() -> void:
 	_check(level.get_node_or_null("Environment/WarmPractical") is PointLight2D, "warm practical light exists")
 	_check(level.get_node_or_null("Environment/EmergencyGlow") is PointLight2D, "emergency light exists")
 	_check(level.get_node_or_null("Environment/Dust") is GPUParticles2D, "ambient dust particles exist")
-	_check(level.get_node_or_null("Foreground/MainRail") is Line2D, "foreground parallax railing exists")
+	_check(level.get_node_or_null("Foreground/LowerFlightRail/MainRail") is Line2D, "lower foreground railing exists")
+	_check(level.get_node_or_null("Foreground/UpperFlightRail/TopRail") is Line2D, "upper foreground railing exists")
+	_check(level.get_node("Foreground").z_index > player.z_index, "player renders behind the guardrails")
 
 	var interactions := get_nodes_in_group("stairwell_interactions")
 	_check(interactions.size() == 3, "three contextual interactions are available")
 	var hose := level.get_node_or_null("HoseCabinet") as StairwellInteraction
-	var right_exit := level.get_node_or_null("RightExit") as StairwellInteraction
+	var upper_door := level.get_node_or_null("UpperDoor") as StairwellInteraction
 	var message := level.get_node_or_null("HUD/Message") as PanelContainer
 	var completion := level.get_node_or_null("HUD/Completion") as Control
 	var interact_event := InputEventAction.new()
 	interact_event.action = &"interact"
 	interact_event.pressed = true
-	if player != null and hose != null and right_exit != null and message != null and completion != null:
+	if player != null and hose != null and upper_door != null and message != null and completion != null:
 		hose._on_body_entered(player)
 		hose._unhandled_input(interact_event)
 		_check(message.visible, "fire-hose inspection displays narrative UI")
 		hose._on_body_exited(player)
-		right_exit._on_body_entered(player)
-		right_exit._unhandled_input(interact_event)
-		_check(completion.visible, "right door completes the first-scene loop")
+		upper_door._on_body_entered(player)
+		upper_door._unhandled_input(interact_event)
+		_check(completion.visible, "rooftop door completes the first-scene loop")
 		_check(not player.controls_enabled, "completion hands control to the cinematic beat")
 
 	level.queue_free()
