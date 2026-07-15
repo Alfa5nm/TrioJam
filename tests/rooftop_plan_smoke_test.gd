@@ -26,6 +26,9 @@ func _run() -> void:
 	_check(frames.get_frame_count(&"idle") == 6, "idle loop uses six registered frames")
 	_check(frames.get_frame_count(&"walk") == 6, "walk loop uses six registered frames")
 	_check(frames.get_frame_count(&"execute") == 8, "execute action uses eight sequential frames")
+	var aim_texture := frames.get_frame_texture(&"aim", 0) as AtlasTexture
+	_check(aim_texture != null and aim_texture.region.size == Vector2(512, 512), "sniper frames use a wide unclipped canvas")
+	_check(aim_texture != null and aim_texture.atlas.get_width() == 4096, "execute sheet contains all eight sniper poses")
 
 	Input.action_press(&"move_right")
 	for _frame in 365:

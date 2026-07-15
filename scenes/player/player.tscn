@@ -54,35 +54,35 @@ region = Rect2(1920, 512, 384, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_1"]
 atlas = ExtResource("3_execute")
-region = Rect2(0, 0, 384, 512)
+region = Rect2(0, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_2"]
 atlas = ExtResource("3_execute")
-region = Rect2(384, 0, 384, 512)
+region = Rect2(512, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_3"]
 atlas = ExtResource("3_execute")
-region = Rect2(768, 0, 384, 512)
+region = Rect2(1024, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_4"]
 atlas = ExtResource("3_execute")
-region = Rect2(1152, 0, 384, 512)
+region = Rect2(1536, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_5"]
 atlas = ExtResource("3_execute")
-region = Rect2(1536, 0, 384, 512)
+region = Rect2(2048, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_6"]
 atlas = ExtResource("3_execute")
-region = Rect2(1920, 0, 384, 512)
+region = Rect2(2560, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_7"]
 atlas = ExtResource("3_execute")
-region = Rect2(2304, 0, 384, 512)
+region = Rect2(3072, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Execute_8"]
 atlas = ExtResource("3_execute")
-region = Rect2(2688, 0, 384, 512)
+region = Rect2(3584, 0, 512, 512)
 
 [sub_resource type="SpriteFrames" id="Frames_character"]
 animations = [{
