@@ -1,129 +1,15 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/broadcast_interface.gd" id="1_interface"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/frame_slot.tscn" id="2_frame_slot"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/scene_frame.tscn" id="3_scene_frame"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/character_roster.tscn" id="4_character_roster"]
-
-[sub_resource type="StyleBoxFlat" id="SidePanel"]
-bg_color = Color(0.027, 0.043, 0.067, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 0.5)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="PortraitBox"]
-bg_color = Color(0.027, 0.043, 0.067, 0.96)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 0.7)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="DialogueBox"]
-bg_color = Color(0.043, 0.063, 0.094, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.243, 0.761, 0.91, 0.4)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="ButtonNormal"]
-bg_color = Color(0.027, 0.043, 0.067, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="ButtonHover"]
-bg_color = Color(0.054, 0.086, 0.129, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="ButtonPressed"]
-bg_color = Color(0.243, 0.761, 0.91, 0.25)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="ButtonDisabled"]
-bg_color = Color(0.027, 0.043, 0.067, 0.6)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.71, 0.745, 0.81, 0.3)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="CircleNormal"]
-bg_color = Color(0.027, 0.043, 0.067, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 0.8)
-corner_radius_top_left = 32
-corner_radius_top_right = 32
-corner_radius_bottom_right = 32
-corner_radius_bottom_left = 32
-
-[sub_resource type="StyleBoxFlat" id="CircleHover"]
-bg_color = Color(0.054, 0.086, 0.129, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 1)
-corner_radius_top_left = 32
-corner_radius_top_right = 32
-corner_radius_bottom_right = 32
-corner_radius_bottom_left = 32
-
-[sub_resource type="StyleBoxFlat" id="CirclePressed"]
-bg_color = Color(0.243, 0.761, 0.91, 0.25)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 1)
-corner_radius_top_left = 32
-corner_radius_top_right = 32
-corner_radius_bottom_right = 32
-corner_radius_bottom_left = 32
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/background.png" id="5_background"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/portrait_card.png" id="6_portrait_card"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/dialogue_card.png" id="7_dialogue_card"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/continue_button.png" id="8_continue_button"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/broadcast_button.png" id="9_broadcast_button"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/frames_icon.png" id="10_frames_icon"]
 
 [node name="BroadcastInterface" type="Control"]
 anchors_preset = 15
@@ -133,166 +19,179 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_interface")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.016, 0.026, 0.043, 1)
+texture = ExtResource("5_background")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="Root" type="HBoxContainer" parent="."]
+[node name="OuterMargin" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 22
 
-[node name="LeftPanel" type="PanelContainer" parent="Root"]
+[node name="Root" type="HBoxContainer" parent="OuterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="LeftLayout" type="VBoxContainer" parent="OuterMargin/Root"]
 layout_mode = 2
 size_flags_horizontal = 1
-size_flags_vertical = 3
-custom_minimum_size = Vector2(340, 0)
-theme_override_styles/panel = SubResource("SidePanel")
+custom_minimum_size = Vector2(310, 0)
+theme_override_constants/separation = 20
 
-[node name="Margin" type="MarginContainer" parent="Root/LeftPanel"]
+[node name="PortraitBox" type="Control" parent="OuterMargin/Root/LeftLayout"]
+custom_minimum_size = Vector2(310, 319)
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
 
-[node name="LeftLayout" type="VBoxContainer" parent="Root/LeftPanel/Margin"]
+[node name="CardTexture" type="TextureRect" parent="OuterMargin/Root/LeftLayout/PortraitBox"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_portrait_card")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SpeakerPortrait" type="TextureRect" parent="OuterMargin/Root/LeftLayout/PortraitBox"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogueBox" type="Control" parent="OuterMargin/Root/LeftLayout"]
+custom_minimum_size = Vector2(310, 265)
 layout_mode = 2
-theme_override_constants/separation = 16
+mouse_filter = 2
 
-[node name="PortraitBox" type="PanelContainer" parent="Root/LeftPanel/Margin/LeftLayout"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 220)
-theme_override_styles/panel = SubResource("PortraitBox")
+[node name="CardTexture" type="TextureRect" parent="OuterMargin/Root/LeftLayout/DialogueBox"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_dialogue_card")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="PortraitLabel" type="Label" parent="Root/LeftPanel/Margin/LeftLayout/PortraitBox"]
+[node name="TextMargin" type="MarginContainer" parent="OuterMargin/Root/LeftLayout/DialogueBox"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 62
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="DialogueLabel" type="Label" parent="OuterMargin/Root/LeftLayout/DialogueBox/TextMargin"]
 unique_name_in_owner = true
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 64
-theme_override_colors/font_color = Color(0.243, 0.761, 0.91, 1)
-text = "?"
-
-[node name="DialogueBox" type="PanelContainer" parent="Root/LeftPanel/Margin/LeftLayout"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("DialogueBox")
-
-[node name="Margin" type="MarginContainer" parent="Root/LeftPanel/Margin/LeftLayout/DialogueBox"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
-
-[node name="DialogueLabel" type="Label" parent="Root/LeftPanel/Margin/LeftLayout/DialogueBox/Margin"]
-unique_name_in_owner = true
-layout_mode = 2
+mouse_filter = 2
 autowrap_mode = 3
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.2, 0.19, 0.18, 1)
+theme_override_font_sizes/font_size = 15
 text = ""
 
-[node name="ContinueButton" type="Button" parent="Root/LeftPanel/Margin/LeftLayout"]
+[node name="Spacer" type="Control" parent="OuterMargin/Root/LeftLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContinueButton" type="TextureButton" parent="OuterMargin/Root/LeftLayout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(310, 84)
 layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
-theme_override_styles/normal = SubResource("ButtonNormal")
-theme_override_styles/hover = SubResource("ButtonHover")
-theme_override_styles/pressed = SubResource("ButtonPressed")
-theme_override_styles/disabled = SubResource("ButtonDisabled")
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
-theme_override_colors/font_disabled_color = Color(0.71, 0.745, 0.81, 1)
-theme_override_font_sizes/font_size = 16
-text = "CONTINUE"
+texture_normal = ExtResource("8_continue_button")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="Divider" type="VSeparator" parent="Root"]
-layout_mode = 2
-
-[node name="RightPanel" type="PanelContainer" parent="Root"]
+[node name="RightLayout" type="VBoxContainer" parent="OuterMargin/Root"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("SidePanel")
-
-[node name="Margin" type="MarginContainer" parent="Root/RightPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
-
-[node name="RightLayout" type="VBoxContainer" parent="Root/RightPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 24
-
-[node name="FramesRow" type="HBoxContainer" parent="Root/RightPanel/Margin/RightLayout"]
-layout_mode = 2
 theme_override_constants/separation = 16
+
+[node name="FramesHeaderRow" type="HBoxContainer" parent="OuterMargin/Root/RightLayout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FramesIcon" type="TextureRect" parent="OuterMargin/Root/RightLayout/FramesHeaderRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("10_frames_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FramesLabelText" type="Label" parent="OuterMargin/Root/RightLayout/FramesHeaderRow"]
+layout_mode = 2
+vertical_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.87, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+text = "FRAMES"
+
+[node name="FramesRow" type="HBoxContainer" parent="OuterMargin/Root/RightLayout"]
+layout_mode = 2
+theme_override_constants/separation = 14
 alignment = 1
 
-[node name="CauseSlot" parent="Root/RightPanel/Margin/RightLayout/FramesRow" instance=ExtResource("2_frame_slot")]
+[node name="CauseSlot" parent="OuterMargin/Root/RightLayout/FramesRow" instance=ExtResource("2_frame_slot")]
 unique_name_in_owner = true
 layout_mode = 2
 slot_label = "CAUSE"
 
-[node name="ConflictSlot" parent="Root/RightPanel/Margin/RightLayout/FramesRow" instance=ExtResource("2_frame_slot")]
+[node name="ConflictSlot" parent="OuterMargin/Root/RightLayout/FramesRow" instance=ExtResource("2_frame_slot")]
 unique_name_in_owner = true
 layout_mode = 2
 slot_label = "CONFLICT"
 
-[node name="OutcomeSlot" parent="Root/RightPanel/Margin/RightLayout/FramesRow" instance=ExtResource("2_frame_slot")]
+[node name="OutcomeSlot" parent="OuterMargin/Root/RightLayout/FramesRow" instance=ExtResource("2_frame_slot")]
 unique_name_in_owner = true
 layout_mode = 2
 slot_label = "OUTCOME"
 
-[node name="SelectionRow" type="HBoxContainer" parent="Root/RightPanel/Margin/RightLayout"]
+[node name="SelectionRow" type="HBoxContainer" parent="OuterMargin/Root/RightLayout"]
+custom_minimum_size = Vector2(0, 290)
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 20
 
-[node name="SceneColumn" type="VBoxContainer" parent="Root/RightPanel/Margin/RightLayout/SelectionRow"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="SceneFrame" parent="Root/RightPanel/Margin/RightLayout/SelectionRow/SceneColumn" instance=ExtResource("3_scene_frame")]
+[node name="SceneFrame" parent="OuterMargin/Root/RightLayout/SelectionRow" instance=ExtResource("3_scene_frame")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 4
 
-[node name="SceneCycleButton" type="Button" parent="Root/RightPanel/Margin/RightLayout/SelectionRow/SceneColumn"]
+[node name="CharacterRoster" parent="OuterMargin/Root/RightLayout/SelectionRow" instance=ExtResource("4_character_roster")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
-custom_minimum_size = Vector2(64, 64)
-theme_override_styles/normal = SubResource("CircleNormal")
-theme_override_styles/hover = SubResource("CircleHover")
-theme_override_styles/pressed = SubResource("CirclePressed")
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
-theme_override_font_sizes/font_size = 12
-text = "SCENE"
+size_flags_vertical = 4
 
-[node name="CharacterRoster" parent="Root/RightPanel/Margin/RightLayout/SelectionRow" instance=ExtResource("4_character_roster")]
+[node name="BroadcastButton" type="TextureButton" parent="OuterMargin/Root/RightLayout"]
 unique_name_in_owner = true
-layout_mode = 2
-
-[node name="BroadcastButton" type="Button" parent="Root/RightPanel/Margin/RightLayout"]
-unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 102)
 layout_mode = 2
 size_flags_horizontal = 8
-custom_minimum_size = Vector2(200, 52)
 disabled = true
-theme_override_styles/normal = SubResource("ButtonNormal")
-theme_override_styles/hover = SubResource("ButtonHover")
-theme_override_styles/pressed = SubResource("ButtonPressed")
-theme_override_styles/disabled = SubResource("ButtonDisabled")
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
-theme_override_colors/font_disabled_color = Color(0.71, 0.745, 0.81, 1)
-theme_override_font_sizes/font_size = 18
-text = "BROADCAST"
+texture_normal = ExtResource("9_broadcast_button")
+ignore_texture_size = true
+stretch_mode = 5

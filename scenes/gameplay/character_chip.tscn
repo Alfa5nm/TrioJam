@@ -1,44 +1,24 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/character_chip.gd" id="1_chip"]
 
-[sub_resource type="StyleBoxFlat" id="ChipCircle"]
-bg_color = Color(0.243, 0.761, 0.91, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.027, 0.043, 0.067, 1)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-
 [node name="CharacterChip" type="VBoxContainer"]
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 alignment = 1
 script = ExtResource("1_chip")
 
-[node name="Circle" type="PanelContainer" parent="."]
+[node name="Portrait" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(112, 112)
 layout_mode = 2
-mouse_filter = 2
 size_flags_horizontal = 4
-custom_minimum_size = Vector2(56, 56)
-theme_override_styles/panel = SubResource("ChipCircle")
-
-[node name="InitialLabel" type="Label" parent="Circle"]
-layout_mode = 2
 mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 20
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
-text = "?"
+expand_mode = 1
+stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 2
 mouse_filter = 2
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.878, 0.902, 0.949, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.85, 0.87, 0.9, 1)
 text = "Name"

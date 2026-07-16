@@ -1,12 +1,17 @@
 class_name SceneFrame
-extends PanelContainer
+extends VBoxContainer
 
 var current_action: ActionDef = null
 
 var _available_actions: Array[ActionDef] = []
 var _action_index := -1
 
-@onready var scene_label: Label = $Margin/SceneLabel
+@onready var caption_label: Label = $CaptionLabel
+@onready var click_region: Button = $Body/ClickRegion
+
+
+func _ready() -> void:
+	click_region.pressed.connect(cycle_scene)
 
 
 func setup(available_actions: Array[ActionDef]) -> void:
@@ -25,7 +30,7 @@ func cycle_scene() -> void:
 
 
 func _refresh_visual() -> void:
-	scene_label.text = current_action.display_name if current_action != null else "— click SCENE —"
+	caption_label.text = current_action.display_name if current_action != null else "Click to choose a scene"
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
@@ -38,6 +43,6 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 func _build_preview() -> Control:
 	var preview := Label.new()
 	preview.text = current_action.display_name
-	preview.add_theme_color_override("font_color", Color(0.878, 0.902, 0.949, 1))
+	preview.add_theme_color_override("font_color", Color(0.95, 0.96, 0.97, 1))
 	preview.modulate.a = 0.85
 	return preview

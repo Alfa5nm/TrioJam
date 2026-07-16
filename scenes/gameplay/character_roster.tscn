@@ -1,44 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/character_roster.gd" id="1_roster"]
 
-[sub_resource type="StyleBoxFlat" id="RosterPanel"]
-bg_color = Color(0.027, 0.043, 0.067, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.243, 0.761, 0.91, 0.5)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[node name="CharacterRoster" type="PanelContainer"]
-custom_minimum_size = Vector2(170, 0)
-theme_override_styles/panel = SubResource("RosterPanel")
+[node name="CharacterRoster" type="GridContainer"]
+columns = 3
+theme_override_constants/h_separation = 22
+theme_override_constants/v_separation = 22
 script = ExtResource("1_roster")
-
-[node name="Margin" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
-
-[node name="Layout" type="VBoxContainer" parent="Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Title" type="Label" parent="Margin/Layout"]
-layout_mode = 2
-horizontal_alignment = 1
-theme_override_colors/font_color = Color(0.243, 0.761, 0.91, 1)
-theme_override_font_sizes/font_size = 13
-text = "CHARACTERS"
-
-[node name="ChipGrid" type="GridContainer" parent="Margin/Layout"]
-layout_mode = 2
-columns = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
