@@ -54,6 +54,7 @@ shape = SubResource("Floor_shape")
 [node name="Player" parent="." instance=ExtResource("3_player")]
 position = Vector2(120, 640)
 z_index = 10
+presentation_scale = 1.15
 fall_limit = 760.0
 footstep_stream = ExtResource("4_steps")
 footstep_stream_alt_a = ExtResource("9_steps_alt_a")

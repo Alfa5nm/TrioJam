@@ -16,6 +16,7 @@ signal foley_cue_played(cue: StringName, animation_frame: int)
 @export var footstep_stream_alt_b: AudioStream
 @export var bag_search_stream: AudioStream
 @export var rifle_assembly_stream: AudioStream
+@export_range(0.5, 2.0, 0.01) var presentation_scale := 1.0
 
 const COYOTE_TIME := 0.12
 const JUMP_BUFFER_TIME := 0.12
@@ -40,11 +41,14 @@ var _alternate_step := false
 var _footstep_cooldown := 0.0
 var _footstep_variant_index := 0
 var _footstep_variants: Array[AudioStream] = []
+var _presentation_base_scale := Vector2.ONE
 
 const FOOTSTEP_COOLDOWN := 0.56
 
 
 func _ready() -> void:
+	_presentation_base_scale = Vector2.ONE * presentation_scale
+	visual.scale = _presentation_base_scale
 	audio_listener.make_current()
 	footstep_player.stream = footstep_stream
 	for candidate in [footstep_stream, footstep_stream_alt_a, footstep_stream_alt_b]:
@@ -181,5 +185,5 @@ func _update_presentation(direction: float, delta: float) -> void:
 
 func _play_landing_effect() -> void:
 	var tween := create_tween()
-	visual.scale = Vector2(1.07, 0.93)
-	tween.tween_property(visual, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	visual.scale = _presentation_base_scale * Vector2(1.07, 0.93)
+	tween.tween_property(visual, "scale", _presentation_base_scale, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

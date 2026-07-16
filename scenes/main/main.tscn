@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bcqv7ohsbm8oi"]
+[gd_scene load_steps=24 format=3 uid="uid://bcqv7ohsbm8oi"]
 
 [ext_resource type="Texture2D" uid="uid://u86ktm3db4dt" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="1_hyk8p"]
 [ext_resource type="Texture2D" uid="uid://dqqus8j8oj71v" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/1234.png" id="1_l3cfh"]
@@ -6,26 +6,21 @@
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="4_player"]
 [ext_resource type="Script" path="res://scripts/world/rooftop_stairwell.gd" id="5_world"]
 [ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_02_props_and_lighting.png" id="6_props"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_03_midground_railings.png" id="7_midground"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_04_foreground.png" id="8_foreground"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_03_midground_railings_alpha.png" id="7_midground"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_04_foreground_alpha.png" id="8_foreground"]
 [ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_06_debris.png" id="9_debris"]
 [ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step.ogg" id="10_steps"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/stairwell-room.mp3" id="11_room"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/stairwell-electrical.mp3" id="12_electrical"]
 [ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step-02.ogg" id="13_steps_alt_a"]
 [ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-stairwell-step-03.ogg" id="14_steps_alt_b"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/upper_landing_front_rail_alpha.png" id="15_upper_landing_rail"]
 
 [sub_resource type="RectangleShape2D" id="Middle_landing_trigger"]
 size = Vector2(140, 240)
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_shadow_multiply"]
 blend_mode = 3
-
-[sub_resource type="Shader" id="Shader_checker_cleanup"]
-code = "shader_type canvas_item;\n\nvoid fragment() {\n\tvec4 pixel = texture(TEXTURE, UV);\n\tfloat brightest = max(pixel.r, max(pixel.g, pixel.b));\n\tfloat darkest = min(pixel.r, min(pixel.g, pixel.b));\n\tbool neutral_checker = darkest > 0.70 && (brightest - darkest) < 0.09;\n\tif (neutral_checker) {\n\t\tpixel.a = 0.0;\n\t}\n\tCOLOR = pixel * COLOR;\n}\n"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_checker_cleanup"]
-shader = SubResource("Shader_checker_cleanup")
 
 [sub_resource type="Shader" id="Shader_props_cleanup"]
 code = "shader_type canvas_item;\n\nvoid fragment() {\n\tvec4 pixel = texture(TEXTURE, UV);\n\tfloat brightest = max(pixel.r, max(pixel.g, pixel.b));\n\tfloat darkest = min(pixel.r, min(pixel.g, pixel.b));\n\tfloat luminance = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));\n\tbool inside_baked_glow = UV.x > 0.68 && UV.y < 0.56;\n\tbool glow_checker = inside_baked_glow && luminance > 0.30 && luminance < 0.82 && (brightest - darkest) < 0.28;\n\tif (glow_checker) {\n\t\tpixel.a = 0.0;\n\t}\n\tCOLOR = pixel * COLOR;\n}\n"
@@ -89,7 +84,6 @@ scale = Vector2(0.76913875, 0.7667375)
 texture = ExtResource("6_props")
 
 [node name="MidgroundRailings" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_checker_cleanup")
 position = Vector2(642, 360.75)
 scale = Vector2(0.76913875, 0.7667375)
 texture = ExtResource("7_midground")
@@ -102,10 +96,15 @@ texture = ExtResource("9_debris")
 
 [node name="railing" type="Sprite2D" parent="." unique_id=716696726]
 z_index = 30
-material = SubResource("ShaderMaterial_checker_cleanup")
 position = Vector2(642, 360.75)
 scale = Vector2(0.76913875, 0.7667375)
 texture = ExtResource("8_foreground")
+
+[node name="UpperLandingFrontRail" type="Sprite2D" parent="."]
+z_index = 30
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = ExtResource("15_upper_landing_rail")
 
 [node name="WarmLandingLight" type="PointLight2D" parent="."]
 position = Vector2(1078, 108)
@@ -115,8 +114,8 @@ texture = SubResource("GradientTexture_warm_light")
 texture_scale = 0.92
 height = 90.0
 
-[node name="TopStairRailing" type="Sprite2D" parent="." unique_id=668441413]
-z_index = 20
+[node name="UpperFlightFascia" type="Sprite2D" parent="." unique_id=668441413]
+z_index = -5
 position = Vector2(762.00006, 188)
 scale = Vector2(0.7421874, 0.74218756)
 texture = ExtResource("3_6q06x")
@@ -188,7 +187,7 @@ collision_mask = 1
 shape = SubResource("Top_door_trigger")
 
 [node name="StairHighlights" type="Node2D" parent="."]
-z_index = 25
+z_index = 4
 
 [node name="LowerRoute" type="Node2D" parent="StairHighlights"]
 

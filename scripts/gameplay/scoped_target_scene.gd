@@ -6,7 +6,7 @@ signal target_confirmed
 
 @export var auto_advance_to_broadcast := true
 
-const OCCUPANT_SHEET := preload("res://assets/art/Scene 2/office-occupants-sheet.png")
+const OCCUPANT_SHEET := preload("res://assets/art/Scene 2/office-occupants-v2.png")
 const CELL_SIZE := Vector2(384, 384)
 const WRONG_TARGET_LINES := [
 	"Not this one.",
@@ -96,13 +96,13 @@ func attempt_shot_at(screen_position: Vector2) -> bool:
 
 
 func _subject_at(position: Vector2) -> StringName:
-	if Rect2(870, 220, 330, 340).has_point(position):
+	if Rect2(1000, 315, 235, 290).has_point(position):
 		return &"target"
-	if Rect2(55, 250, 255, 275).has_point(position):
+	if Rect2(95, 300, 235, 250).has_point(position):
 		return &"typist"
-	if Rect2(345, 245, 270, 285).has_point(position):
+	if Rect2(385, 300, 255, 250).has_point(position):
 		return &"clerk"
-	if Rect2(620, 235, 225, 300).has_point(position):
+	if Rect2(660, 290, 205, 275).has_point(position):
 		return &"employee"
 	return &""
 

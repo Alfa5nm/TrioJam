@@ -32,14 +32,17 @@ func _run() -> void:
 	var lower_highlight := level.get_node("StairHighlights/LowerRoute") as Node2D
 	var upper_highlight := level.get_node("StairHighlights/UpperRoute") as Node2D
 	var foreground_railing := level.get_node("railing") as Sprite2D
-	var top_stair_railing := level.get_node("TopStairRailing") as Sprite2D
+	var upper_landing_railing := level.get_node("UpperLandingFrontRail") as Sprite2D
+	var upper_flight_fascia := level.get_node("UpperFlightFascia") as Sprite2D
 
 	_check(player.is_on_floor(), "player settles on the lower floor")
 	_check(not lower_surface.disabled, "lower staircase starts active")
 	_check(upper_surface.disabled, "top staircase starts inactive")
 	_check(lower_highlight.modulate.a > upper_highlight.modulate.a, "lower staircase starts highlighted")
 	_check(foreground_railing.z_index > player.z_index, "foreground railing renders over the player")
-	_check(top_stair_railing.z_index > player.z_index, "top stair fascia renders over the player")
+	_check(upper_landing_railing.z_index > player.z_index, "top-door landing rail renders over the player's lower body")
+	_check(upper_flight_fascia.z_index < player.z_index, "upper-flight fascia renders behind the player")
+	_check(level.get_node("StairHighlights").z_index < player.z_index, "route highlights never tint the player")
 
 	Input.action_press(&"move_right")
 	for _frame in 320:
