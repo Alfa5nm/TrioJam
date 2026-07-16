@@ -33,6 +33,11 @@ func _run() -> void:
 	_check(scene.employee_actor.sprite_frames.get_frame_count(&"employee_idle") == 4, "copier employee has four working idle frames")
 	_check(scene.scope_mask.material is ShaderMaterial, "scope uses a moving opacity mask")
 	_check(scene.wind.playing, "rooftop wind continues through the scope scene")
+	var foreground := scene.get_node("ForegroundArchitecture") as Sprite2D
+	var glass := scene.get_node("GlassTint") as Node2D
+	_check(foreground != null and foreground.texture != null, "office foreground architecture is decomposed into its own layer")
+	_check(foreground.z_index > scene.target_actor.z_index, "balcony and desk fronts occlude occupants")
+	_check(glass != null and glass.z_index > scene.typist_actor.z_index, "office occupants render behind the glass treatment")
 
 	_check(not scene.attempt_shot_at(Vector2(190, 390)), "typist is rejected as a non-target")
 	_check(not scene.attempt_shot_at(Vector2(475, 390)), "clerk is rejected as a non-target")

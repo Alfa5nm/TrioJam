@@ -92,6 +92,7 @@ def normalize(
     target_foot_y: int,
     target_height: int | None,
     x_bounds: list[int] | None,
+    y_bounds: list[int] | None,
     largest_component: bool,
 ) -> None:
     sheet = Image.open(source).convert("RGBA")
@@ -99,7 +100,10 @@ def normalize(
         x_bounds = [round(index * sheet.width / cols) for index in range(cols + 1)]
     if len(x_bounds) != cols + 1 or x_bounds[0] != 0 or x_bounds[-1] != sheet.width:
         raise ValueError("x-bounds must contain cols + 1 values spanning the sheet width")
-    y_bounds = [round(index * sheet.height / rows) for index in range(rows + 1)]
+    if y_bounds is None:
+        y_bounds = [round(index * sheet.height / rows) for index in range(rows + 1)]
+    if len(y_bounds) != rows + 1 or y_bounds[0] != 0 or y_bounds[-1] != sheet.height:
+        raise ValueError("y-bounds must contain rows + 1 values spanning the sheet height")
     target = Image.new("RGBA", (target_cell[0] * cols, target_cell[1] * rows))
 
     for row in range(rows):
@@ -145,6 +149,10 @@ def main() -> None:
         help="Comma-separated source column boundaries for uneven generated strips",
     )
     parser.add_argument(
+        "--y-bounds",
+        help="Comma-separated source row boundaries for uneven generated sheets",
+    )
+    parser.add_argument(
         "--largest-component",
         action="store_true",
         help="Discard disconnected spill from neighboring generated frames",
@@ -152,6 +160,9 @@ def main() -> None:
     args = parser.parse_args()
     parsed_x_bounds = (
         [int(value) for value in args.x_bounds.split(",")] if args.x_bounds else None
+    )
+    parsed_y_bounds = (
+        [int(value) for value in args.y_bounds.split(",")] if args.y_bounds else None
     )
     normalize(
         args.source,
@@ -163,6 +174,7 @@ def main() -> None:
         args.foot_y,
         args.target_height,
         parsed_x_bounds,
+        parsed_y_bounds,
         args.largest_component,
     )
 
