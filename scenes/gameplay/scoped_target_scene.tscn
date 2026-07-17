@@ -85,6 +85,7 @@ scale = Vector2(0.75, 0.75)
 [node name="DeskOccluders" type="Sprite2D" parent="." unique_id=1182983387]
 z_index = 4
 texture_filter = 1
+position = Vector2(249, 687)
 texture = ExtResource("5_desks")
 centered = false
 
@@ -139,7 +140,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Vignette" type="ColorRect" parent="ScopeUI"]
+[node name="Vignette" type="ColorRect" parent="ScopeUI" unique_id=1473026164]
 material = SubResource("ShaderMaterial_scope_vignette")
 anchors_preset = 15
 anchor_right = 1.0
@@ -190,10 +191,10 @@ horizontal_alignment = 2
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -5.0
-offset_top = 2.0
-offset_right = 6.0
-offset_bottom = 2.0
+offset_left = -1211.0
+offset_top = 96.0
+offset_right = -1200.0
+offset_bottom = 96.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
