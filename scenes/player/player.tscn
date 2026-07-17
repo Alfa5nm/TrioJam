@@ -1,8 +1,47 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene format=3 uid="uid://cb5fpug80bsle"]
 
-[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/office-worker-actions-sheet.png" id="2_sheet"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/office-worker-execute-sheet.png" id="3_execute"]
+[ext_resource type="Script" uid="uid://1gcitxvt0gu3" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Texture2D" uid="uid://c3ig7t0i5112p" path="res://assets/art/characters/office-worker-actions-sheet.png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://bq12a8fk8khmv" path="res://assets/art/characters/office-worker-execute-sheet.png" id="3_execute"]
+
+[sub_resource type="CapsuleShape2D" id="Capsule_player"]
+radius = 18.0
+height = 118.0
+
+[sub_resource type="OccluderPolygon2D" id="Occluder_player"]
+polygon = PackedVector2Array(-24, -172, 23, -172, 36, -10, 24, 0, -24, 0, -36, -10)
+
+[sub_resource type="AtlasTexture" id="Execute_8"]
+atlas = ExtResource("3_execute")
+region = Rect2(3584, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_1"]
+atlas = ExtResource("3_execute")
+region = Rect2(0, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_2"]
+atlas = ExtResource("3_execute")
+region = Rect2(512, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_3"]
+atlas = ExtResource("3_execute")
+region = Rect2(1024, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_4"]
+atlas = ExtResource("3_execute")
+region = Rect2(1536, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_5"]
+atlas = ExtResource("3_execute")
+region = Rect2(2048, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_6"]
+atlas = ExtResource("3_execute")
+region = Rect2(2560, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Execute_7"]
+atlas = ExtResource("3_execute")
+region = Rect2(3072, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Idle_1"]
 atlas = ExtResource("2_sheet")
@@ -52,115 +91,149 @@ region = Rect2(1536, 512, 384, 512)
 atlas = ExtResource("2_sheet")
 region = Rect2(1920, 512, 384, 512)
 
-[sub_resource type="AtlasTexture" id="Execute_1"]
-atlas = ExtResource("3_execute")
-region = Rect2(0, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_2"]
-atlas = ExtResource("3_execute")
-region = Rect2(512, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_3"]
-atlas = ExtResource("3_execute")
-region = Rect2(1024, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_4"]
-atlas = ExtResource("3_execute")
-region = Rect2(1536, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_5"]
-atlas = ExtResource("3_execute")
-region = Rect2(2048, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_6"]
-atlas = ExtResource("3_execute")
-region = Rect2(2560, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_7"]
-atlas = ExtResource("3_execute")
-region = Rect2(3072, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="Execute_8"]
-atlas = ExtResource("3_execute")
-region = Rect2(3584, 0, 512, 512)
-
 [sub_resource type="SpriteFrames" id="Frames_character"]
 animations = [{
-"frames": [{"duration": 1.0, "texture": SubResource("Execute_8")}],
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Execute_8")
+}],
 "loop": false,
 "name": &"aim",
 "speed": 1.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("Execute_1")}, {"duration": 1.0, "texture": SubResource("Execute_2")}, {"duration": 1.0, "texture": SubResource("Execute_3")}, {"duration": 1.0, "texture": SubResource("Execute_4")}, {"duration": 1.0, "texture": SubResource("Execute_5")}, {"duration": 1.0, "texture": SubResource("Execute_6")}, {"duration": 1.0, "texture": SubResource("Execute_7")}, {"duration": 1.4, "texture": SubResource("Execute_8")}],
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Execute_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Execute_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Execute_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Execute_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Execute_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Execute_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("Execute_7")
+}, {
+"duration": 1.4,
+"texture": SubResource("Execute_8")
+}],
 "loop": false,
 "name": &"execute",
 "speed": 5.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("Idle_1")}, {"duration": 1.0, "texture": SubResource("Idle_2")}, {"duration": 1.0, "texture": SubResource("Idle_3")}, {"duration": 1.0, "texture": SubResource("Idle_4")}, {"duration": 1.0, "texture": SubResource("Idle_5")}, {"duration": 1.0, "texture": SubResource("Idle_6")}],
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Idle_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Idle_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Idle_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Idle_6")
+}],
 "loop": true,
 "name": &"idle",
-"speed": 2.4
+"speed": 0.4
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("Idle_4")}],
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Idle_4")
+}],
 "loop": false,
 "name": &"interact",
 "speed": 1.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("Walk_1")}, {"duration": 1.0, "texture": SubResource("Walk_2")}, {"duration": 1.0, "texture": SubResource("Walk_3")}, {"duration": 1.0, "texture": SubResource("Walk_4")}, {"duration": 1.0, "texture": SubResource("Walk_5")}, {"duration": 1.0, "texture": SubResource("Walk_6")}],
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Walk_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Walk_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Walk_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Walk_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Walk_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Walk_6")
+}],
 "loop": true,
 "name": &"walk",
-"speed": 8.0
+"speed": 4.0
 }]
 
-[sub_resource type="CapsuleShape2D" id="Capsule_player"]
-radius = 18.0
-height = 118.0
-
-[node name="Player" type="CharacterBody2D"]
-floor_stop_on_slope = true
-floor_snap_length = 16.0
+[node name="Player" type="CharacterBody2D" unique_id=1040741280]
 collision_mask = 2
+floor_snap_length = 16.0
 script = ExtResource("1_player")
-move_speed = 165.0
+move_speed = 260.0
 fall_limit = 790.0
-allow_jump = false
 
-[node name="Shadow" type="Polygon2D" parent="."]
+[node name="Shadow" type="Polygon2D" parent="." unique_id=240543390]
 position = Vector2(0, 1)
-polygon = PackedVector2Array(-25, -4, 25, -4, 32, 0, 24, 5, -24, 5, -32, 0)
 color = Color(0.015, 0.023, 0.03, 0.4)
+polygon = PackedVector2Array(-25, -4, 25, -4, 32, 0, 24, 5, -24, 5, -32, 0)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=358030890]
 position = Vector2(0, -59)
 shape = SubResource("Capsule_player")
 
-[node name="Visual" type="Node2D" parent="."]
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=13225091]
+occluder = SubResource("Occluder_player")
 
-[node name="Sprite" type="AnimatedSprite2D" parent="Visual"]
-position = Vector2(0, -128)
-sprite_frames = SubResource("Frames_character")
-animation = &"idle"
-autoplay = "idle"
-scale = Vector2(0.6, 0.6)
+[node name="Visual" type="Node2D" parent="." unique_id=1451813030]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Visual" unique_id=1671365057]
 texture_filter = 1
+position = Vector2(0, -128)
+scale = Vector2(0.6, 0.6)
+sprite_frames = SubResource("Frames_character")
+animation = &"walk"
+autoplay = "idle"
 
-[node name="AudioListener2D" type="AudioListener2D" parent="."]
+[node name="AudioListener2D" type="AudioListener2D" parent="." unique_id=10961688]
 
-[node name="Footsteps" type="AudioStreamPlayer2D" parent="."]
+[node name="Footsteps" type="AudioStreamPlayer2D" parent="." unique_id=1507563509]
 volume_db = -5.0
 max_distance = 900.0
+bus = &"SFX"
 
-[node name="BagSearch" type="AudioStreamPlayer2D" parent="."]
+[node name="BagSearch" type="AudioStreamPlayer2D" parent="." unique_id=26300735]
 position = Vector2(-12, -86)
 volume_db = -3.0
 max_distance = 900.0
+bus = &"SFX"
 
-[node name="RifleAssembly" type="AudioStreamPlayer2D" parent="."]
+[node name="RifleAssembly" type="AudioStreamPlayer2D" parent="." unique_id=200523061]
 position = Vector2(24, -100)
 volume_db = -1.0
 max_distance = 1000.0
+bus = &"SFX"
 
-[node name="FootstepDust" type="CPUParticles2D" parent="."]
+[node name="FootstepDust" type="CPUParticles2D" parent="." unique_id=1751355670]
 position = Vector2(0, -2)
 emitting = false
 amount = 7

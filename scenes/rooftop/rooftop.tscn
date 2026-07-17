@@ -1,15 +1,23 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3 uid="uid://ctlgvj2dptr62"]
 
-[ext_resource type="Script" path="res://scripts/world/rooftop_scene.gd" id="1_world"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_rooftop"]
+[ext_resource type="Script" uid="uid://d1ycax0g8c2gt" path="res://scripts/world/rooftop_scene.gd" id="1_world"]
+[ext_resource type="Texture2D" uid="uid://dg2fpac31khpi" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_rooftop"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
-[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-rooftop-step.ogg" id="4_steps"]
-[ext_resource type="AudioStream" path="res://assets/audio/foley/bag-search-cue.ogg" id="5_bag"]
-[ext_resource type="AudioStream" path="res://assets/audio/foley/sniper-assemble-cue.ogg" id="6_rifle"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-wind.mp3" id="7_wind"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-birds.mp3" id="8_birds"]
-[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-rooftop-step-02.ogg" id="9_steps_alt_a"]
-[ext_resource type="AudioStream" path="res://assets/audio/foley/concrete-rooftop-step-03.ogg" id="10_steps_alt_b"]
+[ext_resource type="AudioStream" uid="uid://cpa4bx6r6nlcy" path="res://assets/audio/foley/concrete-rooftop-step.ogg" id="4_steps"]
+[ext_resource type="AudioStream" uid="uid://bosn5re1epywh" path="res://assets/audio/foley/bag-search-cue.ogg" id="5_bag"]
+[ext_resource type="AudioStream" uid="uid://dflk26a2rrgv4" path="res://assets/audio/foley/sniper-assemble-cue.ogg" id="6_rifle"]
+[ext_resource type="AudioStream" uid="uid://dqn8kg335t4b8" path="res://assets/audio/ambience/rooftop-wind.mp3" id="7_wind"]
+[ext_resource type="AudioStream" uid="uid://5xlnnuk0wgqd" path="res://assets/audio/ambience/rooftop-birds.mp3" id="8_birds"]
+[ext_resource type="AudioStream" uid="uid://rbvmqrpi05kl" path="res://assets/audio/foley/concrete-rooftop-step-02.ogg" id="9_steps_alt_a"]
+[ext_resource type="AudioStream" uid="uid://dyehpjs6exbfq" path="res://assets/audio/foley/concrete-rooftop-step-03.ogg" id="10_steps_alt_b"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="11_dialogue"]
+[ext_resource type="Script" uid="uid://65l7s84nd6ut" path="res://scripts/world/cinematic_camera.gd" id="12_camera"]
+[ext_resource type="Script" uid="uid://bo0n7xhh2y2jn" path="res://scripts/world/parallax_plane.gd" id="13_parallax"]
+[ext_resource type="Texture2D" uid="uid://dr351cs8wliws" path="res://assets/art/Scene 1/Rooftop Scene-normal.png" id="14_rooftop_normal"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_rooftop"]
+diffuse_texture = ExtResource("2_rooftop")
+normal_texture = ExtResource("14_rooftop_normal")
 
 [sub_resource type="SegmentShape2D" id="Floor_shape"]
 a = Vector2(0, 650)
@@ -35,57 +43,77 @@ bg_color = Color(0.02, 0.024, 0.043, 0.9)
 border_width_top = 1
 border_color = Color(0.88, 0.7, 0.48, 0.6)
 
-[node name="Rooftop" type="Node2D"]
+[node name="Rooftop" type="Node2D" unique_id=1908834530]
 script = ExtResource("1_world")
 
-[node name="Background" type="Sprite2D" parent="."]
+[node name="Background" type="Sprite2D" parent="." unique_id=1693162448]
 z_index = -20
-texture = ExtResource("2_rooftop")
-centered = false
-scale = Vector2(0.76555, 0.76555)
 texture_filter = 1
+scale = Vector2(0.76555, 0.76555)
+texture = SubResource("CanvasTexture_rooftop")
+centered = false
+script = ExtResource("13_parallax")
+camera_path = NodePath("../CinematicCamera")
+motion_scale = Vector2(0.905, 0.94)
+max_offset = Vector2(8, 4)
 
-[node name="WorldCollision" type="StaticBody2D" parent="."]
+[node name="SunsetKeyLight" type="DirectionalLight2D" parent="." unique_id=903825450]
+rotation = 0.68
+color = Color(1, 0.75, 0.54, 1)
+energy = 0.2
+height = 180.0
+
+[node name="SkyFillLight" type="DirectionalLight2D" parent="." unique_id=2087804385]
+rotation = -1.9
+color = Color(0.52, 0.64, 0.94, 1)
+energy = 0.08
+height = 260.0
+
+[node name="WorldCollision" type="StaticBody2D" parent="." unique_id=740252285]
 collision_layer = 2
 
-[node name="Floor" type="CollisionShape2D" parent="WorldCollision"]
+[node name="Floor" type="CollisionShape2D" parent="WorldCollision" unique_id=776432390]
 shape = SubResource("Floor_shape")
 
-[node name="Player" parent="." instance=ExtResource("3_player")]
-position = Vector2(120, 640)
+[node name="Player" parent="." unique_id=1591779290 instance=ExtResource("3_player")]
 z_index = 10
-presentation_scale = 1.15
+position = Vector2(120, 640)
 fall_limit = 760.0
 footstep_stream = ExtResource("4_steps")
 footstep_stream_alt_a = ExtResource("9_steps_alt_a")
 footstep_stream_alt_b = ExtResource("10_steps_alt_b")
 bag_search_stream = ExtResource("5_bag")
 rifle_assembly_stream = ExtResource("6_rifle")
+presentation_scale = 1.15
 
-[node name="Audio" type="Node2D" parent="."]
+[node name="CinematicCamera" type="Camera2D" parent="." unique_id=1913591263]
+position = Vector2(640, 360)
+script = ExtResource("12_camera")
+target_path = NodePath("../Player")
 
-[node name="Wind" type="AudioStreamPlayer" parent="Audio"]
+[node name="Audio" type="Node2D" parent="." unique_id=1425423909]
+
+[node name="Wind" type="AudioStreamPlayer" parent="Audio" unique_id=84623803]
 stream = ExtResource("7_wind")
 volume_db = -22.0
 
-[node name="Birds" type="AudioStreamPlayer2D" parent="Audio"]
+[node name="Birds" type="AudioStreamPlayer2D" parent="Audio" unique_id=163795536]
 position = Vector2(1080, 230)
 stream = ExtResource("8_birds")
 volume_db = -10.0
 max_distance = 1350.0
 attenuation = 1.35
 
-[node name="ExecuteZone" type="Area2D" parent="."]
+[node name="ExecuteZone" type="Area2D" parent="." unique_id=1872592281]
 position = Vector2(1165, 545)
 collision_layer = 0
-collision_mask = 1
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ExecuteZone"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExecuteZone" unique_id=1967827055]
 shape = SubResource("Execute_shape")
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1882003262]
 
-[node name="PlanPrompt" type="PanelContainer" parent="HUD"]
+[node name="PlanPrompt" type="PanelContainer" parent="HUD" unique_id=2142337070]
 visible = false
 anchors_preset = 7
 anchor_left = 0.5
@@ -100,7 +128,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("Prompt_panel")
 
-[node name="Label" type="Label" parent="HUD/PlanPrompt"]
+[node name="Label" type="Label" parent="HUD/PlanPrompt" unique_id=418223792]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.82, 1)
 theme_override_font_sizes/font_size = 17
@@ -108,7 +136,7 @@ text = "E  EXECUTE PLAN"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Completion" type="PanelContainer" parent="HUD"]
+[node name="Completion" type="PanelContainer" parent="HUD" unique_id=579974921]
 visible = false
 anchors_preset = 7
 anchor_left = 0.5
@@ -123,7 +151,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("Completion_panel")
 
-[node name="Label" type="Label" parent="HUD/Completion"]
+[node name="Label" type="Label" parent="HUD/Completion" unique_id=1819987805]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.84, 0.7, 1)
 theme_override_font_sizes/font_size = 20
@@ -131,12 +159,18 @@ text = "TARGET IN SIGHT"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Fade" type="ColorRect" parent="HUD"]
-layout_mode = 3
+[node name="Fade" type="ColorRect" parent="HUD" unique_id=1452480962]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -4.0
+offset_right = 8.0
+offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.008, 0.012, 0.022, 1)
+
+[node name="CinematicDialogue" parent="." unique_id=378317120 instance=ExtResource("11_dialogue")]
+speaker_offset = Vector2(0, -290)

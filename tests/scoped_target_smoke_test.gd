@@ -18,9 +18,11 @@ func _run() -> void:
 		return
 
 	var scene := packed_scene.instantiate() as ScopedTargetScene
-	_check(scene.auto_advance_to_broadcast, "correct target is wired to the Broadcast Interface")
+	_check(scene.auto_advance_to_broadcast, "correct target is wired directly to the Broadcast Interface")
 	_check(ProjectSettings.get_setting("display/window/stretch/aspect") == "keep", "16:9 gameplay is preserved in resized windows")
 	scene.auto_advance_to_broadcast = false
+	scene.cinematic_timing_scale = 0.01
+	scene.get_node("CinematicDialogue").instant_mode = true
 	root.add_child(scene)
 	for _frame in 8:
 		await process_frame
@@ -36,6 +38,12 @@ func _run() -> void:
 	var instructions := scene.get_node("ScopeUI/Instructions") as Label
 	_check(instructions.get_global_rect().end.x <= 1280.0, "scope instructions remain inside the 16:9 safe frame")
 	_check(scene.wind.playing, "rooftop wind continues through the scope scene")
+	_check(scene.tension.playing, "tension ambience loops during scoped aiming")
+	_check(scene.sniper_shot.stream != null and scene.glass_shatter.stream != null, "shot and glass impact cues are assigned")
+	_check(scene.off_target_error.stream != null, "off-target error cue is assigned")
+	_check(not scene.has_node("ScopeUI/Feedback"), "obsolete bottom scope subtitle is removed")
+	_check(not scene.has_node("ScopeUI/Shots"), "scoped view omits the unnecessary shot counter")
+	_check(scene.has_node("ScopeUI/Vignette") and scene.get_node("ScopeUI/Vignette").material is ShaderMaterial, "scoped view includes the cinematic edge vignette")
 	var foreground := scene.get_node("ForegroundArchitecture") as Sprite2D
 	var desks := scene.get_node("DeskOccluders") as Sprite2D
 	var glass := scene.get_node("GlassTint") as Node2D
@@ -52,17 +60,25 @@ func _run() -> void:
 	_check(not scene.attempt_shot_at(Vector2(500, 390)), "clerk is rejected as a non-target")
 	_check(not scene.attempt_shot_at(Vector2(760, 390)), "copier employee is rejected as a non-target")
 	_check(wrong_responses.size() == 3, "wrong-target feedback fires for each office worker")
-	_check(wrong_responses[0] == "Not this one.", "first wrong-target response is clear")
-	_check(wrong_responses[1].contains("not this one either"), "second wrong-target response escalates")
-	_check(wrong_responses[2].contains("want dead today"), "third wrong-target response uses the authored internal monologue")
+	_check(wrong_responses == ["Not this one.", "AGHH... not this one either.", "Not the guy I want dead today."], "wrong occupants receive the deterministic three-line rejection cycle")
+	_check(scene.off_target_error.playing, "wrong occupant plays the off-target error cue")
 	_check(not scene.resolved, "wrong targets do not resolve the scene")
+	var errors_before_empty := scene.off_target_error.get_playback_position()
+	_check(not scene.attempt_shot_at(Vector2(20, 690)), "empty space does not resolve the scene")
+	_check(scene.dialogue.line.text == "Steady. Identify a person before firing.", "empty-space guidance uses the hovering dialogue bubble")
+	_check(scene.wrong_shots == 3, "empty-space clicks do not count as wrong occupants")
+	_check(scene.off_target_error.get_playback_position() >= errors_before_empty, "empty-space click does not restart the error cue")
 
 	_check(scene.attempt_shot_at(Vector2(1100, 420)), "balcony official resolves as the correct target")
 	_check(scene.resolved, "correct shot locks the scope sequence")
 	_check(scene.last_shot_subject == &"target", "correct subject id is recorded")
 	_check(target_signal_count == 1, "target confirmation signal fires once")
-	_check(scene.feedback.text == "TARGET CONFIRMED", "correct-shot feedback is visible")
-	_check(scene.shots_taken == 4 and scene.wrong_shots == 3, "shot accounting preserves failed identifications")
+	_check(scene.reticle.confirmed, "correct-shot confirmation remains visible through the reticle")
+	_check(scene.shots_taken == 5 and scene.wrong_shots == 3, "shot accounting distinguishes empty space from failed identifications")
+	await scene.resolution_sequence_finished
+	_check(scene.sniper_shot.playing, "sniper report is synchronized after the commitment line")
+	_check(scene.glass_shatter.playing, "glass impact follows the rifle report")
+	_check(scene.fade.modulate.a > 0.95, "correct shot resolves to black before the desk transition")
 
 	scene.queue_free()
 	for _frame in 4:

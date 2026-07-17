@@ -9,6 +9,8 @@ extends Resource
 ## Parallel to intro_lines: which character portrait to show per page (e.g. &"government", &"mc").
 ## An empty StringName leaves the portrait untouched.
 @export var intro_speakers: Array[StringName] = []
+## Rich cinematic beats. When populated these replace intro_lines/intro_speakers.
+@export var intro_beats: Array[BroadcastDialogueBeat] = []
 ## Maps a speaker id (as used in intro_speakers) to the portrait texture shown for them.
 ## These are separate from the puzzle roster's CharacterDef portraits — the intro
 ## can feature people (e.g. an interrogating government agent) who never appear in the roster.

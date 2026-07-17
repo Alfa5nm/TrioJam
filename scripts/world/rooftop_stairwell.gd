@@ -18,9 +18,13 @@ var _transitioning := false
 @onready var fade: ColorRect = $HUD/Fade
 @onready var room_tone: AudioStreamPlayer = $Audio/RoomTone
 @onready var electrical: AudioStreamPlayer2D = $Audio/Electrical
+@onready var dialogue: CinematicDialogue = $CinematicDialogue
 
 
 func _ready() -> void:
+	var session := get_node_or_null("/root/GameSession")
+	if session != null:
+		session.save_checkpoint("scene0")
 	_spawn_position = player.global_position
 	player.fell.connect(_on_player_fell)
 	landing_trigger.body_entered.connect(_on_middle_landing_entered)
@@ -31,6 +35,14 @@ func _ready() -> void:
 	_start_loop(electrical)
 	fade.modulate.a = 0.0
 	_reset_route()
+	_play_day_zero_intro()
+
+
+func _play_day_zero_intro() -> void:
+	player.controls_enabled = false
+	await dialogue.show_line("...Can I do it?", 1.05, player, true)
+	if is_inside_tree() and not _transitioning:
+		player.controls_enabled = true
 
 
 func _process(delta: float) -> void:
@@ -117,11 +129,11 @@ func _on_top_door_body_exited(body: Node2D) -> void:
 
 func _enter_rooftop() -> void:
 	_transitioning = true
-	player.controls_enabled = false
+	player.play_door_interaction()
 	door_prompt.visible = false
-	var transition := create_tween()
-	transition.tween_property(fade, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	transition.tween_callback(func(): get_tree().change_scene_to_file("res://scenes/rooftop/rooftop.tscn"))
+	var transition_service := get_node_or_null("/root/SceneTransition")
+	if transition_service != null:
+		transition_service.transition_to("res://scenes/rooftop/rooftop.tscn", true)
 
 
 func _start_loop(audio_player) -> void:

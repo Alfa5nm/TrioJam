@@ -14,9 +14,13 @@ var _spawn_position := Vector2.ZERO
 @onready var fade: ColorRect = $HUD/Fade
 @onready var wind: AudioStreamPlayer = $Audio/Wind
 @onready var birds: AudioStreamPlayer2D = $Audio/Birds
+@onready var dialogue: CinematicDialogue = $CinematicDialogue
 
 
 func _ready() -> void:
+	var session := get_node_or_null("/root/GameSession")
+	if session != null:
+		session.save_checkpoint("scene1")
 	_spawn_position = player.global_position
 	player.fell.connect(_on_player_fell)
 	execute_zone.body_entered.connect(_on_execute_zone_entered)
@@ -28,14 +32,23 @@ func _ready() -> void:
 	fade.modulate.a = 1.0
 	var intro := create_tween()
 	intro.tween_property(fade, "modulate:a", 0.0, 0.65).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_play_rooftop_intro()
+
+
+func _play_rooftop_intro() -> void:
+	player.controls_enabled = false
+	await get_tree().create_timer(0.7).timeout
+	await dialogue.show_line("I can do it.", 0.95, player, true)
+	if is_inside_tree() and not plan_executed:
+		player.controls_enabled = true
 
 
 func _process(delta: float) -> void:
 	# The left doorway shelters the player; wind opens up across the roof.
 	var exposure := smoothstep(100.0, 720.0, player.global_position.x)
-	wind.volume_db = move_toward(wind.volume_db, lerpf(-22.0, -10.5, exposure), 8.0 * delta)
+	wind.volume_db = move_toward(wind.volume_db, lerpf(-12.0, -3.0, exposure), 8.0 * delta)
 	# Birds remain a fixed world source and naturally pan/attenuate around the player listener.
-	birds.volume_db = move_toward(birds.volume_db, lerpf(-17.0, -10.0, exposure), 6.0 * delta)
+	birds.volume_db = move_toward(birds.volume_db, lerpf(-10.0, 3.0, exposure), 6.0 * delta)
 
 
 func _exit_tree() -> void:
@@ -60,17 +73,26 @@ func execute_plan() -> void:
 	plan_executed = true
 	execute_available = false
 	plan_prompt.visible = false
-	await player.play_execute_plan()
-	completion.visible = true
-	completion.modulate.a = 0.0
+	player.controls_enabled = false
+	var blackout := create_tween()
+	blackout.tween_property(fade, "modulate:a", 1.0, 0.38).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await blackout.finished
+	# Frame one is the bag search: keep it under black, then reveal the rifle
+	# assembly so the player sees the authored makeshift-sniper animation.
+	player.play_execute_plan()
+	await player.foley_cue_played
 	var reveal := create_tween()
-	reveal.tween_property(completion, "modulate:a", 1.0, 0.45)
+	reveal.tween_property(fade, "modulate:a", 0.0, 0.48).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await reveal.finished
+	await player.execute_plan_finished
+	await dialogue.show_line("...", 0.75, player, true)
+	await dialogue.show_line("Should I do it?", 1.05, player, true)
 	if auto_advance_to_scope:
 		_advance_to_scope()
 
 
 func _advance_to_scope() -> void:
-	await get_tree().create_timer(0.9).timeout
+	await get_tree().create_timer(0.3).timeout
 	if not is_inside_tree():
 		return
 	var transition := create_tween()

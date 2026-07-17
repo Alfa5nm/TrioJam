@@ -1,0 +1,179 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_bg"]
+[ext_resource type="FontFile" path="res://assets/fonts/DiarioDeAndy.otf" id="3_font"]
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.006, 0.008, 0.014, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.78, 0.7, 0.28)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="Button"]
+bg_color = Color(0.01, 0.014, 0.022, 0.9)
+border_width_bottom = 1
+border_color = Color(0.9, 0.87, 0.79, 0.45)
+
+[sub_resource type="StyleBoxFlat" id="ButtonHover"]
+bg_color = Color(0.11, 0.105, 0.11, 0.96)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.8)
+
+[sub_resource type="StyleBoxFlat" id="LineEdit"]
+bg_color = Color(0.02, 0.025, 0.036, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.45)
+
+[node name="MainMenu" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(0.3, 0.32, 0.42, 1)
+
+[node name="Shade" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.004, 0.006, 0.012, 0.62)
+
+[node name="Title" type="Label" parent="."]
+offset_left = 62.0
+offset_top = 64.0
+offset_right = 800.0
+offset_bottom = 145.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 58
+text = "Now. Todays' News."
+
+[node name="Menu" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 68.0
+offset_top = 420.0
+offset_right = 350.0
+offset_bottom = 666.0
+theme_override_constants/separation = 8
+
+[node name="NewGameButton" type="Button" parent="Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("Button")
+theme_override_styles/hover = SubResource("ButtonHover")
+text = "NEW GAME"
+
+[node name="ContinueButton" type="Button" parent="Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("Button")
+theme_override_styles/hover = SubResource("ButtonHover")
+text = "CONTINUE"
+
+[node name="SettingsButton" type="Button" parent="Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("Button")
+theme_override_styles/hover = SubResource("ButtonHover")
+text = "SETTINGS"
+
+[node name="QuitButton" type="Button" parent="Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("Button")
+theme_override_styles/hover = SubResource("ButtonHover")
+text = "QUIT"
+
+[node name="SettingsPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 380.0
+offset_top = 105.0
+offset_right = 900.0
+offset_bottom = 650.0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Layout" type="VBoxContainer" parent="SettingsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Title" type="Label" parent="SettingsPanel/Layout"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 34
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="MasterLabel" type="Label" parent="SettingsPanel/Layout"]
+layout_mode = 2
+text = "MASTER"
+[node name="MasterSlider" type="HSlider" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+[node name="SFXLabel" type="Label" parent="SettingsPanel/Layout"]
+layout_mode = 2
+text = "SFX"
+[node name="SFXSlider" type="HSlider" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+[node name="AmbienceLabel" type="Label" parent="SettingsPanel/Layout"]
+layout_mode = 2
+text = "AMBIENCE"
+[node name="AmbienceSlider" type="HSlider" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+[node name="UILabel" type="Label" parent="SettingsPanel/Layout"]
+layout_mode = 2
+text = "UI"
+[node name="UISlider" type="HSlider" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+[node name="FullscreenToggle" type="CheckButton" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FULLSCREEN"
+[node name="ResolutionOptions" type="OptionButton" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="SettingsClose" type="Button" parent="SettingsPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SAVE AND CLOSE"

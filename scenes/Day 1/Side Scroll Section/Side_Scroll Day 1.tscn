@@ -1,0 +1,95 @@
+[gd_scene format=4 uid="uid://cgkg5xa3pthl3"]
+
+[ext_resource type="Texture2D" uid="uid://dxgwid4pipjqv" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 04_10_31 PM (2).png" id="1_ebsmi"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_ivuku"]
+[ext_resource type="Texture2D" uid="uid://5fpgutasb5vi" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 04_10_34 PM (6).png" id="2_8ovup"]
+[ext_resource type="TileSet" uid="uid://bqdy8aldwhhph" path="res://assets/art/Day1 Scene 1/day1_scene1_tileset.tres" id="3_vqx22"]
+[ext_resource type="Texture2D" uid="uid://d04gvf07ibnqd" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 03_35_19 PM.png" id="3_ybk03"]
+[ext_resource type="Script" uid="uid://c25tbf4uysgff" path="res://scripts/world/day1_horizontal_camera.gd" id="4_p8uy5"]
+[ext_resource type="Texture2D" uid="uid://c808t1nheelry" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 04_10_34 PM (5).png" id="4_x1l7j"]
+[ext_resource type="Texture2D" uid="uid://b60psn1jasx4w" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 04_10_32 PM (3).png" id="6_h8sci"]
+[ext_resource type="Texture2D" uid="uid://djuoi4syhjcei" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 03_35_28 PM.png" id="7_p1cur"]
+[ext_resource type="Texture2D" uid="uid://dohpoggpi0f37" path="res://assets/art/Day1 Scene 1/ChatGPT Image Jul 17, 2026, 04_10_35 PM (7).png" id="8_ybk03"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ivihv"]
+size = Vector2(12262, 49)
+
+[node name="SideScrollDay1" type="Node2D" unique_id=2040803725]
+position = Vector2(-2, 0)
+
+[node name="Player" parent="." unique_id=562071822 instance=ExtResource("1_ivuku")]
+z_index = 5
+position = Vector2(138, 622)
+
+[node name="ChatGptImageJul17,2026,041034Pm(6)" type="Sprite2D" parent="." unique_id=130033146]
+position = Vector2(9576.217, 396.25)
+scale = Vector2(1.0122211, 1.0122211)
+texture = ExtResource("2_8ovup")
+
+[node name="ChatGptImageJul17,2026,033519Pm" type="Sprite2D" parent="." unique_id=1888636787]
+position = Vector2(708.00006, 457)
+scale = Vector2(0.8496281, 0.84962803)
+texture = ExtResource("3_ybk03")
+
+[node name="ChatGptImageJul17,2026,041034Pm(5)" type="Sprite2D" parent="." unique_id=198722305]
+position = Vector2(7894, 385)
+texture = ExtResource("4_x1l7j")
+
+[node name="ChatGptImageJul17,2026,041031Pm(2)2" type="Sprite2D" parent="." unique_id=1913969538]
+position = Vector2(6340, 404)
+scale = Vector2(0.8699523, 0.8699522)
+texture = ExtResource("1_ebsmi")
+
+[node name="ChatGptImageJul17,2026,041032Pm(3)" type="Sprite2D" parent="." unique_id=1176026716]
+position = Vector2(5002, 499)
+scale = Vector2(0.75690764, 0.7569076)
+texture = ExtResource("6_h8sci")
+
+[node name="ChatGptImageJul17,2026,041031Pm(2)" type="Sprite2D" parent="." unique_id=1087490796]
+position = Vector2(3644.0002, 404)
+scale = Vector2(0.8699523, 0.8699522)
+texture = ExtResource("1_ebsmi")
+
+[node name="ChatGptImageJul17,2026,033528Pm" type="Sprite2D" parent="." unique_id=2145321886]
+position = Vector2(2165, 440.00003)
+scale = Vector2(0.89744955, 0.8974495)
+texture = ExtResource("7_p1cur")
+
+[node name="ChatGptImageJul17,2026,041035Pm(7)" type="Sprite2D" parent="ChatGptImageJul17,2026,033528Pm" unique_id=1998362815]
+position = Vector2(10210.045, -131.48376)
+scale = Vector2(1.2060391, 1.2060392)
+texture = ExtResource("8_ybk03")
+
+[node name="EnvironmentTileMap" type="TileMapLayer" parent="." unique_id=761435807]
+texture_filter = 2
+position = Vector2(2164, 1316)
+tile_map_data = PackedByteArray("AAAMAAkABwAAAAAAAAARAAkABwAAAAAAAAAWAAkABwAAAAAAAAAbAAkABwAAAAAAAAAgAAkABwAAAAAAAAAlAAkABwAAAAAAAAAqAAkABwAAAAAAAAAvAAkABwAAAAAAAAALAAoADwAAAAAAAAALAAsAEAAAAAAAAAATAAsAEAAAAAAAAAAbAAsAEAAAAAAAAAAjAAsAEAAAAAAAAAArAAsAEAAAAAAAAAAwAAsAEAAAAAAAAAATAAoADwAAAAAAAAAbAAoADwAAAAAAAAAjAAoADwAAAAAAAAArAAoADwAAAAAAAAAzAAoADwAAAAAAAAANAAkAAAAAAAAAAAAJAAkABgAAAAAAAAATAAkABgAAAAAAAAAXAAkADgAAAAAAAAA=")
+tile_set = ExtResource("3_vqx22")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=932147515]
+z_index = -10
+offset_left = -502.0
+offset_top = -519.0
+offset_right = 10665.0
+offset_bottom = 1017.0
+mouse_filter = 2
+color = Color(0.09019608, 0.12941177, 0.16862746, 1)
+
+[node name="GroundCollision" type="StaticBody2D" parent="." unique_id=1608886863]
+position = Vector2(1600, 664)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GroundCollision" unique_id=1670083535]
+position = Vector2(4506, 1.5)
+shape = SubResource("RectangleShape2D_ivihv")
+
+[node name="HorizontalCamera" type="Camera2D" parent="." unique_id=2087343675]
+limit_enabled = false
+limit_left = 0
+limit_top = 0
+limit_right = 3456
+limit_bottom = 720
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+script = ExtResource("4_p8uy5")
+target_path = NodePath("../Player")

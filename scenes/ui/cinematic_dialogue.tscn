@@ -1,0 +1,106 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/cinematic_dialogue.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/DiarioDeAndy.otf" id="2_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="3_blip"]
+[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="4_chapter_font"]
+
+[sub_resource type="StyleBoxFlat" id="Dialogue_panel"]
+bg_color = Color(0.006, 0.007, 0.01, 0.96)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+shadow_color = Color(0, 0, 0, 0.48)
+shadow_size = 7
+
+[node name="CinematicDialogue" type="CanvasLayer"]
+layer = 80
+script = ExtResource("1_script")
+
+[node name="Dialogue" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Bubble" type="Control" parent="Dialogue"]
+layout_mode = 0
+offset_right = 430.0
+offset_bottom = 86.0
+mouse_filter = 2
+
+[node name="Tail" type="Polygon2D" parent="Dialogue/Bubble"]
+polygon = PackedVector2Array(208, 69, 222, 69, 215, 84)
+color = Color(0.006, 0.007, 0.01, 0.96)
+
+[node name="Panel" type="PanelContainer" parent="Dialogue/Bubble"]
+offset_right = 430.0
+offset_bottom = 72.0
+theme_override_styles/panel = SubResource("Dialogue_panel")
+
+[node name="Margin" type="MarginContainer" parent="Dialogue/Bubble/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 10
+
+[node name="Line" type="Label" parent="Dialogue/Bubble/Panel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 31
+text = "..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContinueCue" type="Label" parent="Dialogue/Bubble"]
+offset_left = 401.0
+offset_top = 46.0
+offset_right = 419.0
+offset_bottom = 67.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.76)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+text = "v"
+horizontal_alignment = 1
+
+[node name="Chapter" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Chapter"]
+offset_left = 52.0
+offset_top = 48.0
+offset_right = 460.0
+offset_bottom = 94.0
+theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.92)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("4_chapter_font")
+theme_override_font_sizes/font_size = 30
+text = ""
+
+[node name="Rule" type="ColorRect" parent="Chapter"]
+offset_left = 52.0
+offset_top = 101.0
+offset_right = 270.0
+offset_bottom = 103.0
+pivot_offset = Vector2(0, 1)
+color = Color(0.86, 0.7, 0.48, 0.68)
+
+[node name="Blip" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_blip")
+volume_db = 0.0
+bus = &"UI"

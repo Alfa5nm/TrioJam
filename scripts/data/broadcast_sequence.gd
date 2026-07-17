@@ -22,6 +22,14 @@ extends Resource
 @export var outcome_action: ActionDef
 
 
+func shots() -> Array[ShotElement]:
+	return [
+		ShotElement.new(cause_characters, cause_action),
+		ShotElement.new(conflict_characters, conflict_action),
+		ShotElement.new(outcome_characters, outcome_action),
+	]
+
+
 func matches_slot(index: int, shot: ShotElement) -> bool:
 	match index:
 		0:

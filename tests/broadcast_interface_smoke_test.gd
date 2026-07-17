@@ -4,8 +4,6 @@ var failures := 0
 var _last_sequence: BroadcastSequence
 var _last_matched := false
 var _resolved_count := 0
-var _continue_signal_fired := false
-var _capacity_warning_fired := false
 
 
 func _init() -> void:
@@ -21,6 +19,9 @@ func _run() -> void:
 		return
 
 	var ui := packed_scene.instantiate() as BroadcastInterface
+	_check(ui.use_news_broadcast_scene, "accepted Day 0 propaganda defaults to the animated NEWS studio")
+	ui.instant_mode = true
+	ui.use_news_broadcast_scene = false
 	root.add_child(ui)
 	for _frame in 4:
 		await process_frame
@@ -29,8 +30,17 @@ func _run() -> void:
 	_check(ui.conflict_slot != null, "conflict slot exists")
 	_check(ui.outcome_slot != null, "outcome slot exists")
 	_check(ui.scene_frame != null, "scene frame exists")
+	_check(ui.scene_frame.click_region != null, "redesigned scene selector has its interactive region")
 	_check(ui.character_roster != null, "character roster exists")
 	_check(ui.broadcast_button != null, "broadcast button exists")
+	_check(ui.get_node("Background").texture != null, "Akiibot's redesigned Broadcast background is loaded")
+	_check(ui.crt_material != null, "interrogation is localized through the CRT material")
+	_check(ui.phase == BroadcastInterface.Phase.INTERROGATION, "Day 0 starts in the cinematic interrogation phase")
+	_check(ui.tv_power.stream != null and ui.tv_hum.stream != null, "CRT power and ambience cues are assigned")
+	_check(ui.eject_sound.stream != null and ui.button_sound.stream != null, "desk hardware cues are assigned")
+	_check((ui.get_node("DeskRoot/GeneratedConsole") as TextureRect).texture.resource_path.ends_with("broadcast-console-base-v4.png"), "desk uses the decomposed hardware-free base plate")
+	_check(ui.scene_frame.camera_body.texture.resource_path.ends_with("evidence-camera-v5.png"), "capture camera uses the flat interaction-aligned painted object")
+	_check(ui.scene_frame.previous_button.text.is_empty() and ui.scene_frame.next_button.text.is_empty(), "camera arrows use embedded painted controls rather than GUI glyph buttons")
 
 	if ui.cause_slot == null or ui.conflict_slot == null or ui.outcome_slot == null or ui.broadcast_button == null:
 		ui.queue_free()
@@ -42,15 +52,24 @@ func _run() -> void:
 
 	var report := BroadcastDemoData.checkpoint_killing_report()
 	ui.load_report(report)
+	ui.scene_frame.ejection_time_scale = 0.0
 	_check(ui.broadcast_button.disabled, "broadcast disabled with 0/3 filled")
-	_check(report.max_characters_per_frame == 2, "checkpoint report allows 2 characters per frame")
-	_check(ui.cause_slot.max_characters == 2, "cause slot picks up the report's 2-character cap")
 
-	# The scene frame only cycles via its small button region, not the whole body.
+	# The redesigned scene card owns its cycle interaction.
 	_check(ui.scene_frame.current_action == null, "scene frame starts with no scene picked")
-	_check(ui.scene_frame.click_region != null, "scene frame click region exists")
 	ui.scene_frame.click_region.pressed.emit()
-	_check(ui.scene_frame.current_action != null, "clicking the button region picks a scene")
+	_check(ui.scene_frame.current_action != null, "clicking SCENE picks a scene")
+	_check(ui.scene_frame.is_ejected(ui.scene_frame.current_action), "red monitor control ejects a unique physical footage card")
+	_check(ui.scene_frame._polaroids.has(ui.scene_frame.current_action.id), "archiving physically creates a polaroid above the camera")
+	var emitted_polaroid := ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Control
+	_check(emitted_polaroid.get_parent() == ui.scene_frame.front_ejection_layer, "printed polaroid crosses into the foreground after clearing the slot")
+	_check(emitted_polaroid.mouse_filter == Control.MOUSE_FILTER_STOP, "ejected polaroid owns pointer input outside the camera bounds")
+	var polaroid_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, emitted_polaroid, false)
+	_check(typeof(polaroid_payload) == TYPE_DICTIONARY and polaroid_payload.get("type") == "broadcast_scene", "ejected polaroid begins a footage drag directly")
+	ui.scene_frame.mark_placed(ui.scene_frame.current_action)
+	_check(not emitted_polaroid.visible, "polaroid leaves the camera tray after being placed")
+	ui.scene_frame.return_card(ui.scene_frame.current_action)
+	_check(emitted_polaroid.visible, "returned footage restores the same draggable polaroid")
 
 	# Scene-first rule now lives on each slot directly: character drops rejected until
 	# that specific slot already has a scene dropped into it.
@@ -62,8 +81,8 @@ func _run() -> void:
 	var scene_payload := {"type": "broadcast_scene", "action": scene_action}
 
 	_check(
-		not ui.cause_slot._can_drop_data(Vector2.ZERO, character_payload),
-		"character drop rejected before a scene is dropped into this slot"
+		ui.cause_slot._can_drop_data(Vector2.ZERO, character_payload),
+		"character drop is accepted before footage so either placement order works"
 	)
 	_check(
 		ui.cause_slot._can_drop_data(Vector2.ZERO, scene_payload),
@@ -71,6 +90,9 @@ func _run() -> void:
 	)
 	ui.cause_slot._drop_data(Vector2.ZERO, scene_payload)
 	_check(ui.cause_slot.current_action == scene_action, "slot records the dropped scene")
+	ui.cause_slot.show_scene_reveal(scene_action.scene_image)
+	_check(ui.cause_slot.scene_image.mouse_filter == Control.MOUSE_FILTER_IGNORE, "visible footage cannot intercept character drops")
+	_check(ui.scene_frame._get_drag_data(Vector2.ZERO) == null, "placed footage cannot be duplicated into another frame")
 	_check(
 		ui.cause_slot._can_drop_data(Vector2.ZERO, character_payload),
 		"character drop accepted once this slot has a scene"
@@ -126,141 +148,86 @@ func _run() -> void:
 	_check(_last_sequence == null, "unrecognized combination returns no sequence")
 	_check(ui.dialogue_label.text != "", "dialogue falls back gracefully instead of erroring")
 
-	# --- Day 0: Rooftop Killing report + paginated intro + reporter narration playback ---
+	# --- Day 0: embedded interrogation, desk mission, and reporter handoff ---
 	var rooftop_report := BroadcastDemoData.rooftop_killing_report()
 	ui.load_report(rooftop_report)
-	_check(rooftop_report.truthful_sequence != null, "rooftop report now has a truthful route")
-	_check(rooftop_report.max_characters_per_frame == 1, "rooftop report allows only 1 character per frame")
-	_check(rooftop_report.available_actions[0].scene_image != null, "rooftop scene action has a reveal image")
-	_check(rooftop_report.available_actions[1].scene_image != null, "rooftop shoots action has a reveal image")
-	_check(rooftop_report.available_actions[2].scene_image != null, "victim shot action has a reveal image")
-	_check(ui.cause_slot.max_characters == 1, "cause slot picks up rooftop report's 1-character cap")
-	_check(ui._playback_active, "intro pagination starts immediately after loading a report")
-	_check(ui.dialogue_label.text == rooftop_report.intro_lines[0], "first intro page shown")
-
-	_check(
-		ui._playback_speakers.size() == rooftop_report.intro_speakers.size(),
-		"intro speaker list is tracked alongside the lines"
-	)
-	_check(ui.speaker_portrait.visible, "speaker portrait shows for the first (government) line")
-	_check(
-		ui.speaker_portrait.texture == rooftop_report.speaker_portraits[&"government"],
-		"government's portrait texture is shown first"
-	)
-
-	ui.continue_button.pressed.emit()
-	_check(ui.dialogue_label.text == rooftop_report.intro_lines[1], "second intro page shown")
-	ui.continue_button.pressed.emit()
-	_check(ui.dialogue_label.text == rooftop_report.intro_lines[2], "third intro page shown")
-	_check(
-		ui.speaker_portrait.texture == rooftop_report.speaker_portraits[&"mc"],
-		"portrait switches to MC when MC speaks"
-	)
-	ui.continue_button.pressed.emit()
-	_check(ui.dialogue_label.text == rooftop_report.intro_lines[3], "fourth intro page shown")
-	_check(
-		ui.speaker_portrait.texture == rooftop_report.speaker_portraits[&"government"],
-		"portrait switches back to government"
-	)
-
-	# Advance through the remaining interrogation pages (indices 4..15) to the end,
-	# plus one more press to trigger the end-of-intro transition.
-	for _i in range(rooftop_report.intro_lines.size() - 4 + 1):
+	_check(ui._playback_active, "Day 0 Government interrogation begins inside the Broadcast UI")
+	_check(rooftop_report.intro_beats.size() == rooftop_report.intro_lines.size(), "interrogation uses emotion-aware dialogue beats")
+	_check(ui.dialogue_label.text == "...", "Government Man opens the embedded interrogation")
+	_check(ui.speaker_portrait.visible and ui.speaker_portrait.texture == rooftop_report.speaker_portraits[&"government"], "Government portrait is shown for his dialogue")
+	for _index in range(3):
 		ui.continue_button.pressed.emit()
-	_check(not ui._playback_active, "intro pagination ends after the last page")
-	_check(
-		not ui.dialogue_label.text.ends_with("— End of broadcast —"),
-		"intro end does not show the broadcast recap marker"
-	)
-
-	# Once intro pagination is done, CONTINUE passes through again (no playback active).
-	ui.continue_pressed.connect(_on_continue_passthrough)
+	_check(ui._awaiting_name and ui.name_entry.visible, "embedded interrogation pauses at the naming prompt")
+	_check(ui.name_input.max_length == 10, "Broadcast naming keeps the ten-character limit")
+	ui.name_input.text = "Test MC"
+	ui._confirm_name()
+	_check(ui.dialogue_label.text == "Test MC.", "entered name is spoken as the MC response")
+	_check(ui.speaker_portrait.texture == BroadcastInterface.MC_GUARDED, "generated emotion-aware MC portrait accompanies the entered name")
 	ui.continue_button.pressed.emit()
-	_check(_continue_signal_fired, "CONTINUE passes through once intro pagination is finished")
-	ui.continue_pressed.disconnect(_on_continue_passthrough)
-
-	# A 2nd character is rejected with a warning when the report caps frames at 1.
-	ui.cause_slot.capacity_warning.connect(_on_capacity_warning)
-	var opposition: CharacterDef = rooftop_report.characters[0]
-	var mc: CharacterDef = rooftop_report.characters[1]
-	ui.cause_slot._drop_data(Vector2.ZERO, {"type": "broadcast_scene", "action": rooftop_report.available_actions[0]})
-	ui.cause_slot._drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": opposition})
-	_check(ui.cause_slot.current_characters.size() == 1, "slot holds its single allowed character")
-	_check(ui.cause_slot.scene_image.visible, "correct scene+character combo reveals the scene image live")
-	_check(
-		ui.cause_slot.scene_image.texture == rooftop_report.available_actions[0].scene_image,
-		"the revealed image matches the scene's authored art"
-	)
-	_check(
-		not ui.cause_slot._can_drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": mc}),
-		"a 2nd character is rejected when the frame caps at 1"
-	)
-	_check(_capacity_warning_fired, "capacity_warning signal fires when a 2nd character is rejected")
-	_check(ui.dialogue_label.text.contains("1 character"), "dialogue shows the capacity warning message")
-	ui.cause_slot.capacity_warning.disconnect(_on_capacity_warning)
+	for _index in range(rooftop_report.intro_lines.size() - 4):
+		ui.continue_button.pressed.emit()
+	_check(not ui._playback_active, "interrogation completes before desk editing begins")
+	_check(ui.dialogue_label.text == rooftop_report.directive_text, "desk directive follows the embedded interrogation")
+	_check(ui.scene_frame.click_region.disabled == false, "desk editing unlocks only after interrogation")
+	_check(not ui.continue_button.visible, "Continue is hidden while the player constructs the report")
+	_check(rooftop_report.truthful_sequence != null, "rooftop report recognizes its truthful reconstruction")
+	_check(rooftop_report.intro_lines.all(func(line: String): return line not in rooftop_report.propaganda_sequence.broadcast_lines), "interrogation lines remain separate from the Broadcast Lady script")
+	_check(rooftop_report.available_actions.all(func(action: ActionDef): return action.scene_image != null), "Akiibot's three authored frame images are available")
+	_check(rooftop_report.characters.all(func(character: CharacterDef): return character.portrait_texture != null), "Akiibot's three authored roster portraits are available")
+	_check(ui.cause_slot.max_characters == 1, "redesigned Day 0 frames retain their one-character limit")
+	var session := root.get_node_or_null("GameSession")
+	_check(session != null and rooftop_report.characters[1].display_name == session.player_name, "Broadcast roster uses the embedded interrogation name")
+	var live_chip := ui.character_roster.get_child(0) as CharacterChip
+	var live_character_payload: Variant = live_chip.drag_payload()
+	_check(typeof(live_character_payload) == TYPE_DICTIONARY, "visible Day 0 portrait produces a character drag payload")
+	ui.cause_slot.clear()
+	ui.cause_slot._drop_data(Vector2.ZERO, live_character_payload)
+	_check(ui.cause_slot.current_action == null and ui.cause_slot.current_characters.size() == 1, "character token can be dropped before footage")
 	ui.cause_slot.clear()
 
-	# --- Truth route: matches, but MC refuses to broadcast it — no reporter recap ---
-	var truthful: BroadcastSequence = rooftop_report.truthful_sequence
-	ui.cause_slot.place(ShotElement.new(truthful.cause_characters, truthful.cause_action))
-	ui.conflict_slot.place(ShotElement.new(truthful.conflict_characters, truthful.conflict_action))
-	ui.outcome_slot.place(ShotElement.new(truthful.outcome_characters, truthful.outcome_action))
-	_check(
-		ui.cause_slot.scene_image.visible and ui.conflict_slot.scene_image.visible and ui.outcome_slot.scene_image.visible,
-		"all 3 frames reveal their scene image once the truth route is correctly assembled"
-	)
+	var truth: BroadcastSequence = rooftop_report.truthful_sequence
+	ui.cause_slot.place(ShotElement.new(truth.cause_characters, truth.cause_action))
+	ui.conflict_slot.place(ShotElement.new(truth.conflict_characters, truth.conflict_action))
+	ui.outcome_slot.place(ShotElement.new(truth.outcome_characters, truth.outcome_action))
 	ui._on_broadcast_pressed()
-	_check(_last_matched, "truth route matches")
-	_check(ui._playback_active, "MC's refusal reaction plays")
-	_check(ui.dialogue_label.text == truthful.reaction_lines[0], "MC's refusal line is shown")
+	_check(ui.dialogue_label.text == "No. No no no. I can't broadcast this.", "truth reconstruction is recognized and rejected with the authored line")
+	_check(not ui._playback_active, "truth route never starts reporter playback")
+	_check(ui.broadcast_button.disabled, "editing is locked while the truth response is on screen")
+	var truth_character_count := ui.cause_slot.current_characters.size()
+	ui.cause_slot.remove_character(ui.cause_slot.current_characters[0])
+	_check(ui.cause_slot.current_characters.size() == truth_character_count, "placed character removal is locked during narrative responses")
 	ui.continue_button.pressed.emit()
-	_check(not ui._playback_active, "truth route ends after MC's single reaction line")
-	_check(
-		not ui.dialogue_label.text.ends_with("— End of broadcast —"),
-		"truth route shows no recap marker since MC refused to broadcast"
-	)
+	_check(not ui.scene_frame.click_region.disabled, "editing returns after the truth response")
 
-	# --- Unrecognized combination uses the report's authored mismatch line ---
-	var government_official: CharacterDef = rooftop_report.characters[2]
-	var rooftop_scene_action: ActionDef = rooftop_report.available_actions[0]
-	ui.cause_slot.place(ShotElement.new([government_official], rooftop_scene_action))
-	ui.conflict_slot.place(ShotElement.new([government_official], rooftop_scene_action))
-	ui.outcome_slot.place(ShotElement.new([government_official], rooftop_scene_action))
-	_check(
-		not ui.cause_slot.scene_image.visible,
-		"an incorrect combo does not reveal a scene image, even with a valid action"
-	)
+	ui.cause_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[0]))
+	ui.conflict_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[1]))
+	ui.outcome_slot.place(ShotElement.new([rooftop_report.characters[0]], rooftop_report.available_actions[2]))
 	ui._on_broadcast_pressed()
-	_check(not _last_matched, "unrecognized rooftop combination does not match")
-	_check(ui.dialogue_label.text == rooftop_report.mismatch_line, "dialogue shows the report's authored mismatch line")
+	_check(ui.dialogue_label.text == "...This doesn't make any sense.", "invalid reconstruction receives the authored response")
+	_check(not ui._playback_active, "invalid reconstruction does not start reporter playback")
+	ui.continue_button.pressed.emit()
 
-	# --- Propaganda route: MC's reaction lines play first, then the reporter recap ---
 	var propaganda: BroadcastSequence = rooftop_report.propaganda_sequence
 	ui.cause_slot.place(ShotElement.new(propaganda.cause_characters, propaganda.cause_action))
 	ui.conflict_slot.place(ShotElement.new(propaganda.conflict_characters, propaganda.conflict_action))
 	ui.outcome_slot.place(ShotElement.new(propaganda.outcome_characters, propaganda.outcome_action))
-	_check(
-		ui.cause_slot.scene_image.texture == propaganda.cause_action.scene_image
-		and ui.conflict_slot.scene_image.texture == propaganda.conflict_action.scene_image
-		and ui.outcome_slot.scene_image.texture == propaganda.outcome_action.scene_image,
-		"the propaganda route reveals the correct distinct image per frame"
-	)
 	_check(not ui.broadcast_button.disabled, "rooftop report broadcast enabled once all 3 slots filled")
 
 	ui._on_broadcast_pressed()
-	_check(ui._playback_active, "propaganda reaction + recap playback starts after a matched broadcast")
-	_check(ui.dialogue_label.text == propaganda.reaction_lines[0], "MC's first reaction line shown before the recap")
+	_check(not ui._playback_active, "propaganda route pauses for the MC response before playback")
+	_check(ui.dialogue_label.text == "They will believe this, even if it doesn't make sense.", "first propaganda commitment line shown")
+	ui.continue_button.pressed.emit()
+	_check(ui.dialogue_label.text == "This will cause a huge conflict...", "second propaganda commitment line shown")
+	ui.continue_button.pressed.emit()
+	_check(ui.dialogue_label.text == "...I have to be okay with this.", "third propaganda commitment line shown")
+	ui.continue_button.pressed.emit()
+	_check(ui._playback_active, "reporter playback starts after all three commitment lines")
+	_check(session.pending_broadcast_package != null and session.pending_broadcast_package.action_ids.size() == 3, "accepted reconstruction is packaged for the NEWS studio")
+	_check(ui.dialogue_label.text == propaganda.broadcast_lines[0], "first reporter line shown")
 	_check(
 		not ui.cause_slot._highlighted and not ui.conflict_slot._highlighted and not ui.outcome_slot._highlighted,
-		"MC's reaction lines highlight no frame"
+		"intro line highlights no frame"
 	)
-
-	ui.continue_button.pressed.emit()
-	_check(ui.dialogue_label.text == propaganda.reaction_lines[1], "MC's second reaction line shown")
-	ui.continue_button.pressed.emit()
-	_check(ui.dialogue_label.text == propaganda.reaction_lines[2], "MC's third reaction line shown")
-	ui.continue_button.pressed.emit()
-	_check(ui.dialogue_label.text == propaganda.broadcast_lines[0], "first reporter line shown after MC's reaction")
 
 	ui.continue_button.pressed.emit()
 	_check(ui.dialogue_label.text == propaganda.broadcast_lines[1], "second reporter line shown")
@@ -278,8 +245,8 @@ func _run() -> void:
 	_check(ui.dialogue_label.text == propaganda.broadcast_lines[4], "fifth reporter line shown")
 	_check(ui.outcome_slot._highlighted, "outcome frame highlighted")
 
-	# Remaining broadcast_lines[5..8] (4 presses), then one more press ends playback.
-	for _i in range(propaganda.broadcast_lines.size() - 5 + 1):
+	# 5 more presses: lines[5..8] (4 presses), then a 5th press ends playback.
+	for _i in range(5):
 		ui.continue_button.pressed.emit()
 	_check(not ui._playback_active, "playback ends after the last line")
 	_check(ui.dialogue_label.text.ends_with("— End of broadcast —"), "end-of-broadcast marker shown")
@@ -296,14 +263,6 @@ func _on_broadcast_resolved(sequence: BroadcastSequence, matched: bool) -> void:
 	_resolved_count += 1
 	_last_sequence = sequence
 	_last_matched = matched
-
-
-func _on_continue_passthrough() -> void:
-	_continue_signal_fired = true
-
-
-func _on_capacity_warning(_slot: FrameSlot) -> void:
-	_capacity_warning_fired = true
 
 
 func _check(condition: bool, description: String) -> void:

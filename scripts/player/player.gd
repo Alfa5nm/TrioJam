@@ -20,6 +20,7 @@ signal foley_cue_played(cue: StringName, animation_frame: int)
 
 const COYOTE_TIME := 0.12
 const JUMP_BUFFER_TIME := 0.12
+const AUTHORED_MOVE_SPEED := 165.0
 
 var controls_enabled := true
 var _coyote_timer := 0.0
@@ -68,7 +69,15 @@ func _exit_tree() -> void:
 func _physics_process(delta: float) -> void:
 	_footstep_cooldown = maxf(_footstep_cooldown - delta, 0.0)
 	if not controls_enabled:
-		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+		if animated_sprite.animation == &"walk":
+			animated_sprite.speed_scale = 1.0
+			animated_sprite.play(&"idle")
+		footstep_dust.emitting = false
+		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+		if not is_on_floor():
+			velocity.y += _gravity * delta
+		else:
+			velocity.y = 0.0
 		move_and_slide()
 		return
 
@@ -115,6 +124,7 @@ func reset_to(spawn_position: Vector2) -> void:
 
 
 func play_interaction() -> void:
+	animated_sprite.speed_scale = 1.0
 	animated_sprite.play(&"interact")
 	var tween := create_tween()
 	tween.tween_interval(0.45)
@@ -124,9 +134,20 @@ func play_interaction() -> void:
 	)
 
 
+func play_door_interaction() -> void:
+	controls_enabled = false
+	velocity.x = 0.0
+	animated_sprite.speed_scale = 1.0
+	animated_sprite.play(&"interact")
+	visual.rotation = 0.0
+	footstep_dust.emitting = false
+	footstep_player.stop()
+
+
 func play_execute_plan() -> void:
 	controls_enabled = false
 	velocity = Vector2.ZERO
+	animated_sprite.speed_scale = 1.0
 	animated_sprite.flip_h = false
 	visual.rotation = 0.0
 	animated_sprite.play(&"execute")
@@ -168,9 +189,11 @@ func _play_foley(audio_player: AudioStreamPlayer2D, cue: StringName) -> void:
 func _update_presentation(direction: float, delta: float) -> void:
 	var moving := absf(velocity.x) > 8.0 and controls_enabled
 	if moving:
+		animated_sprite.speed_scale = move_speed / AUTHORED_MOVE_SPEED
 		if animated_sprite.animation != &"walk":
 			animated_sprite.play(&"walk")
 	else:
+		animated_sprite.speed_scale = 1.0
 		if animated_sprite.animation != &"idle" and animated_sprite.animation != &"interact":
 			animated_sprite.play(&"idle")
 

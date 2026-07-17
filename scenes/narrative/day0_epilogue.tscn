@@ -1,0 +1,172 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/narrative/day0_epilogue.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/Epilogue/bedroom-window-master-v1.png" id="2_bedroom"]
+[ext_resource type="FontFile" path="res://assets/fonts/DiarioDeAndy.otf" id="3_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-rustle.ogg" id="5_curtain"]
+
+[sub_resource type="StyleBoxFlat" id="DialogueStyle"]
+bg_color = Color(0.004, 0.006, 0.012, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.69, 0.76, 0.88, 0.28)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxEmpty" id="EmptyStyle"]
+
+[node name="Day0Epilogue" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Black" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Bedroom" type="Control" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Plate" type="TextureRect" parent="Bedroom"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bedroom")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ReflectionLayer" type="Control" parent="Bedroom"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ProtestGlow" type="ColorRect" parent="Bedroom/ReflectionLayer"]
+unique_name_in_owner = true
+offset_left = 195.0
+offset_top = 368.0
+offset_right = 674.0
+offset_bottom = 614.0
+mouse_filter = 2
+color = Color(0.66, 0.06, 0.025, 0.2)
+modulate = Color(1, 1, 1, 0.12)
+
+[node name="FireGlow" type="Polygon2D" parent="Bedroom/ReflectionLayer"]
+unique_name_in_owner = true
+polygon = PackedVector2Array(276, 603, 329, 465, 374, 595, 425, 430, 475, 604, 530, 492, 574, 612)
+color = Color(1, 0.26, 0.035, 0.32)
+modulate = Color(1, 1, 1, 0.13)
+
+[node name="GunFlash" type="Polygon2D" parent="Bedroom/ReflectionLayer"]
+unique_name_in_owner = true
+polygon = PackedVector2Array(367, 474, 372, 483, 381, 488, 372, 493, 367, 502, 362, 493, 353, 488, 362, 483)
+color = Color(0.93, 0.97, 1, 0.9)
+modulate = Color(1, 1, 1, 0)
+
+[node name="Curtains" type="AnimatedSprite2D" parent="Bedroom"]
+unique_name_in_owner = true
+position = Vector2(640, 360)
+scale = Vector2(2.35727, 0.994475)
+texture_filter = 1
+
+[node name="BedroomFade" type="ColorRect" parent="Bedroom"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="DialoguePanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -105.0
+offset_right = 440.0
+offset_bottom = 105.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("DialogueStyle")
+
+[node name="Margin" type="MarginContainer" parent="DialoguePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="VBoxContainer" parent="DialoguePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="SpeakerLabel" type="Label" parent="DialoguePanel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.94, 0.92)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 22
+text = "Civilian 1"
+
+[node name="DialogueLabel" type="Label" parent="DialoguePanel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 31
+text = "They murdered him!"
+autowrap_mode = 2
+vertical_alignment = 1
+
+[node name="AdvancePrompt" type="Label" parent="DialoguePanel/Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.74, 0.84, 0.8)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 15
+text = "E / CLICK"
+horizontal_alignment = 2
+
+[node name="Blip" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("4_blip")
+volume_db = 5.0
+bus = &"UI"
+
+[node name="CurtainRustle" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("5_curtain")
+volume_db = 1.0
+bus = &"SFX"

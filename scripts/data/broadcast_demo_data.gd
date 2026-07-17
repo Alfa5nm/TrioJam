@@ -51,16 +51,18 @@ static func checkpoint_killing_report() -> BroadcastReport:
 
 
 static func rooftop_killing_report() -> BroadcastReport:
+	var session := (Engine.get_main_loop() as SceneTree).root.get_node_or_null("GameSession")
+	var player_name := str(session.player_name) if session != null else "MC"
 	var opposition_person := _character(
 		&"opposition_person", "Opposition Person", Color(0.714, 0.275, 0.310, 1),
 		"res://assets/art/ui/broadcast/portrait_opposition.png"
 	)
 	var mc := _character(
-		&"mc", "MC", Color(0.243, 0.761, 0.91, 1),
+		&"mc", player_name, Color(0.243, 0.761, 0.91, 1),
 		"res://assets/art/ui/broadcast/portrait_mc.png"
 	)
 	var government_official := _character(
-		&"government_official", "Government Official", Color(0.855, 0.82, 0.631, 1),
+		&"government_official", "Government Individual Dying", Color(0.855, 0.82, 0.631, 1),
 		"res://assets/art/ui/broadcast/portrait_government.png"
 	)
 
@@ -68,7 +70,8 @@ static func rooftop_killing_report() -> BroadcastReport:
 		&"rooftop_scene", "Rooftop Scene", "res://assets/art/ui/broadcast/scene_rooftop.png"
 	)
 	var rooftop_shoots := _action(
-		&"rooftop_shoots", "Rooftop Shoots", "res://assets/art/ui/broadcast/scene_rooftop_shoots.png"
+		# Identity-neutral evidence: the perpetrator is assigned by a separate physical chip.
+		&"rooftop_shoots", "Rooftop Shoots", "res://assets/art/ui/broadcast/scene_rooftop.png"
 	)
 	var victim_shot := _action(
 		&"victim_shot", "The victim being shot", "res://assets/art/ui/broadcast/scene_victim_shot.png"
@@ -113,48 +116,58 @@ static func rooftop_killing_report() -> BroadcastReport:
 
 	var report := BroadcastReport.new()
 	report.report_id = &"day0_rooftop_killing"
-	report.directive_text = "Select a scene, place it inside a frame, and drag the required characters into position. Arrange all three frames to construct the narrative requested by the government.\n\nThe report does not need to show what happened. It only needs to show what the public is supposed to believe happened."
+	report.directive_text = "Drag footage and character tokens into the three story frames. Either can be placed first. Construct the narrative the government expects."
 	report.intro_lines = [
-		"…",
+		"...",
 		"State your identification.",
-		"…",
+		"...",
+		"{name_input}",
 		"??",
 		"I don't think you understand. Your name is irrelevant.",
 		"Your identification number.",
-		"…Oh. Yes, it's not unexpected.",
+		"...Oh. Yes, it's not unexpected.",
 		"It's G-03S-93.",
-		"…",
-		"…Recorded. You understand why you are here. You understand what is expected of you.",
+		"...",
+		"...Recorded. You understand why you are here. You understand what is expected of you.",
 		"What you're here for.",
-		"…I understand. Just don't hurt them.",
-		"Their safety is entirely dependent on your cooperation. However, we are pleased to hear you will follow through. You'll be rewarded hefty for this.",
-		"…",
+		"...",
+		"I understand. Just don't hurt them.",
+		"Their safety is entirely dependent on your cooperation. However, we are pleased to hear you will follow through. You'll be rewarded heftily for this.",
+		"...",
 		"The country is waiting to learn who fired the first shot.",
-		"(...But they'll be hearing a lie. Not that it matters to them.)",
+		"(But they'll be hearing a lie. Not that it matters to them.)",
 	]
 	report.intro_speakers = [
-		&"government",
-		&"government",
-		&"mc",
-		&"government",
-		&"government",
-		&"government",
-		&"mc",
-		&"mc",
-		&"government",
-		&"government",
-		&"government",
-		&"mc",
-		&"government",
-		&"mc",
-		&"government",
-		&"mc",
+		&"government", &"government", &"mc", &"government",
+		&"government", &"government", &"government", &"mc", &"mc",
+		&"government", &"government", &"government", &"mc", &"mc",
+		&"government", &"mc", &"government", &"mc",
+	]
+	report.intro_beats = [
+		BroadcastDialogueBeat.make(&"government", "...", &"neutral", BroadcastDialogueBeat.Kind.SILENT),
+		BroadcastDialogueBeat.make(&"government", "State your identification.", &"neutral"),
+		BroadcastDialogueBeat.make(&"mc", "...", &"stunned", BroadcastDialogueBeat.Kind.SILENT),
+		BroadcastDialogueBeat.make(&"government", "{name_input}", &"neutral", BroadcastDialogueBeat.Kind.NAME_INPUT),
+		BroadcastDialogueBeat.make(&"government", "??", &"neutral"),
+		BroadcastDialogueBeat.make(&"government", "I don't think you understand. Your name is irrelevant.", &"neutral", BroadcastDialogueBeat.Kind.SPOKEN, 0.35),
+		BroadcastDialogueBeat.make(&"government", "Your identification number.", &"neutral"),
+		BroadcastDialogueBeat.make(&"mc", "...Oh. Yes, it's not unexpected.", &"wary"),
+		BroadcastDialogueBeat.make(&"mc", "It's G-03S-93.", &"resigned"),
+		BroadcastDialogueBeat.make(&"government", "...", &"neutral", BroadcastDialogueBeat.Kind.SILENT),
+		BroadcastDialogueBeat.make(&"government", "...Recorded. You understand why you are here. You understand what is expected of you.", &"neutral"),
+		BroadcastDialogueBeat.make(&"government", "What you're here for.", &"neutral"),
+		BroadcastDialogueBeat.make(&"mc", "...", &"fearful", BroadcastDialogueBeat.Kind.SILENT),
+		BroadcastDialogueBeat.make(&"mc", "I understand. Just don't hurt them.", &"fearful", BroadcastDialogueBeat.Kind.SPOKEN, 0.35),
+		BroadcastDialogueBeat.make(&"government", "Their safety is entirely dependent on your cooperation. However, we are pleased to hear you will follow through. You'll be rewarded heftily for this.", &"neutral", BroadcastDialogueBeat.Kind.SPOKEN, 0.65),
+		BroadcastDialogueBeat.make(&"mc", "...", &"angry", BroadcastDialogueBeat.Kind.SILENT),
+		BroadcastDialogueBeat.make(&"government", "The country is waiting to learn who fired the first shot.", &"neutral"),
+		BroadcastDialogueBeat.make(&"mc", "But they'll be hearing a lie. Not that it matters to them.", &"guilty", BroadcastDialogueBeat.Kind.THOUGHT),
 	]
 	report.max_characters_per_frame = 1
 	report.mismatch_line = "…This doesn't make any sense."
 	report.speaker_portraits = {
-		&"government": load("res://assets/art/ui/broadcast/speaker_government.png"),
-		&"mc": load("res://assets/art/ui/broadcast/speaker_mc.png"),
+		&"government": load("res://assets/art/ui/broadcast/portrait_government.png"),
+		&"mc": load("res://assets/art/ui/broadcast/portrait_mc.png"),
 	}
 	report.characters = [opposition_person, mc, government_official]
 	report.available_actions = [rooftop_scene, rooftop_shoots, victim_shot]

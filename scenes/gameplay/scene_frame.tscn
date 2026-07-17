@@ -1,34 +1,151 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://scripts/gameplay/scene_frame.gd" id="1_frame"]
-[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/camera_prop.png" id="2_camera"]
+[ext_resource type="Script" path="res://scripts/gameplay/scene_frame.gd" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="2"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/broadcast_v2/evidence-camera-v5.png" id="3"]
 
-[node name="SceneFrame" type="VBoxContainer"]
-theme_override_constants/separation = 8
-script = ExtResource("1_frame")
+[sub_resource type="StyleBoxEmpty" id="transparent"]
 
-[node name="Body" type="TextureRect" parent="."]
-custom_minimum_size = Vector2(300, 221)
-layout_mode = 2
+[sub_resource type="StyleBoxFlat" id="control_hover"]
+bg_color = Color(0.55, 0.78, 0.9, 0.16)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.68, 0.9, 1, 0.48)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="archive_hover"]
+bg_color = Color(1, 0.18, 0.08, 0.18)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.55, 0.34, 0.55)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="SceneFrame" type="Control"]
+custom_minimum_size = Vector2(330, 250)
+script = ExtResource("1")
+
+[node name="RearEjectionLayer" type="Control" parent="."]
+unique_name_in_owner = true
+offset_right = 330.0
+offset_bottom = 250.0
 mouse_filter = 2
-texture = ExtResource("2_camera")
+
+[node name="Body" type="Control" parent="."]
+unique_name_in_owner = true
+offset_right = 330.0
+offset_bottom = 250.0
+
+[node name="CameraBody" type="TextureRect" parent="Body"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ClickRegion" type="Button" parent="Body"]
-offset_left = 241.0
-offset_top = 39.0
-offset_right = 276.0
-offset_bottom = 70.0
+[node name="ScreenImage" type="TextureRect" parent="Body"]
+offset_left = 47.5
+offset_top = 85.0
+offset_right = 203.0
+offset_bottom = 192.5
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Scanlines" type="ColorRect" parent="Body"]
+offset_left = 47.5
+offset_top = 85.0
+offset_right = 203.0
+offset_bottom = 192.5
+mouse_filter = 2
+color = Color(0.18, 0.42, 0.49, 0.08)
+
+[node name="ArchiveLabel" type="Label" parent="Body"]
+unique_name_in_owner = true
+visible = false
+offset_left = 62.0
+offset_top = 102.0
+offset_right = 180.0
+offset_bottom = 134.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.91, 0.94, 0.84, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 15
+text = "ARCHIVED"
+horizontal_alignment = 1
+
+[node name="Previous" type="Button" parent="Body"]
+unique_name_in_owner = true
+offset_left = 220.0
+offset_top = 84.0
+offset_right = 254.0
+offset_bottom = 121.0
 focus_mode = 0
-flat = true
-text = ""
+theme_override_styles/normal = SubResource("transparent")
+theme_override_styles/hover = SubResource("control_hover")
+theme_override_styles/pressed = SubResource("control_hover")
+theme_override_styles/disabled = SubResource("transparent")
+tooltip_text = "Previous captured moment"
+
+[node name="Next" type="Button" parent="Body"]
+unique_name_in_owner = true
+offset_left = 258.0
+offset_top = 84.0
+offset_right = 292.0
+offset_bottom = 121.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("transparent")
+theme_override_styles/hover = SubResource("control_hover")
+theme_override_styles/pressed = SubResource("control_hover")
+theme_override_styles/disabled = SubResource("transparent")
+tooltip_text = "Next captured moment"
+
+[node name="ClickRegion" type="Button" parent="Body"]
+unique_name_in_owner = true
+offset_left = 230.0
+offset_top = 141.0
+offset_right = 283.0
+offset_bottom = 196.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("transparent")
+theme_override_styles/hover = SubResource("archive_hover")
+theme_override_styles/pressed = SubResource("archive_hover")
+theme_override_styles/disabled = SubResource("transparent")
+tooltip_text = "Archive current capture"
+
+[node name="FrontEjectionLayer" type="Control" parent="."]
+unique_name_in_owner = true
+offset_right = 330.0
+offset_bottom = 250.0
+mouse_filter = 1
 
 [node name="CaptionLabel" type="Label" parent="."]
-layout_mode = 2
+offset_left = 12.0
+offset_top = 225.0
+offset_right = 318.0
+offset_bottom = 250.0
 mouse_filter = 2
+theme_override_colors/font_color = Color(0.86, 0.9, 0.92, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 16
+text = "NO CAPTURE"
 horizontal_alignment = 1
-autowrap_mode = 3
-theme_override_colors/font_color = Color(0.75, 0.79, 0.84, 0.85)
-theme_override_font_sizes/font_size = 14
-text = "Click to choose a scene"
