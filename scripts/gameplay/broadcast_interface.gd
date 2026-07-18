@@ -17,11 +17,14 @@ const PROPAGANDA_RESPONSE: Array[String] = [
 	"...I have to be okay with this.",
 ]
 const DISABLED_MODULATE := Color(0.55, 0.58, 0.62, 0.48)
-const MC_STUNNED := preload("res://assets/art/ui/broadcast_v2/mc-stunned.png")
-const MC_GUARDED := preload("res://assets/art/ui/broadcast_v2/mc-guarded.png")
-const MC_FEARFUL_TALK := preload("res://assets/art/ui/broadcast_v2/mc-fearful-talk.png")
-const MC_RESOLVED_TALK := preload("res://assets/art/ui/broadcast_v2/mc-resolved-talk.png")
+const MC_NEUTRAL := preload("res://assets/art/ui/broadcast_v2/interrogation/mc-neutral.png")
+const MC_DIRTY := preload("res://assets/art/ui/broadcast_v2/interrogation/mc-dirty.png")
+const MC_STUNNED := MC_NEUTRAL
+const MC_GUARDED := MC_NEUTRAL
+const MC_FEARFUL_TALK := MC_DIRTY
+const MC_RESOLVED_TALK := MC_DIRTY
 const BROADCAST_FONT := preload("res://assets/fonts/Basic-Regular.ttf")
+const NEWSLETTER_FONT := preload("res://assets/fonts/Newsreader.ttf")
 
 @export var instant_mode := false
 @export var use_news_broadcast_scene := true
@@ -48,6 +51,9 @@ var _name_line_ready := false
 var _elapsed := 0.0
 var _current_speaker: StringName = &""
 var _current_emotion: StringName = &"neutral"
+var _active_transcript_label: Label
+var _transcript_scroll_internal := false
+var _transcript_follow_latest := true
 
 @onready var scene_frame: SceneFrame = %SceneFrame
 @onready var character_roster: CharacterRoster = %CharacterRoster
@@ -62,8 +68,9 @@ var _current_emotion: StringName = &"neutral"
 @onready var cinema_rig: Control = %CinemaRig
 @onready var desk_root: Control = %DeskRoot
 @onready var desk_portrait: TextureRect = %DeskPortrait
-@onready var desk_dialogue: Label = %DeskDialogue
 @onready var desk_continue_button: Button = %DeskContinueButton
+@onready var conversation_scroll: ScrollContainer = %ConversationScroll
+@onready var conversation_history: VBoxContainer = %ConversationHistory
 @onready var fade: ColorRect = %Fade
 @onready var room_dimmer: ColorRect = %RoomDimmer
 @onready var crt_material: ShaderMaterial = %CRTContainer.material as ShaderMaterial
@@ -89,6 +96,7 @@ func _ready() -> void:
 	if session != null:
 		session.save_checkpoint("broadcast")
 	_slots = [cause_slot, conflict_slot, outcome_slot]
+	_normalize_frame_geometry()
 	for slot in _slots:
 		slot.composition_changed.connect(_on_slot_composition_changed)
 		slot.capacity_warning.connect(_on_slot_capacity_warning)
@@ -103,26 +111,38 @@ func _ready() -> void:
 	name_input.text_submitted.connect(func(_value: String): _confirm_name())
 	name_confirm.pressed.connect(_confirm_name)
 	scene_frame.footage_ejected.connect(_on_footage_ejected)
+	conversation_scroll.gui_input.connect(_on_transcript_scroll_input)
+	conversation_scroll.get_v_scroll_bar().gui_input.connect(_on_transcript_scroll_input)
+	conversation_history.minimum_size_changed.connect(_on_transcript_content_resized)
 	_apply_broadcast_typography(desk_root)
 	if tv_hum.stream is AudioStreamWAV:
 		(tv_hum.stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
 	name_entry.visible = false
+	_reparent_name_entry_to_left_panel()
 	load_report(BroadcastDemoData.rooftop_killing_report())
+
+
+func _normalize_frame_geometry() -> void:
+	var canonical_positions := [Vector2(390, 111), Vector2(679, 111), Vector2(953, 111)]
+	for index in _slots.size():
+		_slots[index].position = canonical_positions[index]
+		_slots[index].size = FrameSlot.FRAME_SIZE
+		_slots[index].scale = Vector2.ONE
 
 
 func _process(delta: float) -> void:
 	_elapsed += delta
-	if speaker_portrait.visible:
+	if desk_portrait.visible:
 		var breath := 1.0 + sin(_elapsed * 2.1) * 0.007
-		speaker_portrait.scale = Vector2(breath, breath)
-		if _typing_response:
-			speaker_portrait.position.y = sin(_elapsed * 12.0) * 1.4
+		desk_portrait.scale = Vector2(breath, breath)
 		if _current_speaker == &"mc":
 			var mouth_open := _typing_response and int(_elapsed * 9.0) % 2 == 0
-			speaker_portrait.texture = _mc_texture(_current_emotion, mouth_open)
+			desk_portrait.texture = _mc_texture(_current_emotion, mouth_open)
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and conversation_scroll.visible and conversation_scroll.get_global_rect().has_point(event.position):
+		return
 	if event.is_action_pressed(&"interact") or (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
 		if phase in [Phase.INTERROGATION, Phase.NAME_ENTRY, Phase.RESPONSE]:
 			_on_continue_pressed()
@@ -136,17 +156,21 @@ func _set_phase(value: Phase) -> void:
 
 func load_report(p_report: BroadcastReport) -> void:
 	report = p_report
+	_clear_transcript()
 	_mission_response.clear()
 	_pending_sequence = null
 	_typing_response = false
 	_awaiting_name = false
 	_name_line_ready = false
 	name_entry.visible = false
-	scene_frame.setup(report.available_actions)
-	character_roster.setup(report.characters)
+	conversation_scroll.visible = true
+	# Clear old slots before replacing the camera inventory. Slot cleanup emits
+	# footage-return signals which must not override the new report selection.
 	for slot in _slots:
 		slot.clear()
 		slot.max_characters = report.max_characters_per_frame
+	scene_frame.setup(report.available_actions)
+	character_roster.setup(report.characters)
 	_set_editing_enabled(false)
 	speaker_portrait.visible = false
 	if report.report_id == &"day0_rooftop_killing":
@@ -159,37 +183,31 @@ func load_report(p_report: BroadcastReport) -> void:
 
 func _start_day0_cinematic() -> void:
 	_set_phase(Phase.FADE_IN)
-	desk_root.visible = false
-	cinema_rig.visible = true
-	cinema_rig.position = Vector2(310, 30)
-	cinema_rig.scale = Vector2(1.08, 1.08)
-	cinema_rig.modulate.a = 1.0
-	speech_bubble.position = Vector2(30, 404)
+	desk_root.visible = true
+	desk_root.position = Vector2.ZERO
+	desk_root.modulate.a = 1.0
+	cinema_rig.visible = false
+	conversation_scroll.visible = true
+	desk_continue_button.visible = true
+	%TranscriptTitle.visible = true
+	%Directive.visible = false
+	for locked_piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
+		locked_piece.modulate.a = 0.22
 	fade.visible = true
 	fade.color.a = 1.0
-	room_dimmer.color.a = 0.18
-	crt_material.set_shader_parameter("boot_progress", 0.0)
+	room_dimmer.color.a = 0.12
+	crt_material.set_shader_parameter("boot_progress", 1.0)
 	if instant_mode:
 		fade.color.a = 0.0
-		room_dimmer.color.a = 0.5
-		crt_material.set_shader_parameter("boot_progress", 1.0)
+		room_dimmer.color.a = 0.12
 		_start_intro()
 		return
 	var intro := create_tween()
 	intro.tween_property(fade, "color:a", 0.0, 0.6)
-	intro.tween_property(room_dimmer, "color:a", 0.62, 0.35)
+	intro.parallel().tween_property(room_dimmer, "color:a", 0.12, 0.35)
 	await intro.finished
-	_set_phase(Phase.TV_BOOT)
 	tv_power.play()
 	tv_hum.play()
-	var boot := create_tween()
-	boot.tween_method(func(value: float): crt_material.set_shader_parameter("boot_progress", value), 0.0, 1.0, 0.82).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	var sync_glitch := create_tween()
-	var crt_x: float = (%CRTContainer as Control).position.x
-	for offset in [3.0, -5.0, 2.0, 0.0]:
-		sync_glitch.tween_property(%CRTContainer, "position:x", crt_x + offset, 0.045)
-		sync_glitch.tween_interval(0.075)
-	await boot.finished
 	_start_intro()
 
 
@@ -209,52 +227,22 @@ func _show_desk_immediately() -> void:
 func _reveal_desk() -> void:
 	_set_phase(Phase.DESK_REVEAL)
 	_set_editing_enabled(false)
-	# Preserve the final interrogation frame while the whole TV/dialogue rig
-	# physically docks into the left console. The fixed desk portrait/dialogue
-	# fade in only at the end, preventing a doubled UI during the move.
+	# The interrogation already lives in the desk's left panel. Completing it
+	# only unlocks the evidence tools; there is no second room or UI handoff.
 	desk_root.visible = true
-	desk_root.modulate.a = 0.0
-	desk_root.position = Vector2(0, 92)
-	desk_portrait.visible = false
-	desk_dialogue.visible = false
-	desk_continue_button.visible = false
+	desk_root.modulate.a = 1.0
+	desk_root.position = Vector2.ZERO
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = true
 	continue_button.visible = false
 	for hidden_piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
 		hidden_piece.modulate.a = 0.0
-	var rig_tween := create_tween().set_parallel()
-	rig_tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
-	rig_tween.tween_property(desk_root, "position", Vector2.ZERO, 0.82)
-	rig_tween.tween_property(desk_root, "modulate:a", 1.0, 0.52).set_delay(0.12)
-	rig_tween.tween_property(cinema_rig, "position", Vector2(34, 35), 0.82)
-	rig_tween.tween_property(cinema_rig, "scale", Vector2(0.47, 0.47), 0.82)
-	rig_tween.tween_property(speech_bubble, "position", Vector2(38, 660), 0.82)
 	if not instant_mode:
-		await rig_tween.finished
-		_sync_docked_dialogue()
-		var handoff := create_tween().set_parallel()
-		handoff.tween_property(cinema_rig, "modulate:a", 0.0, 0.16)
-		handoff.tween_property(desk_portrait, "modulate:a", 1.0, 0.16).from(0.0)
-		handoff.tween_property(desk_dialogue, "modulate:a", 1.0, 0.16).from(0.0)
-		await handoff.finished
-		cinema_rig.visible = false
 		await _drop_desk_components()
 	else:
-		cinema_rig.visible = false
-		desk_root.modulate.a = 1.0
-		desk_root.position = Vector2.ZERO
 		for visible_piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
 			visible_piece.modulate.a = 1.0
-		_sync_docked_dialogue()
 	_show_directive()
-
-
-func _sync_docked_dialogue() -> void:
-	desk_portrait.texture = speaker_portrait.texture
-	desk_portrait.modulate = speaker_portrait.modulate
-	desk_portrait.visible = true
-	desk_dialogue.text = dialogue_label.text
-	desk_dialogue.visible_characters = -1
-	desk_dialogue.visible = true
 
 
 func _drop_desk_components() -> void:
@@ -314,6 +302,8 @@ func _start_intro() -> void:
 		frames.append(-1)
 	_playback_is_recap = false
 	_playback_beats = report.intro_beats
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = false
 	_begin_playback(lines, frames, report.intro_speakers)
 
 
@@ -349,46 +339,29 @@ func _update_speaker_portrait(speaker: StringName, beat: BroadcastDialogueBeat =
 	_current_emotion = beat.emotion_id if beat != null else &"neutral"
 	if speaker == &"" or report == null:
 		speaker_portrait.visible = false
+		desk_portrait.visible = false
 		return
 	var texture: Texture2D = _mc_texture(_current_emotion, false) if speaker == &"mc" else report.speaker_portraits.get(speaker)
 	if texture == null:
 		speaker_portrait.visible = false
+		desk_portrait.visible = false
 		return
 	speaker_portrait.texture = texture
-	speaker_portrait.visible = true
-	speaker_portrait.modulate = Color(0.055, 0.08, 0.11, 1) if speaker == &"government" else Color.WHITE
+	speaker_portrait.visible = false
+	speaker_portrait.modulate = Color.WHITE
+	desk_portrait.texture = texture
+	desk_portrait.visible = true
+	desk_portrait.modulate = speaker_portrait.modulate
+	desk_portrait.pivot_offset = desk_portrait.size * 0.5
 	screen_status.text = "SECURE CHANNEL // GOV" if speaker == &"government" else "SUBJECT // G-03S-93"
-	var is_thought := beat != null and beat.kind == BroadcastDialogueBeat.Kind.THOUGHT
-	var bubble_style := StyleBoxFlat.new()
-	bubble_style.bg_color = Color(0.025, 0.035, 0.045, 0.97) if not is_thought else Color(0.035, 0.05, 0.065, 0.94)
-	bubble_style.border_color = Color(0.37, 0.55, 0.65, 0.9) if not is_thought else Color(0.31, 0.43, 0.52, 0.72)
-	bubble_style.set_border_width_all(3)
-	bubble_style.corner_radius_top_left = 15
-	bubble_style.corner_radius_top_right = 15
-	bubble_style.corner_radius_bottom_left = 9
-	bubble_style.corner_radius_bottom_right = 15
-	bubble_style.content_margin_left = 24.0
-	bubble_style.content_margin_right = 24.0
-	bubble_style.content_margin_top = 16.0
-	bubble_style.content_margin_bottom = 16.0
-	bubble_style.shadow_color = Color(0, 0, 0, 0.72)
-	bubble_style.shadow_size = 8
-	speech_bubble.add_theme_stylebox_override("panel", bubble_style)
-	bubble_tail_left.visible = speaker == &"government" and not is_thought
-	bubble_tail_right.visible = speaker == &"mc" and not is_thought
-	bubble_tail_left.color = bubble_style.bg_color
-	bubble_tail_right.color = bubble_style.bg_color
-	speech_bubble.visible = true
 
 
 func _mc_texture(emotion: StringName, mouth_open: bool) -> Texture2D:
-	if mouth_open:
-		return MC_FEARFUL_TALK if emotion == &"fearful" else MC_RESOLVED_TALK
+	if mouth_open and emotion == &"dirty":
+		return MC_DIRTY
 	match emotion:
-		&"stunned": return MC_STUNNED
-		&"fearful": return MC_GUARDED
-		&"angry", &"guilty", &"resigned": return MC_GUARDED
-		_: return MC_GUARDED
+		&"dirty", &"fearful", &"angry", &"guilty", &"resigned": return MC_DIRTY
+		_: return MC_NEUTRAL
 
 
 func _emotion_tint(emotion: StringName) -> Color:
@@ -431,15 +404,15 @@ func _show_directive() -> void:
 	speaker_portrait.visible = false
 	speech_bubble.visible = false
 	continue_button.visible = false
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = true
 	%Directive.visible = false
-	desk_dialogue.text = "Drag footage and a character token into each frame. Either can be placed first.\n\nRight-click a frame to return its footage."
-	desk_dialogue.visible_characters = -1
 	var mc: CharacterDef = _find_character(&"mc")
 	desk_portrait.texture = mc.portrait_texture if mc != null else null
 	desk_portrait.modulate = Color.WHITE
 	dialogue_label.text = report.directive_text
 	dialogue_label.visible_characters = -1
-	%Directive.visible = true
+	_append_transcript_entry("OBJECTIVE", report.directive_text, &"system", true)
 	_set_phase(Phase.EDITING)
 	_set_editing_enabled(true)
 
@@ -452,8 +425,10 @@ func _show_name_entry() -> void:
 	dialogue_label.visible = false
 	name_prompt.text = "State the name they will use for you."
 	continue_button.visible = false
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = true
+	conversation_scroll.visible = false
 	name_entry.visible = true
-	_fit_dialogue_box("State the name they will use for you.", 184.0)
 	name_input.text = ""
 	_validate_name("")
 	name_input.grab_focus()
@@ -480,36 +455,44 @@ func _confirm_name() -> void:
 	_awaiting_name = false
 	_name_line_ready = true
 	name_entry.visible = false
+	conversation_scroll.visible = true
 	dialogue_label.visible = true
 	dialogue_label.text = str(session.player_name) + "."
 	dialogue_label.visible_characters = -1
 	_update_speaker_portrait(&"mc", BroadcastDialogueBeat.make(&"mc", "", &"wary"))
-	continue_button.visible = true
+	_append_transcript_entry(_speaker_caption(&"mc"), dialogue_label.text, &"mc", true)
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = false
 	_set_phase(Phase.INTERROGATION)
 
 
 func _type_dialogue(text: String) -> void:
-	_fit_dialogue_box(text)
 	dialogue_label.visible = true
 	dialogue_label.text = text
 	dialogue_label.visible_characters = 0
-	if phase == Phase.RESPONSE and desk_root.visible:
-		desk_dialogue.text = text
-		desk_dialogue.visible_characters = 0
+	_active_transcript_label = null
+	if not _playback_is_recap:
+		_active_transcript_label = _append_transcript_entry(_speaker_caption(_current_speaker), text, _current_speaker)
 	_typing_response = true
 	_skip_response = false
 	if instant_mode:
 		dialogue_label.visible_characters = -1
-		if phase == Phase.RESPONSE and desk_root.visible:
-			desk_dialogue.visible_characters = -1
+		if _active_transcript_label != null:
+			_active_transcript_label.visible_characters = -1
+		_scroll_transcript_to_latest.call_deferred()
 	else:
 		for index in text.length():
 			if _skip_response:
 				dialogue_label.visible_characters = -1
+				if _active_transcript_label != null:
+					_active_transcript_label.visible_characters = -1
+				_scroll_transcript_to_latest.call_deferred()
 				break
 			dialogue_label.visible_characters = index + 1
-			if phase == Phase.RESPONSE and desk_root.visible:
-				desk_dialogue.visible_characters = index + 1
+			if _active_transcript_label != null:
+				_active_transcript_label.visible_characters = index + 1
+			if _transcript_follow_latest and index % 4 == 0:
+				_scroll_transcript_to_latest.call_deferred()
 			var character := text.substr(index, 1)
 			if not character.strip_edges().is_empty() and index % 2 == 0:
 				var speaker := _playback_speakers[_playback_index] if _playback_index < _playback_speakers.size() else &"mc"
@@ -517,17 +500,125 @@ func _type_dialogue(text: String) -> void:
 				player.pitch_scale = randf_range(0.95, 1.045)
 				player.play()
 			await get_tree().create_timer(0.032).timeout
+	# Always leave both representations fully revealed. This makes the first
+	# E/click a deterministic "complete line" action instead of truncating it.
+	dialogue_label.visible_characters = -1
+	if _active_transcript_label != null:
+		_active_transcript_label.visible_characters = -1
 	_typing_response = false
+	_scroll_transcript_to_latest.call_deferred()
 
 
-func _fit_dialogue_box(text: String, forced_height := 0.0) -> void:
-	var estimated_lines := 0
-	for paragraph in text.split("\n"):
-		estimated_lines += maxi(1, ceili(float(paragraph.length()) / 43.0))
-	var target_height := forced_height if forced_height > 0.0 else clampf(48.0 + estimated_lines * 25.0, 88.0, 184.0)
-	speech_bubble.position = Vector2(30, 548.0 - target_height)
-	speech_bubble.size = Vector2(520, target_height)
-	dialogue_label.custom_minimum_size = Vector2(0, target_height - 32.0)
+func _reparent_name_entry_to_left_panel() -> void:
+	name_entry.reparent(desk_root)
+	name_entry.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	name_entry.position = Vector2(52, 386)
+	name_entry.size = Vector2(278, 194)
+	name_entry.custom_minimum_size = Vector2(278, 194)
+	name_entry.z_index = 5
+	name_prompt.add_theme_color_override("font_color", Color.WHITE)
+	name_prompt.add_theme_font_override("font", NEWSLETTER_FONT)
+	name_input.add_theme_font_override("font", NEWSLETTER_FONT)
+	name_confirm.add_theme_font_override("font", NEWSLETTER_FONT)
+	name_error.add_theme_color_override("font_color", Color(0.58, 0.08, 0.055, 1))
+	name_error.add_theme_font_override("font", NEWSLETTER_FONT)
+
+
+func _clear_transcript() -> void:
+	if not is_instance_valid(conversation_history):
+		return
+	for child in conversation_history.get_children():
+		child.free()
+	_active_transcript_label = null
+	_transcript_follow_latest = true
+	conversation_scroll.scroll_vertical = 0
+
+
+func _speaker_caption(speaker: StringName) -> String:
+	if speaker == &"government":
+		return "GOVERNMENT"
+	if speaker == &"mc":
+		var session := get_node_or_null("/root/GameSession")
+		return str(session.player_name).to_upper() if session != null and not str(session.player_name).is_empty() else "SUBJECT"
+	return "SYSTEM"
+
+
+func _append_transcript_entry(caption: String, text: String, speaker: StringName, complete := false) -> Label:
+	var was_following := _transcript_follow_latest or _transcript_is_at_bottom()
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0431373, 0.113725, 0.301961, 0.97)
+	style.border_color = Color(0.133333, 0.839216, 1.0, 0.96)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_left = 4
+	style.corner_radius_bottom_right = 4
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
+	style.content_margin_top = 7.0
+	style.content_margin_bottom = 9.0
+	panel.add_theme_stylebox_override("panel", style)
+	conversation_history.add_child(panel)
+
+	var stack := VBoxContainer.new()
+	stack.mouse_filter = Control.MOUSE_FILTER_PASS
+	stack.add_theme_constant_override("separation", 2)
+	panel.add_child(stack)
+	var header := Label.new()
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_theme_font_override("font", NEWSLETTER_FONT)
+	header.add_theme_font_size_override("font_size", 11)
+	header.add_theme_color_override("font_color", Color.WHITE)
+	header.text = caption
+	stack.add_child(header)
+	var body := Label.new()
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_font_override("font", NEWSLETTER_FONT)
+	body.add_theme_font_size_override("font_size", 15)
+	body.add_theme_color_override("font_color", Color.WHITE)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.text = text
+	body.visible_characters = -1 if complete else 0
+	stack.add_child(body)
+	if was_following:
+		_transcript_follow_latest = true
+		_scroll_transcript_to_latest.call_deferred()
+	return body
+
+
+func _transcript_is_at_bottom() -> bool:
+	var bar := conversation_scroll.get_v_scroll_bar()
+	return bar.value >= maxf(0.0, bar.max_value - bar.page - 6.0)
+
+
+func _scroll_transcript_to_latest() -> void:
+	if not _transcript_follow_latest:
+		return
+	var bar := conversation_scroll.get_v_scroll_bar()
+	_transcript_scroll_internal = true
+	bar.value = maxf(0.0, bar.max_value - bar.page)
+	_transcript_scroll_internal = false
+
+
+func _on_transcript_scroll_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_refresh_transcript_follow.call_deferred()
+
+
+func _refresh_transcript_follow() -> void:
+	_transcript_follow_latest = _transcript_is_at_bottom()
+
+
+func _on_transcript_content_resized() -> void:
+	if _transcript_follow_latest:
+		_scroll_transcript_to_latest.call_deferred()
 
 
 func _apply_broadcast_typography(root_control: Control) -> void:
@@ -586,7 +677,9 @@ func _update_broadcast_button() -> void:
 	var ready := cause_slot.is_filled() and conflict_slot.is_filled() and outcome_slot.is_filled()
 	broadcast_button.disabled = not ready or not _editing_enabled
 	broadcast_button.modulate = Color.WHITE if ready and _editing_enabled else DISABLED_MODULATE
-	broadcast_button.text = "BROADCAST" if not ready else "BROADCAST  ●"
+	# The authored button plate already contains the label. Leaving the Godot
+	# button text empty prevents a second word from covering the painted one.
+	broadcast_button.text = ""
 
 
 func _set_editing_enabled(enabled: bool) -> void:
@@ -632,6 +725,7 @@ func _start_mission_response(lines: Array[String], result: ResolutionResult, seq
 	%Directive.visible = false
 	continue_button.visible = true
 	desk_continue_button.visible = true
+	desk_continue_button.disabled = false
 	var mc := _find_character(&"mc")
 	desk_portrait.texture = mc.portrait_texture if mc != null else null
 	_update_speaker_portrait(&"mc", BroadcastDialogueBeat.make(&"mc", "", &"guilty"))
@@ -648,7 +742,8 @@ func _show_mission_response_line(text: String) -> void:
 func _finish_mission_response() -> void:
 	_mission_response.clear()
 	_mission_response_index = 0
-	desk_continue_button.visible = false
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = true
 	if _pending_result == ResolutionResult.PROPAGANDA_ACCEPTED and _pending_sequence != null:
 		var accepted := _pending_sequence
 		var session := get_node_or_null("/root/GameSession")

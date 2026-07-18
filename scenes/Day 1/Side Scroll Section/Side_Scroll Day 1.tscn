@@ -10,19 +10,18 @@
 [ext_resource type="PackedScene" uid="uid://dx0mhrvwe45dm" path="res://scenes/world/pavement_bird_flock.tscn" id="9_birds"]
 [ext_resource type="Texture2D" uid="uid://5fpgutasb5vi" path="res://assets/art/Day1 Scene 1/6.png" id="9_vqnrx"]
 [ext_resource type="Texture2D" uid="uid://dohpoggpi0f37" path="res://assets/art/Day1 Scene 1/7.png" id="10_g07fq"]
-[ext_resource type="PackedScene" uid="uid://5c0tjaa7yhrm" path="res://scenes/world/day1_protest_crowd.tscn" id="11_protest"]
 
 [node name="SideScrollDay1" type="Node2D" unique_id=2040803725]
 position = Vector2(-2, 0)
 
 [node name="3" type="Sprite2D" parent="." unique_id=442147610]
-position = Vector2(3419.0002, 388)
-scale = Vector2(0.817747, 0.81774706)
+position = Vector2(3419.0002, 427)
+scale = Vector2(0.817747, 0.6801275)
 texture = ExtResource("6_766mw")
 
 [node name="4" type="Sprite2D" parent="." unique_id=1166187232]
-position = Vector2(4771.748, 383.25)
-scale = Vector2(0.8166844, 0.81668437)
+position = Vector2(4769, 375)
+scale = Vector2(0.8133972, 0.86078644)
 texture = ExtResource("7_fxyjh")
 
 [node name="5" type="Sprite2D" parent="." unique_id=1062765695]
@@ -76,15 +75,12 @@ position = Vector2(1495, 502.00003)
 scale = Vector2(0.76674, 0.76674)
 flight_offset = Vector2(456.33, -360)
 
-[node name="Day1ProtestCrowd" parent="." unique_id=813841344 instance=ExtResource("11_protest")]
-position = Vector2(6128, 589)
-
 [node name="Backdrop" type="ColorRect" parent="." unique_id=932147515]
 z_index = -10
-offset_left = -814.0
-offset_top = -509.0
-offset_right = 10353.0
-offset_bottom = 1027.0
+offset_left = -789.0
+offset_top = -522.0
+offset_right = 10378.0
+offset_bottom = 1014.0
 mouse_filter = 2
 color = Color(0.09019608, 0.12941177, 0.16862746, 1)
 

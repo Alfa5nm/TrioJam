@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://ct0jnycj1ecqe" path="res://scripts/gameplay/scope_reticle.gd" id="2_reticle"]
 [ext_resource type="Texture2D" uid="uid://cs318jwts5o1d" path="res://assets/art/Scene 2/office-background-v2.png" id="3_background"]
 [ext_resource type="AudioStream" uid="uid://dqn8kg335t4b8" path="res://assets/audio/ambience/rooftop-wind.mp3" id="4_wind"]
-[ext_resource type="Texture2D" uid="uid://bcctjnu4kt4q" path="res://assets/art/Scene 2/office-desk-occluders-v2.png" id="5_desks"]
 [ext_resource type="Texture2D" uid="uid://blxx11d4c5ess" path="res://assets/art/Scene 2/office-architecture-foreground-v2.png" id="6_architecture"]
 [ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="7_dialogue"]
 [ext_resource type="AudioStream" uid="uid://ctwrkyvywspa2" path="res://assets/audio/ambience/scope-tension.mp3" id="8_tension"]
@@ -82,15 +81,9 @@ texture_filter = 1
 position = Vector2(1100, 445)
 scale = Vector2(0.75, 0.75)
 
-[node name="DeskOccluders" type="Sprite2D" parent="." unique_id=1182983387]
-z_index = 4
-texture_filter = 1
-position = Vector2(249, 687)
-texture = ExtResource("5_desks")
-centered = false
-
 [node name="GlassTint" type="Node2D" parent="." unique_id=375795113]
 z_index = 5
+position = Vector2(3, 0)
 
 [node name="LeftPane" type="Polygon2D" parent="GlassTint" unique_id=783824270]
 color = Color(0.48, 0.66, 0.76, 0.075)
@@ -191,10 +184,10 @@ horizontal_alignment = 2
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -1211.0
-offset_top = 96.0
-offset_right = -1200.0
-offset_bottom = 96.0
+offset_left = -8.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

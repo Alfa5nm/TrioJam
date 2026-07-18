@@ -1,14 +1,13 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene format=3 uid="uid://bxeeeol5gu3dh"]
 
-[ext_resource type="Script" path="res://scripts/gameplay/news_broadcast.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/art/Broadcast/news-studio-background-v1.png" id="2_background"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 1/Rooftop Scene.png" id="3_rooftop"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 2/office-master-v2.png" id="4_office"]
-[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="5_font"]
-[ext_resource type="AudioStream" path="res://assets/audio/broadcast/presenter-blip.ogg" id="6_blip"]
-[ext_resource type="AudioStream" path="res://assets/audio/broadcast/news-intro-sting.ogg" id="7_intro"]
-[ext_resource type="AudioStream" path="res://assets/audio/broadcast/news-bed-loop.ogg" id="8_bed"]
-[ext_resource type="AudioStream" path="res://assets/audio/broadcast/table-bang.ogg" id="9_bang"]
+[ext_resource type="Script" uid="uid://dkp0fyxdywosi" path="res://scripts/gameplay/news_broadcast.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cayc6sm08ikq3" path="res://assets/art/Broadcast/news-studio-background-v1.png" id="2_background"]
+[ext_resource type="Texture2D" uid="uid://dg2fpac31khpi" path="res://assets/art/Scene 1/Rooftop Scene.png" id="3_rooftop"]
+[ext_resource type="Texture2D" uid="uid://cjhgalvok1heo" path="res://assets/art/Scene 2/office-master-v2.png" id="4_office"]
+[ext_resource type="FontFile" uid="uid://c1yvv3aj0lvq0" path="res://assets/fonts/Basic-Regular.ttf" id="5_font"]
+[ext_resource type="AudioStream" uid="uid://bp6es15xcesp1" path="res://assets/audio/broadcast/presenter-blip.ogg" id="6_blip"]
+[ext_resource type="AudioStream" uid="uid://s1gmcs4hmpdf" path="res://assets/audio/broadcast/news-intro-sting.ogg" id="7_intro"]
+[ext_resource type="AudioStream" uid="uid://yh0nh1jhxll4" path="res://assets/audio/broadcast/news-bed-loop.ogg" id="8_bed"]
 
 [sub_resource type="StyleBoxFlat" id="CardStyle"]
 bg_color = Color(0.012, 0.025, 0.05, 0.96)
@@ -27,10 +26,8 @@ bg_color = Color(0.005, 0.012, 0.025, 0.88)
 border_width_top = 1
 border_color = Color(0.72, 0.1, 0.12, 0.9)
 
-[sub_resource type="StyleBoxFlat" id="PromptStyle"]
-bg_color = Color(0.004, 0.01, 0.02, 0.2)
-
-[node name="NewsBroadcast" type="Control"]
+[node name="NewsBroadcast" type="Control" unique_id=70939673]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -38,8 +35,8 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="TextureRect" parent="."]
-anchors_preset = 15
+[node name="Background" type="TextureRect" parent="." unique_id=675057134]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -48,20 +45,21 @@ texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Presenter" type="AnimatedSprite2D" parent="."]
-position = Vector2(279, 363)
-scale = Vector2(0.91, 0.91)
+[node name="Presenter" type="AnimatedSprite2D" parent="." unique_id=600307587]
 texture_filter = 1
+position = Vector2(307, 396.00003)
+scale = Vector2(1.09, 1.09)
 
-[node name="UI" type="Control" parent="."]
-anchors_preset = 15
+[node name="UI" type="Control" parent="." unique_id=2142549866]
+anchors_preset = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="NewsLabel" type="Label" parent="UI"]
+[node name="NewsLabel" type="Label" parent="UI" unique_id=361755428]
+layout_mode = 0
 offset_left = 585.0
 offset_top = 46.0
 offset_right = 810.0
@@ -71,7 +69,8 @@ theme_override_fonts/font = ExtResource("5_font")
 theme_override_font_sizes/font_size = 25
 text = "NEWS"
 
-[node name="OnAir" type="Label" parent="UI"]
+[node name="OnAir" type="Label" parent="UI" unique_id=1933759919]
+layout_mode = 0
 offset_left = 1100.0
 offset_top = 48.0
 offset_right = 1235.0
@@ -82,15 +81,16 @@ theme_override_font_sizes/font_size = 16
 text = "● ON AIR"
 horizontal_alignment = 2
 
-[node name="NewsScreen" type="Control" parent="UI"]
+[node name="NewsScreen" type="Control" parent="UI" unique_id=1257972311]
+anchors_preset = 0
 offset_left = 575.0
 offset_top = 84.0
 offset_right = 1246.0
 offset_bottom = 454.0
 
-[node name="ScreenSlate" type="Label" parent="UI/NewsScreen"]
+[node name="ScreenSlate" type="Label" parent="UI/NewsScreen" unique_id=1805337978]
 unique_name_in_owner = true
-anchors_preset = 15
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -102,8 +102,9 @@ text = "NOW. TODAY'S NEWS."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="FrameOne" type="Panel" parent="UI/NewsScreen"]
+[node name="FrameOne" type="Panel" parent="UI/NewsScreen" unique_id=42431482]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 18.0
 offset_top = 20.0
 offset_right = 653.0
@@ -111,7 +112,7 @@ offset_bottom = 345.0
 pivot_offset = Vector2(317.5, 162.5)
 theme_override_styles/panel = SubResource("CardStyle")
 
-[node name="Image" type="TextureRect" parent="UI/NewsScreen/FrameOne"]
+[node name="Image" type="TextureRect" parent="UI/NewsScreen/FrameOne" unique_id=240431849]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -123,9 +124,10 @@ texture = ExtResource("3_rooftop")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Tag" type="PanelContainer" parent="UI/NewsScreen/FrameOne"]
+[node name="Tag" type="PanelContainer" parent="UI/NewsScreen/FrameOne" unique_id=1760119397]
 layout_mode = 1
 anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -62.0
@@ -133,16 +135,18 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("TagStyle")
 
-[node name="Text" type="Label" parent="UI/NewsScreen/FrameOne/Tag"]
+[node name="Text" type="Label" parent="UI/NewsScreen/FrameOne/Tag" unique_id=1399729110]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
 theme_override_fonts/font = ExtResource("5_font")
 theme_override_font_sizes/font_size = 20
-text = "01  ROOFTOP SCENE\nOPPOSITION PERSON"
+text = "01  ROOFTOP SCENE
+OPPOSITION PERSON"
 horizontal_alignment = 1
 
-[node name="FrameTwo" type="Panel" parent="UI/NewsScreen"]
+[node name="FrameTwo" type="Panel" parent="UI/NewsScreen" unique_id=1145766885]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 18.0
 offset_top = 20.0
 offset_right = 653.0
@@ -150,7 +154,8 @@ offset_bottom = 345.0
 pivot_offset = Vector2(317.5, 162.5)
 theme_override_styles/panel = SubResource("CardStyle")
 
-[node name="Image" type="TextureRect" parent="UI/NewsScreen/FrameTwo"]
+[node name="Image" type="TextureRect" parent="UI/NewsScreen/FrameTwo" unique_id=1890054094]
+modulate = Color(0.72, 0.48, 0.48, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -161,9 +166,8 @@ grow_vertical = 2
 texture = ExtResource("3_rooftop")
 expand_mode = 1
 stretch_mode = 6
-modulate = Color(0.72, 0.48, 0.48, 1)
 
-[node name="Reticle" type="Label" parent="UI/NewsScreen/FrameTwo"]
+[node name="Reticle" type="Label" parent="UI/NewsScreen/FrameTwo" unique_id=1205144700]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -178,9 +182,10 @@ text = "+"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Tag" type="PanelContainer" parent="UI/NewsScreen/FrameTwo"]
+[node name="Tag" type="PanelContainer" parent="UI/NewsScreen/FrameTwo" unique_id=1313414546]
 layout_mode = 1
 anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -62.0
@@ -188,16 +193,18 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("TagStyle")
 
-[node name="Text" type="Label" parent="UI/NewsScreen/FrameTwo/Tag"]
+[node name="Text" type="Label" parent="UI/NewsScreen/FrameTwo/Tag" unique_id=1380151633]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
 theme_override_fonts/font = ExtResource("5_font")
 theme_override_font_sizes/font_size = 20
-text = "02  ROOFTOP SHOOTS\nOPPOSITION PERSON"
+text = "02  ROOFTOP SHOOTS
+OPPOSITION PERSON"
 horizontal_alignment = 1
 
-[node name="FrameThree" type="Panel" parent="UI/NewsScreen"]
+[node name="FrameThree" type="Panel" parent="UI/NewsScreen" unique_id=1354516010]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 18.0
 offset_top = 20.0
 offset_right = 653.0
@@ -205,7 +212,7 @@ offset_bottom = 345.0
 pivot_offset = Vector2(317.5, 162.5)
 theme_override_styles/panel = SubResource("CardStyle")
 
-[node name="Image" type="TextureRect" parent="UI/NewsScreen/FrameThree"]
+[node name="Image" type="TextureRect" parent="UI/NewsScreen/FrameThree" unique_id=1585951944]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -217,9 +224,10 @@ texture = ExtResource("4_office")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Tag" type="PanelContainer" parent="UI/NewsScreen/FrameThree"]
+[node name="Tag" type="PanelContainer" parent="UI/NewsScreen/FrameThree" unique_id=45438230]
 layout_mode = 1
 anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -62.0
@@ -227,24 +235,27 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("TagStyle")
 
-[node name="Text" type="Label" parent="UI/NewsScreen/FrameThree/Tag"]
+[node name="Text" type="Label" parent="UI/NewsScreen/FrameThree/Tag" unique_id=2146900545]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
 theme_override_fonts/font = ExtResource("5_font")
 theme_override_font_sizes/font_size = 19
-text = "03  VICTIM SHOT\nGOVERNMENT INDIVIDUAL"
+text = "03  VICTIM SHOT
+GOVERNMENT INDIVIDUAL"
 horizontal_alignment = 1
 
-[node name="Teleprompter" type="Control" parent="UI"]
+[node name="Teleprompter" type="Control" parent="UI" unique_id=1700485230]
 clip_contents = true
+anchors_preset = 0
 offset_left = 578.0
 offset_top = 535.0
 offset_right = 1240.0
 offset_bottom = 650.0
 mouse_filter = 2
 
-[node name="TeleprompterText" type="Label" parent="UI/Teleprompter"]
+[node name="TeleprompterText" type="Label" parent="UI/Teleprompter" unique_id=1705057949]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 18.0
 offset_top = 72.0
 offset_right = 644.0
@@ -258,8 +269,9 @@ theme_override_font_sizes/font_size = 19
 text = "Preparing broadcast..."
 autowrap_mode = 2
 
-[node name="AdvancePrompt" type="Label" parent="UI/Teleprompter"]
+[node name="AdvancePrompt" type="Label" parent="UI/Teleprompter" unique_id=117440228]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 470.0
 offset_top = 86.0
 offset_right = 642.0
@@ -270,32 +282,30 @@ theme_override_font_sizes/font_size = 13
 text = "E / CLICK TO CONTINUE"
 horizontal_alignment = 2
 
-[node name="Audio" type="Node" parent="."]
+[node name="Audio" type="Node" parent="." unique_id=1745042950]
 
-[node name="IntroSting" type="AudioStreamPlayer" parent="Audio"]
+[node name="IntroSting" type="AudioStreamPlayer" parent="Audio" unique_id=1921280701]
 stream = ExtResource("7_intro")
 bus = &"SFX"
 
-[node name="NewsBed" type="AudioStreamPlayer" parent="Audio"]
+[node name="NewsBed" type="AudioStreamPlayer" parent="Audio" unique_id=692176851]
 stream = ExtResource("8_bed")
 volume_db = -7.0
 bus = &"Ambience"
 
-[node name="PresenterBlip" type="AudioStreamPlayer" parent="Audio"]
+[node name="PresenterBlip" type="AudioStreamPlayer" parent="Audio" unique_id=1259401813]
 stream = ExtResource("6_blip")
 volume_db = -2.0
 bus = &"UI"
 
-[node name="TableBang" type="AudioStreamPlayer" parent="Audio"]
-stream = ExtResource("9_bang")
-volume_db = -3.0
-bus = &"SFX"
-
-[node name="Fade" type="ColorRect" parent="."]
+[node name="Fade" type="ColorRect" parent="." unique_id=1774514307]
 unique_name_in_owner = true
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = 4.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

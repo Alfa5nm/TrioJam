@@ -2,21 +2,23 @@
 
 [ext_resource type="Script" path="res://scripts/narrative/day0_epilogue.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/art/Epilogue/bedroom-window-master-v1.png" id="2_bedroom"]
-[ext_resource type="FontFile" path="res://assets/fonts/DiarioDeAndy.otf" id="3_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="3_font"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
 [ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-rustle.ogg" id="5_curtain"]
 
 [sub_resource type="StyleBoxFlat" id="DialogueStyle"]
-bg_color = Color(0.004, 0.006, 0.012, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.69, 0.76, 0.88, 0.28)
+bg_color = Color(0.0431373, 0.113725, 0.301961, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.133333, 0.839216, 1, 0.96)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+shadow_color = Color(0.133333, 0.839216, 1, 0.2)
+shadow_size = 10
 
 [sub_resource type="StyleBoxEmpty" id="EmptyStyle"]
 
@@ -131,7 +133,7 @@ theme_override_constants/separation = 9
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.82, 0.94, 0.92)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 22
 text = "Civilian 1"
@@ -153,7 +155,7 @@ vertical_alignment = 1
 [node name="AdvancePrompt" type="Label" parent="DialoguePanel/Margin/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.67, 0.74, 0.84, 0.8)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 15
 text = "E / CLICK"

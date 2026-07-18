@@ -30,11 +30,16 @@ func _run() -> void:
 	_check(player != null, "player is available for the proximity trigger")
 	_check(flock != null and not flock.has_flown and flock.visible, "birds begin grounded and visible")
 	_check(flock != null and flock.birds.animation == &"idle", "birds begin on the pavement pose")
-	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"idle") == 3, "idle loop has three animation frames")
-	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"takeoff") == 6, "takeoff has six animation frames")
+	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"idle") == 4, "idle loop has four varied animation frames")
+	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"takeoff") == 4, "takeoff uses four continuity-safe animation frames")
 	flock.play_idle_coo()
 	await process_frame
 	_check(flock.coo_player.playing and flock.coo_player.stream != null, "idle pigeon coo plays")
+	player.global_position = flock.global_position + Vector2(-260, 63)
+	player.velocity = Vector2.ZERO
+	for _frame in 35:
+		await physics_frame
+	_check(not flock.has_flown, "idle preview approach remains outside the trigger")
 
 	if DisplayServer.get_name() != "headless":
 		_save_preview(PREVIEW_IDLE)

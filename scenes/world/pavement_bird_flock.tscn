@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dx0mhrvwe45dm"]
 
 [ext_resource type="Script" uid="uid://540ako7k8fog" path="res://scripts/world/pavement_bird_flock.gd" id="1_birds"]
-[ext_resource type="Texture2D" uid="uid://nvr87irdd5k2" path="res://assets/art/Day1 Scene 1/birds/birds_animation_sheet_v2.png" id="2_sheet"]
+[ext_resource type="Texture2D" path="res://assets/art/Day1 Scene 1/birds/birds_animation_sheet_v3.png" id="2_sheet"]
 [ext_resource type="AudioStream" uid="uid://bnp2ti18iqyiy" path="res://assets/audio/sfx/birds/pigeon_coo_a.wav" id="3_coo_a"]
 [ext_resource type="AudioStream" uid="uid://7x6haywor52o" path="res://assets/audio/sfx/birds/pigeon_coo_b.wav" id="4_coo_b"]
 [ext_resource type="AudioStream" uid="uid://b08tgpq0fs64i" path="res://assets/audio/sfx/birds/pigeon_coo_c.wav" id="5_coo_c"]
@@ -55,15 +55,15 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("Atlas_03")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_04")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 2.2
 }, {
 "frames": [{
-"duration": 1.0,
-"texture": SubResource("Atlas_04")
-}, {
 "duration": 1.0,
 "texture": SubResource("Atlas_05")
 }, {
@@ -72,9 +72,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("Atlas_07")
-}, {
-"duration": 1.0,
-"texture": SubResource("Atlas_08")
 }, {
 "duration": 1.0,
 "texture": SubResource("Atlas_09")
@@ -99,7 +96,6 @@ flap_stream_a = ExtResource("6_flap_a")
 flap_stream_b = ExtResource("7_flap_b")
 
 [node name="Birds" type="AnimatedSprite2D" parent="." unique_id=459329699]
-modulate = Color(5.583167e-06, 0.6096487, 0.829073, 1)
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_birds")
 animation = &"idle"

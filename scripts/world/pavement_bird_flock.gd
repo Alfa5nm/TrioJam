@@ -92,7 +92,7 @@ func _play_flap() -> void:
 
 
 func _on_bird_frame_changed() -> void:
-	if birds.animation == &"takeoff" and birds.frame in [2, 4]:
+	if birds.animation == &"takeoff" and birds.frame in [1, 3]:
 		_play_flap()
 
 
