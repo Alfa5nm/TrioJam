@@ -39,6 +39,10 @@ func _check_report_data() -> void:
 		var action := _find_action(report, expected)
 		_check(action != null and action.scene_image != null, "action %s has placeholder art" % expected)
 
+	_check(_find_action(report, &"planting_bomb").max_characters == 1, "Planting Bomb Scene caps at 1 character")
+	_check(_find_action(report, &"peace_rally_victims").max_characters == 1, "Peace Rally Victims caps at 1 character")
+	_check(_find_action(report, &"helping").max_characters == 2, "Who is Helping Who? caps at 2 characters")
+
 	# Truthful: PlantingBomb(suspicious_individual) -> PeaceRallyVictims(civilians) -> Helping(opposition, civilians).
 	var truthful := report.truthful_sequence
 	_check(truthful.order_sensitive, "truthful sequence is order-sensitive")

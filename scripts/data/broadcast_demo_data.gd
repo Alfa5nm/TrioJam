@@ -9,8 +9,8 @@ static func checkpoint_killing_report() -> BroadcastReport:
 	# sequence is order_sensitive below, so the ORDER characters are placed in a
 	# frame carries the story — the first character is the attacker/killer, the
 	# second is the target. This is what lets the same two scenes tell either route.
-	var attack := _action(&"attack", "Attack", "res://assets/art/ui/broadcast/scene_checkpoint_cause_truthful.png")
-	var kill := _action(&"kill", "Kill", "res://assets/art/ui/broadcast/scene_checkpoint_outcome.png")
+	var attack := _action(&"attack", "Attack", "res://assets/art/ui/broadcast/scene_checkpoint_cause_truthful.png", 2)
+	var kill := _action(&"kill", "Kill", "res://assets/art/ui/broadcast/scene_checkpoint_outcome.png", 2)
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true
@@ -100,13 +100,13 @@ static func seedless_fruit_report() -> BroadcastReport:
 	# Shared cause — identical handshake photo for both routes.
 	var licensing_seeds := _action(
 		&"licensing_seeds", "Licensing Seeds",
-		"res://assets/art/ui/broadcast/scene_licensing.png"
+		"res://assets/art/ui/broadcast/scene_licensing.png", 2
 	)
-	var protest := _action(&"protest", "Protest", "res://assets/art/ui/broadcast/scene_protest.png")
-	var happy := _action(&"happy", "Happy", "res://assets/art/ui/broadcast/scene_feedback.png")
+	var protest := _action(&"protest", "Protest", "res://assets/art/ui/broadcast/scene_protest.png", 1)
+	var happy := _action(&"happy", "Happy", "res://assets/art/ui/broadcast/scene_feedback.png", 1)
 	# Shared outcome action — same "arrest" photo op and same [soldier, opposition]
 	# order for both routes; cause/conflict alone discriminate truthful vs propaganda.
-	var arrest := _action(&"arrest", "Arrest", "res://assets/art/ui/broadcast/scene_arrest.png")
+	var arrest := _action(&"arrest", "Arrest", "res://assets/art/ui/broadcast/scene_arrest.png", 2)
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true
@@ -189,11 +189,11 @@ static func bombing_report() -> BroadcastReport:
 	var opposition := _character(&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1))
 	var soldiers := _character(&"soldiers", "Soldiers", Color(0.714, 0.275, 0.310, 1))
 
-	var planting_bomb := _action(&"planting_bomb", "Planting Bomb Scene", "res://assets/art/ui/broadcast/scene_planting_bomb.png")
-	var peace_rally_victims := _action(&"peace_rally_victims", "Peace Rally Victims", "res://assets/art/ui/broadcast/scene_peace_rally_victims.png")
+	var planting_bomb := _action(&"planting_bomb", "Planting Bomb Scene", "res://assets/art/ui/broadcast/scene_planting_bomb.png", 1)
+	var peace_rally_victims := _action(&"peace_rally_victims", "Peace Rally Victims", "res://assets/art/ui/broadcast/scene_peace_rally_victims.png", 1)
 	# Order matters here — the scene literally asks "Who is Helping Who?": the
 	# first character placed is the one doing the helping, the second is who's helped.
-	var helping := _action(&"helping", "Who is Helping Who?", "res://assets/art/ui/broadcast/scene_helping.png")
+	var helping := _action(&"helping", "Who is Helping Who?", "res://assets/art/ui/broadcast/scene_helping.png", 2)
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true
@@ -282,15 +282,18 @@ static func rooftop_killing_report() -> BroadcastReport:
 		"res://assets/art/ui/broadcast/portrait_government.png"
 	)
 
+	# Day 0's frames are capped at 1 character each; set explicitly per action
+	# since ActionDef's own default (2) would otherwise override the report-level
+	# cap the moment any of these scenes is placed.
 	var rooftop_scene := _action(
-		&"rooftop_scene", "Rooftop Scene", "res://assets/art/ui/broadcast/scene_rooftop.png"
+		&"rooftop_scene", "Rooftop Scene", "res://assets/art/ui/broadcast/scene_rooftop.png", 1
 	)
 	var rooftop_shoots := _action(
 		# Identity-neutral evidence: the perpetrator is assigned by a separate physical chip.
-		&"rooftop_shoots", "Rooftop Shoots", "res://assets/art/ui/broadcast/scene_rooftop.png"
+		&"rooftop_shoots", "Rooftop Shoots", "res://assets/art/ui/broadcast/scene_rooftop.png", 1
 	)
 	var victim_shot := _action(
-		&"victim_shot", "The victim being shot", "res://assets/art/ui/broadcast/scene_victim_shot.png"
+		&"victim_shot", "The victim being shot", "res://assets/art/ui/broadcast/scene_victim_shot.png", 1
 	)
 
 	var truthful := BroadcastSequence.new()
@@ -400,10 +403,11 @@ static func _character(id: StringName, display_name: String, portrait_color: Col
 	return character
 
 
-static func _action(id: StringName, display_name: String, scene_image_path: String = "") -> ActionDef:
+static func _action(id: StringName, display_name: String, scene_image_path: String = "", max_characters := 2) -> ActionDef:
 	var action := ActionDef.new()
 	action.id = id
 	action.display_name = display_name
+	action.max_characters = max_characters
 	if not scene_image_path.is_empty():
 		action.scene_image = load(scene_image_path)
 	return action

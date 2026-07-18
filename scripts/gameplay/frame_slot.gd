@@ -11,7 +11,12 @@ signal footage_placed(action: ActionDef, card: Control)
 
 @export var slot_label := "CAUSE"
 
+## Effective cap: current_action.max_characters once a scene is placed, otherwise
+## _default_max_characters (the report's own max_characters_per_frame). Kept as a
+## plain var (not computed on read) since _can_drop_data/capacity_warning read it
+## directly; _update_capacity_for_action() keeps it in sync whenever current_action changes.
 var max_characters := 2
+var _default_max_characters := 2
 
 const COLOR_EMPTY_BORDER := Color(0.71, 0.745, 0.81, 0)
 const COLOR_FILLED_BORDER := Color(0.78, 0.81, 0.85, 0.9)
@@ -64,12 +69,29 @@ func is_filled() -> bool:
 	return current_action != null and not current_characters.is_empty()
 
 
+## Sets the fallback cap used while no scene is placed yet. Called once when a
+## report loads (report.max_characters_per_frame); does not affect a slot that
+## already has a scene placed, since that scene's own cap takes over.
+func set_default_max_characters(value: int) -> void:
+	_default_max_characters = value
+	_update_capacity_for_action()
+
+
+func _update_capacity_for_action() -> void:
+	max_characters = current_action.max_characters if current_action != null else _default_max_characters
+	# A scene swap or removal can drop the cap below what's already placed —
+	# trim from the end rather than leaving an over-full slot silently invalid.
+	while current_characters.size() > max_characters:
+		current_characters.pop_back()
+
+
 func clear() -> void:
 	var removed := current_action
 	var removed_card := current_scene_card
 	current_action = null
 	current_scene_card = null
 	current_characters = []
+	_update_capacity_for_action()
 	hide_scene_reveal()
 	_refresh_visual()
 	if removed != null:
@@ -83,6 +105,7 @@ func remove_footage() -> void:
 	var removed_card := current_scene_card
 	current_action = null
 	current_scene_card = null
+	_update_capacity_for_action()
 	hide_scene_reveal()
 	_refresh_visual()
 	footage_removed.emit(removed, removed_card)
@@ -138,6 +161,7 @@ func place(shot: ShotElement) -> void:
 	# Programmatic placement (tests, data-driven setup) has no physical card.
 	current_scene_card = null
 	current_characters = shot.characters.duplicate()
+	_update_capacity_for_action()
 	_refresh_visual()
 	if current_action != null:
 		footage_placed.emit(current_action, null)
@@ -234,6 +258,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 				footage_removed.emit(current_action, current_scene_card)
 			current_action = data["action"]
 			current_scene_card = data.get("card")
+			_update_capacity_for_action()
 			footage_placed.emit(current_action, current_scene_card)
 		"broadcast_character":
 			current_characters.append(data["character"])

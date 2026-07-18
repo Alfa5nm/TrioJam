@@ -11,6 +11,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_report2_data()
 	await _check_chain_flow()
+	await _check_per_action_cap_enforcement()
 	if failures == 0:
 		print("DAY1_BROADCAST_TEST_PASS")
 	quit(failures)
@@ -35,6 +36,11 @@ func _check_report2_data() -> void:
 		_check(action_ids.has(expected), "Report 2 actions include %s" % expected)
 		var action := _find_action(report, expected)
 		_check(action != null and action.scene_image != null, "Report 2 action %s has placeholder art" % expected)
+
+	_check(_find_action(report, &"licensing_seeds").max_characters == 2, "Licensing Seeds caps at 2 characters")
+	_check(_find_action(report, &"protest").max_characters == 1, "Protest caps at 1 character")
+	_check(_find_action(report, &"happy").max_characters == 1, "Happy caps at 1 character")
+	_check(_find_action(report, &"arrest").max_characters == 2, "Arrest caps at 2 characters")
 
 	# Truthful: Licensing(soldier, opposition) -> Protest(opposition) -> Arrest(soldier, opposition).
 	var truthful := report.truthful_sequence
@@ -65,7 +71,7 @@ func _check_report2_data() -> void:
 	# The arrest frame is now identical for both routes (cause/conflict alone
 	# discriminate truthful vs propaganda) — but order_sensitive still means the
 	# reversed pair matches NEITHER route, since both expect soldier first.
-	var reversed_outcome := ShotElement.new([opposition_char(report), soldier_char(report)], _find_action(report, &"arrest"))
+	var reversed_outcome := ShotElement.new([_find(report, &"opposition"), _find(report, &"soldier")], _find_action(report, &"arrest"))
 	_check(not truthful.matches_slot(2, reversed_outcome), "reversing the arrest order no longer matches the truthful outcome")
 	_check(not propaganda.matches_slot(2, reversed_outcome), "reversing the arrest order no longer matches the propaganda outcome either")
 
@@ -75,20 +81,6 @@ func _ordered_ids(characters: Array[CharacterDef]) -> Array[StringName]:
 	for character in characters:
 		ids.append(character.id)
 	return ids
-
-
-func soldier_char(report: BroadcastReport) -> CharacterDef:
-	for character in report.characters:
-		if character.id == &"soldier":
-			return character
-	return null
-
-
-func opposition_char(report: BroadcastReport) -> CharacterDef:
-	for character in report.characters:
-		if character.id == &"opposition":
-			return character
-	return null
 
 
 func _check_chain_flow() -> void:
@@ -162,6 +154,55 @@ func _check_chain_flow() -> void:
 
 	ui.queue_free()
 	await process_frame
+
+
+## Verifies the cap is actually ENFORCED per scene, not just satisfied by the
+## authored data: a scene capped at 1 must reject a 2nd character, and swapping
+## to a scene capped at 2 must immediately raise the ceiling back up again.
+func _check_per_action_cap_enforcement() -> void:
+	var packed_scene := load("res://scenes/gameplay/broadcast_interface.tscn") as PackedScene
+	var ui := packed_scene.instantiate() as BroadcastInterface
+	ui.instant_mode = true
+	ui.use_news_broadcast_scene = false
+	root.add_child(ui)
+	for _frame in 4:
+		await process_frame
+
+	var report := BroadcastDemoData.seedless_fruit_report()
+	ui.load_report(report)
+	_advance_through_playback(ui)
+
+	var opposition := _find(report, &"opposition")
+	var civilian := _find(report, &"civilian")
+	var protest := _find_action(report, &"protest")
+	var licensing := _find_action(report, &"licensing_seeds")
+
+	ui.conflict_slot._drop_data(Vector2.ZERO, {"type": "broadcast_scene", "action": protest})
+	_check(ui.conflict_slot.max_characters == 1, "dropping a 1-person scene lowers this slot's live cap to 1")
+	ui.conflict_slot._drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": opposition})
+	_check(ui.conflict_slot.current_characters.size() == 1, "the first character is accepted")
+	_check(
+		not ui.conflict_slot._can_drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": civilian}),
+		"a 2nd character is rejected on a scene capped at 1"
+	)
+
+	# Swapping to a 2-person scene must raise the cap back up immediately.
+	ui.conflict_slot._drop_data(Vector2.ZERO, {"type": "broadcast_scene", "action": licensing})
+	_check(ui.conflict_slot.max_characters == 2, "swapping to a 2-person scene raises this slot's live cap back to 2")
+	_check(
+		ui.conflict_slot._can_drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": civilian}),
+		"a 2nd character is now accepted after swapping to a 2-person scene"
+	)
+
+	ui.queue_free()
+	await process_frame
+
+
+func _find(report: BroadcastReport, id: StringName) -> CharacterDef:
+	for character in report.characters:
+		if character.id == id:
+			return character
+	return null
 
 
 func _slot_shows(slot: FrameSlot, action: ActionDef) -> bool:

@@ -208,7 +208,7 @@ func _load_report_body(p_report: BroadcastReport) -> void:
 	# footage-return signals which must not override the new report selection.
 	for slot in _slots:
 		slot.clear()
-		slot.max_characters = report.max_characters_per_frame
+		slot.set_default_max_characters(report.max_characters_per_frame)
 	scene_frame.setup(report.available_actions)
 	character_roster.setup(report.characters)
 	_set_editing_enabled(false)
@@ -229,7 +229,7 @@ func _load_next_chain_report() -> void:
 	report = next_report
 	for slot in _slots:
 		slot.clear()
-		slot.max_characters = next_report.max_characters_per_frame
+		slot.set_default_max_characters(next_report.max_characters_per_frame)
 	scene_frame.setup(next_report.available_actions)
 	character_roster.setup(next_report.characters)
 	_set_editing_enabled(false)
