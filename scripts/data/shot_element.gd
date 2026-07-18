@@ -25,7 +25,10 @@ func is_complete() -> bool:
 	return action != null and not characters.is_empty()
 
 
-func matches(other: ShotElement) -> bool:
+## When ordered is true, character position matters (e.g. "who attacked whom" —
+## the first character is the actor, the second the target) instead of the
+## default exact-set-regardless-of-order comparison.
+func matches(other: ShotElement, ordered := false) -> bool:
 	if other == null or not is_complete() or not other.is_complete():
 		return false
 	if action.id != other.action.id:
@@ -34,6 +37,8 @@ func matches(other: ShotElement) -> bool:
 		return false
 	var self_ids: Array = characters.map(func(c: CharacterDef): return c.id)
 	var other_ids: Array = other.characters.map(func(c: CharacterDef): return c.id)
+	if ordered:
+		return self_ids == other_ids
 	self_ids.sort()
 	other_ids.sort()
 	return self_ids == other_ids

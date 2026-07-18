@@ -3,6 +3,12 @@ extends Resource
 
 @export var headline := ""
 
+## When true, a frame's character order must match exactly (first character is
+## the actor/aggressor, second is the target) instead of just the same set of
+## characters in any order. Used by reports where direction carries the story's
+## meaning (e.g. who attacked whom).
+@export var order_sensitive := false
+
 ## MC's personal reaction, shown first (before broadcast_lines, if any). No frame highlighting.
 ## Leave broadcast_lines empty to end here without a reporter recap (e.g. MC refuses to broadcast).
 @export var reaction_lines: Array[String] = []
@@ -56,4 +62,4 @@ func _slot_matches(shot: ShotElement, characters: Array[CharacterDef], action: A
 	if shot == null:
 		return false
 	var expected := ShotElement.new(characters, action)
-	return shot.matches(expected)
+	return shot.matches(expected, order_sensitive)

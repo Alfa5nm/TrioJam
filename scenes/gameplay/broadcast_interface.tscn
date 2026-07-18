@@ -212,27 +212,27 @@ horizontal_alignment = 1
 [node name="CauseSlot" parent="DeskRoot" unique_id=613890787 instance=ExtResource("2")]
 unique_name_in_owner = true
 anchors_preset = 0
-offset_left = 390.0
-offset_top = 111.0
-offset_right = 669.0
-offset_bottom = 304.0
+offset_left = 394.0
+offset_top = 113.0
+offset_right = 666.0
+offset_bottom = 302.0
 
 [node name="ConflictSlot" parent="DeskRoot" unique_id=1146926480 instance=ExtResource("2")]
 unique_name_in_owner = true
 anchors_preset = 0
-offset_left = 680.0
-offset_top = 111.0
-offset_right = 945.0
-offset_bottom = 304.0
+offset_left = 684.0
+offset_top = 113.0
+offset_right = 942.0
+offset_bottom = 302.0
 slot_label = "CONFLICT"
 
 [node name="OutcomeSlot" parent="DeskRoot" unique_id=88507103 instance=ExtResource("2")]
 unique_name_in_owner = true
 anchors_preset = 0
-offset_left = 953.0
-offset_top = 111.0
-offset_right = 1219.0
-offset_bottom = 304.0
+offset_left = 959.0
+offset_top = 113.0
+offset_right = 1214.0
+offset_bottom = 302.0
 slot_label = "OUTCOME"
 
 [node name="SceneFrame" parent="DeskRoot" unique_id=229751326 instance=ExtResource("3")]

@@ -4,50 +4,179 @@ class_name BroadcastDemoData
 static func checkpoint_killing_report() -> BroadcastReport:
 	var soldier := _character(&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1))
 	var civilian := _character(&"civilian", "Civilian", Color(0.243, 0.761, 0.91, 1))
-	var witness := _character(&"witness", "Witness", Color(0.855, 0.82, 0.631, 1))
 
-	var questions := _action(&"questions", "questions")
-	var strikes := _action(&"strikes", "strikes")
-	var fights_back := _action(&"fights_back", "fights back")
-	var fires := _action(&"fires", "fires")
-	var attempts_to_help := _action(&"attempts_to_help", "attempts to help")
-	var orders_to_leave := _action(&"orders_to_leave", "orders to leave")
+	# Only two scenes exist. "Attack" is reused for both cause and conflict; each
+	# sequence is order_sensitive below, so the ORDER characters are placed in a
+	# frame carries the story — the first character is the attacker/killer, the
+	# second is the target. This is what lets the same two scenes tell either route.
+	var attack := _action(&"attack", "Attack", "res://assets/art/ui/broadcast/scene_checkpoint_cause_truthful.png")
+	var kill := _action(&"kill", "Kill", "res://assets/art/ui/broadcast/scene_checkpoint_outcome.png")
 
 	var truthful := BroadcastSequence.new()
-	truthful.headline = "Civilian Killed During Checkpoint Confrontation"
-	truthful.cause_characters = [soldier, civilian]
-	truthful.cause_action = strikes
-	truthful.conflict_characters = [civilian, soldier]
-	truthful.conflict_action = fights_back
-	truthful.outcome_characters = [soldier, civilian]
-	truthful.outcome_action = fires
+	truthful.order_sensitive = true
+	truthful.cause_characters = [soldier, civilian] # soldier attacks civilian first
+	truthful.cause_action = attack
+	truthful.conflict_characters = [civilian, soldier] # civilian attacks back / resists
+	truthful.conflict_action = attack
+	truthful.outcome_characters = [soldier, civilian] # soldier kills civilian
+	truthful.outcome_action = kill
+	# The events as MC actually knows them happened — resigned, not relieved.
+	truthful.reaction_lines = [
+		"The photographs are simple. First, the soldier hit him. Then he tried to protect himself. Then he died.",
+		"…",
+		"How long can we even keep playing this telephone game, till everything crashes out?",
+	]
+	truthful.broadcast_lines = [
+		"A civilian was shot and killed by a member of the national security force earlier today during a confrontation on a residential street.",
+		"The confrontation began when a soldier stopped an unarmed Opposition supporter.",
+		"After the civilian refused to surrender his poster, the soldier struck him.",
+		"The civilian pushed the soldier away in self-defence.",
+		"He was unarmed.",
+		"The soldier then shot him at close range.",
+		"He died at the scene as bystanders were ordered away.",
+		"The government calls it an arrest, and the street calls it murder.",
+	]
+	truthful.broadcast_line_frames = [-1, 0, 0, 1, 1, 2, 2, -1]
 
 	var propaganda := BroadcastSequence.new()
-	propaganda.headline = "Extremist Attacks Security Officer at Checkpoint"
-	propaganda.cause_characters = [civilian, soldier]
-	propaganda.cause_action = fights_back
-	propaganda.conflict_characters = [soldier, civilian]
-	propaganda.conflict_action = attempts_to_help
-	propaganda.outcome_characters = [soldier, civilian]
-	propaganda.outcome_action = fires
+	propaganda.order_sensitive = true
+	propaganda.cause_characters = [civilian, soldier] # civilian attacks first
+	propaganda.cause_action = attack
+	propaganda.conflict_characters = [soldier, civilian] # soldier attacks back
+	propaganda.conflict_action = attack
+	propaganda.outcome_characters = [soldier, civilian] # soldier kills civilian
+	propaganda.outcome_action = kill
+	# The lie MC is submitting — anxious self-reassurance, not resignation.
+	propaganda.reaction_lines = [
+		"…",
+		"This… is the right thing to do.",
+		"It will calm things down. This simple domino effect will turn the consequences to be something good, I know.",
+	]
+	propaganda.broadcast_lines = [
+		"A security officer was attacked today during an unauthorized Opposition protest.",
+		"The protester refused orders to surrender prohibited political material.",
+		"He then attacked the officer and resisted arrest.",
+		"Authorities blame increasingly violent Opposition rhetoric.",
+		"The officer was forced to defend themselves from the civilian.",
+		"The attacker died at the scene.",
+		"Citizens are urged to avoid illegal protests and report extremist material.",
+		"Those who cooperate have nothing to fear.",
+	]
+	propaganda.broadcast_line_frames = [-1, 0, 0, 0, 1, 2, -1, -1]
 
 	var report := BroadcastReport.new()
 	report.report_id = &"day1_checkpoint_killing"
-	report.directive_text = "DIRECTIVE: A checkpoint incident occurred this morning. Construct tonight's report from the collected footage."
-	report.intro_lines = [report.directive_text]
-	report.max_characters_per_frame = 2
-	report.characters = [soldier, civilian, witness]
-	report.available_actions = [
-		questions,
-		strikes,
-		fights_back,
-		fires,
-		attempts_to_help,
-		orders_to_leave,
+	report.directive_text = "An Opposition-affiliated agitator assaulted a member of the national security force."
+	report.intro_lines = [
+		"An Opposition-affiliated agitator assaulted a member of the national security force.",
+		"The officer responded in accordance with public safety protocol.",
+		"Avoid language suggesting excessive force or unlawful use of a firearm.",
+		"…He pushed the soldier away because he was being beaten.",
+		"….But I'm only a cog in this system.",
+		"…Or, am I? I can change the course of history, just by these photos. I can be the start of something… different.",
 	]
+	report.intro_speakers = [
+		&"government", &"government", &"government",
+		&"mc", &"mc", &"mc",
+	]
+	report.max_characters_per_frame = 2
+	report.mismatch_line = "…This doesn't add up either."
+	report.characters = [soldier, civilian]
+	report.available_actions = [attack, kill]
 	report.truthful_sequence = truthful
 	report.propaganda_sequence = propaganda
 	return report
+
+
+static func seedless_fruit_report() -> BroadcastReport:
+	# Only three reusable characters — each can be dragged into more than one
+	# frame, same as Report 1's soldier/civilian. Order carries the story here
+	# too: order_sensitive below means {soldier, opposition} and
+	# {opposition, soldier} in the same scene are different, recognized answers.
+	var soldier := _character(&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1))
+	var civilian := _character(&"civilian", "Civilian", Color(0.243, 0.761, 0.91, 1))
+	var opposition := _character(&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1))
+
+	# Shared cause — identical handshake photo for both routes.
+	var licensing_seeds := _action(
+		&"licensing_seeds", "Licensing Seeds",
+		"res://assets/art/ui/broadcast/scene_licensing.png"
+	)
+	var protest := _action(&"protest", "Protest", "res://assets/art/ui/broadcast/scene_protest.png")
+	var happy := _action(&"happy", "Happy", "res://assets/art/ui/broadcast/scene_feedback.png")
+	# Shared outcome action — same "arrest" photo op and same [soldier, opposition]
+	# order for both routes; cause/conflict alone discriminate truthful vs propaganda.
+	var arrest := _action(&"arrest", "Arrest", "res://assets/art/ui/broadcast/scene_arrest.png")
+
+	var truthful := BroadcastSequence.new()
+	truthful.order_sensitive = true
+	truthful.cause_characters = [soldier, opposition]
+	truthful.cause_action = licensing_seeds
+	truthful.conflict_characters = [opposition]
+	truthful.conflict_action = protest
+	truthful.outcome_characters = [soldier, opposition]
+	truthful.outcome_action = arrest
+	truthful.reaction_lines = [
+		"…I'm going to end up having so much shit because of it.",
+		"But it's for the country's sake. I have to.",
+	]
+	truthful.broadcast_lines = [
+		"Farmers protested today against new government-backed seed licensing laws.",
+		"The agreement gives private companies control over licensed seeds and farmland, however the farmers were very displeased with it.",
+		"Farmers say they will be forced to buy new seeds every season and may lose land for refusing, thus the protest occurred.",
+		"Officials rejected their demands, and soldiers began arresting protesters.",
+		"The government calls it modernization. Farmers call it losing the right to grow.",
+	]
+	truthful.broadcast_line_frames = [-1, 0, 1, 2, -1]
+
+	var propaganda := BroadcastSequence.new()
+	propaganda.order_sensitive = true
+	propaganda.cause_characters = [soldier, civilian]
+	propaganda.cause_action = licensing_seeds
+	propaganda.conflict_characters = [civilian]
+	propaganda.conflict_action = happy
+	propaganda.outcome_characters = [soldier, opposition]
+	propaganda.outcome_action = arrest
+	propaganda.reaction_lines = [
+		"Hahahaa… Hah…..",
+		"It's not my fault. I'm just doing what I'm told.",
+		"It's not my fault… It's not my fault….",
+	]
+	propaganda.broadcast_lines = [
+		"The government launched a new agricultural program today to meet growing demand for seedless fruit.",
+		"The new partnership will introduce licensed seeds and modern farming methods across the country.",
+		"Customers welcomed the produce, praising it as cleaner, easier and more convenient to eat.",
+		"The peaceful launch was briefly disturbed by an Opposition agitator attempting to disrupt the event.",
+		"Security quickly restored order.",
+		"The future is modern and seedless.",
+	]
+	propaganda.broadcast_line_frames = [-1, 0, 1, 2, 2, -1]
+
+	var report := BroadcastReport.new()
+	report.report_id = &"day1_seedless_fruit"
+	report.directive_text = "Consumer demand for seedless fruit has encouraged a new agricultural modernization program."
+	report.intro_lines = [
+		"Consumer demand for seedless fruit has encouraged a new agricultural modernization program.",
+		"A small group of Opposition-aligned agitators attempted to disrupt the launch.",
+		"Avoid discussion of seed licensing, land acquisition or unauthorized claims made by protesters.",
+		"…",
+		"The truth… Or the lie? Whatever it is, it will be the start of a revolution.",
+	]
+	report.intro_speakers = [
+		&"government", &"government", &"government",
+		&"mc", &"mc",
+	]
+	report.max_characters_per_frame = 2
+	report.mismatch_line = "No no no, this doesn't make any sense. Let's try again."
+	report.characters = [soldier, civilian, opposition]
+	report.available_actions = [licensing_seeds, protest, happy, arrest]
+	report.truthful_sequence = truthful
+	report.propaganda_sequence = propaganda
+	return report
+
+
+static func day1_reports() -> Array[BroadcastReport]:
+	return [checkpoint_killing_report(), seedless_fruit_report()]
 
 
 static func rooftop_killing_report() -> BroadcastReport:

@@ -43,6 +43,19 @@ var _mission_response: Array[String] = []
 var _mission_response_index := 0
 var _pending_sequence: BroadcastSequence
 var _pending_result := ResolutionResult.INVALID
+## Generic, data-driven pipeline for any report other than day0_rooftop_killing.
+## Kept fully separate from the _mission_response/_pending_* state above so the
+## untouched Day 0 branch can never interact with it.
+var _report_chain: Array[BroadcastReport] = []
+var _chain_index := -1
+var _chain_results: Array = []
+var _chain_mission_lines: Array[String] = []
+var _chain_mission_index := 0
+var _chain_pending_sequence: BroadcastSequence
+var _chain_pending_report: BroadcastReport
+## Parallel to _playback_lines during a combined recap: index into _chain_results
+## (or -1 for bridge/opening lines) so each line can restore its own frame art.
+var _playback_owners: Array[int] = []
 var _typing_response := false
 var _skip_response := false
 var _editing_enabled := false
@@ -122,11 +135,22 @@ func _ready() -> void:
 	load_report(BroadcastDemoData.rooftop_killing_report())
 
 
+## Interior of each frame's painted border in broadcast-console-base-v4.png,
+## measured in viewport space. The borders are intentionally non-uniform widths,
+## so each slot is snapped to its own box; the footage then fills the frame with
+## no gap while the bright painted border stays visible around it.
+const FRAME_RECTS := [
+	Rect2(394, 113, 272, 189),
+	Rect2(684, 113, 258, 189),
+	Rect2(959, 113, 255, 189),
+]
+
+
 func _normalize_frame_geometry() -> void:
-	var canonical_positions := [Vector2(390, 111), Vector2(679, 111), Vector2(953, 111)]
 	for index in _slots.size():
-		_slots[index].position = canonical_positions[index]
-		_slots[index].size = FrameSlot.FRAME_SIZE
+		var rect: Rect2 = FRAME_RECTS[index]
+		_slots[index].position = rect.position
+		_slots[index].size = rect.size
 		_slots[index].scale = Vector2.ONE
 
 
@@ -155,6 +179,22 @@ func _set_phase(value: Phase) -> void:
 
 
 func load_report(p_report: BroadcastReport) -> void:
+	_report_chain = [p_report]
+	_chain_index = 0
+	_chain_results = []
+	_load_report_body(p_report)
+
+
+## Loads the first report in a sequence; solving the last one plays one combined
+## recap covering every report's broadcast_lines back to back. See _finish_chain_mission_response.
+func load_report_chain(reports: Array[BroadcastReport]) -> void:
+	_report_chain = reports
+	_chain_index = 0
+	_chain_results = []
+	_load_report_body(reports[0])
+
+
+func _load_report_body(p_report: BroadcastReport) -> void:
 	report = p_report
 	_clear_transcript()
 	_mission_response.clear()
@@ -178,6 +218,23 @@ func load_report(p_report: BroadcastReport) -> void:
 	else:
 		_show_desk_immediately()
 		_start_intro()
+	_update_broadcast_button()
+
+
+## Advances to the next report in _report_chain without replaying the desk's
+## reveal animation — the hardware is already visible; only its contents change.
+func _load_next_chain_report() -> void:
+	_chain_index += 1
+	var next_report: BroadcastReport = _report_chain[_chain_index]
+	report = next_report
+	for slot in _slots:
+		slot.clear()
+		slot.max_characters = next_report.max_characters_per_frame
+	scene_frame.setup(next_report.available_actions)
+	character_roster.setup(next_report.characters)
+	_set_editing_enabled(false)
+	speaker_portrait.visible = false
+	_start_intro()
 	_update_broadcast_button()
 
 
@@ -307,10 +364,14 @@ func _start_intro() -> void:
 	_begin_playback(lines, frames, report.intro_speakers)
 
 
-func _begin_playback(lines: Array[String], frames: Array[int], speakers: Array[StringName]) -> void:
-	_playback_lines = lines
-	_playback_frames = frames
-	_playback_speakers = speakers
+func _begin_playback(lines: Array[String], frames: Array[int], speakers: Array[StringName], owners: Array[int] = []) -> void:
+	# Duplicate rather than alias: _end_playback() clears _playback_lines in place,
+	# and callers like _start_intro() pass report.intro_lines directly — without a
+	# copy that clear() would permanently wipe the report's own data on first use.
+	_playback_lines = lines.duplicate()
+	_playback_frames = frames.duplicate()
+	_playback_speakers = speakers.duplicate()
+	_playback_owners = owners.duplicate()
 	_playback_index = 0
 	_playback_active = true
 	_show_playback_line()
@@ -324,6 +385,8 @@ func _show_playback_line() -> void:
 		text = beat.text
 		speaker = beat.speaker_id
 	_update_speaker_portrait(speaker, beat)
+	if not _playback_owners.is_empty() and _playback_index < _playback_owners.size():
+		_apply_chain_recap_visuals(_playback_owners[_playback_index])
 	var highlighted_index := _playback_frames[_playback_index] if _playback_index < _playback_frames.size() else -1
 	for i in _slots.size():
 		_slots[i].set_highlighted(i == highlighted_index)
@@ -393,6 +456,7 @@ func _end_playback() -> void:
 	_playback_frames.clear()
 	_playback_speakers.clear()
 	_playback_beats.clear()
+	_playback_owners.clear()
 	_playback_index = 0
 	for slot in _slots:
 		slot.set_highlighted(false)
@@ -648,6 +712,12 @@ func _on_continue_pressed() -> void:
 			_finish_mission_response()
 		else:
 			_show_mission_response_line(_mission_response[_mission_response_index])
+	elif not _chain_mission_lines.is_empty():
+		_chain_mission_index += 1
+		if _chain_mission_index >= _chain_mission_lines.size():
+			_finish_chain_mission_response()
+		else:
+			_show_mission_response_line(_chain_mission_lines[_chain_mission_index])
 	elif _playback_active:
 		_advance_playback()
 	else:
@@ -662,15 +732,10 @@ func _on_slot_capacity_warning(slot: FrameSlot) -> void:
 
 func _on_slot_composition_changed(_slot: FrameSlot) -> void:
 	_update_broadcast_button()
-	_update_scene_reveals()
-
-
-func _update_scene_reveals() -> void:
-	for slot in _slots:
-		if slot.current_action != null and slot.current_action.scene_image != null:
-			slot.show_scene_reveal(slot.current_action.scene_image)
-		else:
-			slot.hide_scene_reveal()
+	# Rendering the placed scene's image (and its caption) is already fully
+	# handled by FrameSlot._refresh_visual() on every drop/place/remove — no
+	# separate reveal pass needed here (an older duplicate of that logic used
+	# to live here and would silently re-hide the scene caption).
 
 
 func _update_broadcast_button() -> void:
@@ -709,10 +774,7 @@ func _on_broadcast_pressed() -> void:
 			for slot in _slots: slot.show_result(false)
 			_start_mission_response(INVALID_RESPONSE, ResolutionResult.INVALID, null)
 		return
-	var matched := sequence != null
-	for slot in _slots: slot.show_result(matched)
-	_show_toast(sequence.headline if matched else report.mismatch_line)
-	broadcast_resolved.emit(sequence, matched)
+	_on_chain_broadcast_pressed(sequence)
 
 
 func _start_mission_response(lines: Array[String], result: ResolutionResult, sequence: BroadcastSequence) -> void:
@@ -770,6 +832,114 @@ func _start_playback(sequence: BroadcastSequence) -> void:
 	_playback_is_recap = true
 	var speakers: Array[StringName] = []
 	_begin_playback(sequence.broadcast_lines, sequence.broadcast_line_frames, speakers)
+
+
+## Generic (non-day0) broadcast resolution: driven entirely by sequence.reaction_lines,
+## sequence.broadcast_lines and report.mismatch_line instead of hardcoded report_id checks.
+func _on_chain_broadcast_pressed(sequence: BroadcastSequence) -> void:
+	var airs := sequence != null and not sequence.broadcast_lines.is_empty()
+	for slot in _slots:
+		if airs:
+			slot.show_result(true)
+		elif sequence != null:
+			slot.show_truth_rejected()
+		else:
+			slot.show_result(false)
+	if sequence == null:
+		_start_chain_mismatch()
+	else:
+		_start_chain_mission_response(sequence)
+
+
+func _start_chain_mismatch() -> void:
+	_chain_pending_sequence = null
+	_chain_pending_report = report
+	broadcast_resolved.emit(null, false)
+	_begin_chain_response([report.mismatch_line])
+
+
+func _start_chain_mission_response(sequence: BroadcastSequence) -> void:
+	_chain_pending_sequence = sequence
+	_chain_pending_report = report
+	broadcast_resolved.emit(sequence, true)
+	if sequence.reaction_lines.is_empty():
+		_finish_chain_mission_response()
+		return
+	_begin_chain_response(sequence.reaction_lines)
+
+
+func _begin_chain_response(lines: Array[String]) -> void:
+	_set_phase(Phase.RESPONSE)
+	_chain_mission_lines = lines.duplicate()
+	_chain_mission_index = 0
+	_set_editing_enabled(false)
+	%Directive.visible = false
+	continue_button.visible = true
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = false
+	var mc := _find_character(&"mc")
+	desk_portrait.texture = mc.portrait_texture if mc != null else null
+	_update_speaker_portrait(&"mc", BroadcastDialogueBeat.make(&"mc", "", &"neutral"))
+	_show_mission_response_line(_chain_mission_lines[0])
+
+
+func _finish_chain_mission_response() -> void:
+	_chain_mission_lines.clear()
+	_chain_mission_index = 0
+	desk_continue_button.visible = true
+	desk_continue_button.disabled = true
+	var sequence := _chain_pending_sequence
+	var finishing_report := _chain_pending_report
+	_chain_pending_sequence = null
+	_chain_pending_report = null
+	if sequence == null or sequence.broadcast_lines.is_empty():
+		# No-match, or a matched-but-non-airing route (e.g. a refusal) — try again.
+		speech_bubble.visible = false
+		%Directive.visible = true
+		continue_button.visible = false
+		_set_phase(Phase.EDITING)
+		_set_editing_enabled(true)
+		return
+	_chain_results.append({"report": finishing_report, "sequence": sequence})
+	if _chain_index + 1 < _report_chain.size():
+		_load_next_chain_report()
+	else:
+		_start_combined_recap()
+
+
+## Plays every solved report's broadcast_lines back to back as one "Today's News"
+## segment, restoring each report's own frame art as playback crosses into its lines.
+func _start_combined_recap() -> void:
+	_playback_is_recap = true
+	var lines: Array[String] = ["And now, for Today's News."]
+	var frames: Array[int] = [-1]
+	var owners: Array[int] = [-1]
+	for index in _chain_results.size():
+		var entry: Dictionary = _chain_results[index]
+		var sequence: BroadcastSequence = entry["sequence"]
+		if index > 0:
+			lines.append("Now, for our other news of the day.")
+			frames.append(-1)
+			owners.append(-1)
+		for line_index in sequence.broadcast_lines.size():
+			lines.append(sequence.broadcast_lines[line_index])
+			frames.append(sequence.broadcast_line_frames[line_index] if line_index < sequence.broadcast_line_frames.size() else -1)
+			owners.append(index)
+	speaker_portrait.visible = false
+	desk_portrait.visible = false
+	_begin_playback(lines, frames, [], owners)
+
+
+func _apply_chain_recap_visuals(owner_index: int) -> void:
+	if owner_index < 0 or owner_index >= _chain_results.size():
+		return
+	var entry: Dictionary = _chain_results[owner_index]
+	var sequence: BroadcastSequence = entry["sequence"]
+	var shots := sequence.shots()
+	for index in _slots.size():
+		var action := shots[index].action
+		if action != null and action.scene_image != null:
+			_slots[index].show_scene_reveal(action.scene_image)
 
 
 func _show_toast(text: String) -> void:

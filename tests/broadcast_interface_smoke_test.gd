@@ -29,9 +29,9 @@ func _run() -> void:
 	_check(ui.cause_slot != null, "cause slot exists")
 	_check(ui.conflict_slot != null, "conflict slot exists")
 	_check(ui.outcome_slot != null, "outcome slot exists")
-	_check([ui.cause_slot, ui.conflict_slot, ui.outcome_slot].all(func(slot: FrameSlot): return slot.size == FrameSlot.FRAME_SIZE), "all three story frames share the canonical 256x193 size")
+	_check(ui.cause_slot.size == BroadcastInterface.FRAME_RECTS[0].size and ui.conflict_slot.size == BroadcastInterface.FRAME_RECTS[1].size and ui.outcome_slot.size == BroadcastInterface.FRAME_RECTS[2].size, "each story frame fills the interior of its own painted border")
 	_check(is_equal_approx(ui.cause_slot.position.y, ui.conflict_slot.position.y) and is_equal_approx(ui.conflict_slot.position.y, ui.outcome_slot.position.y), "all three story frames share one baseline")
-	_check(ui.cause_slot.position.x == 390.0 and ui.conflict_slot.position.x == 679.0 and ui.outcome_slot.position.x == 953.0, "all three story frames use the authored horizontal grid")
+	_check(ui.cause_slot.position == BroadcastInterface.FRAME_RECTS[0].position and ui.conflict_slot.position == BroadcastInterface.FRAME_RECTS[1].position and ui.outcome_slot.position == BroadcastInterface.FRAME_RECTS[2].position, "all three story frames snap to their painted-border grid")
 	_check(ui.scene_frame != null, "scene frame exists")
 	_check(ui.scene_frame.click_region != null, "redesigned scene selector has its interactive region")
 	_check(ui.character_roster != null, "character roster exists")
@@ -81,10 +81,12 @@ func _run() -> void:
 	ui.load_report(report)
 	ui.scene_frame.ejection_time_scale = 0.0
 	_check(ui.broadcast_button.disabled, "broadcast disabled with 0/3 filled")
+	_advance_through_playback(ui)
+	_check(ui.phase == BroadcastInterface.Phase.EDITING, "Report 1 intro finishes into the editing phase")
 
 	# The redesigned scene card owns its cycle interaction.
-	_check(ui.scene_frame.current_action == report.available_actions[0], "Day 0 camera preloads the first captured frame")
-	_check(ui.scene_frame.screen_image.texture == report.available_actions[0].scene_image, "preloaded Day 0 footage is visible in the camera")
+	_check(ui.scene_frame.current_action == report.available_actions[0], "camera preloads the first captured frame")
+	_check(ui.scene_frame.screen_image.texture == report.available_actions[0].scene_image, "preloaded footage is visible in the camera")
 	ui.scene_frame.next_button.pressed.emit()
 	_check(ui.scene_frame.current_action == report.available_actions[1], "painted right camera button selects the next capture")
 	ui.scene_frame.previous_button.pressed.emit()
@@ -92,24 +94,37 @@ func _run() -> void:
 	ui.scene_frame.click_region.pressed.emit()
 	_check(ui.scene_frame.is_ejected(ui.scene_frame.current_action), "red monitor control ejects a unique physical footage card")
 	_check(ui.scene_frame._polaroids.has(ui.scene_frame.current_action.id), "archiving physically creates a polaroid above the camera")
-	var emitted_polaroid := ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Control
+	var emitted_polaroid := (ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Array)[0] as Control
 	_check(emitted_polaroid.get_parent() == ui.scene_frame.front_ejection_layer, "printed polaroid crosses into the foreground after clearing the slot")
 	_check(emitted_polaroid.mouse_filter == Control.MOUSE_FILTER_STOP, "ejected polaroid owns pointer input outside the camera bounds")
 	var polaroid_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, emitted_polaroid, false)
-	_check(typeof(polaroid_payload) == TYPE_DICTIONARY and polaroid_payload.get("type") == "broadcast_scene", "ejected polaroid begins a footage drag directly")
-	ui.scene_frame.mark_placed(ui.scene_frame.current_action)
+	_check(typeof(polaroid_payload) == TYPE_DICTIONARY and polaroid_payload.get("type") == "broadcast_scene" and polaroid_payload.get("card") == emitted_polaroid, "ejected polaroid begins a footage drag directly, carrying its own card reference")
+	ui.scene_frame.mark_placed(ui.scene_frame.current_action, emitted_polaroid)
 	_check(not emitted_polaroid.visible, "polaroid leaves the camera tray after being placed")
-	ui.scene_frame.return_card(ui.scene_frame.current_action)
+	ui.scene_frame.return_card(ui.scene_frame.current_action, emitted_polaroid)
 	_check(emitted_polaroid.visible, "returned footage restores the same draggable polaroid")
+
+	# Printing the same scene again should not be blocked, and the two copies
+	# must be independently placeable — this is what lets "Attack" be dragged
+	# into both CAUSE and CONFLICT.
+	ui.scene_frame.mark_placed(ui.scene_frame.current_action, emitted_polaroid)
+	ui.scene_frame.click_region.pressed.emit()
+	var reprinted_stack := ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Array
+	_check(reprinted_stack.size() == 2, "re-pressing eject prints a second, independent copy of the same scene")
+	var second_polaroid := reprinted_stack[1] as Control
+	var second_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, second_polaroid, false)
+	_check(typeof(second_payload) == TYPE_DICTIONARY, "the second printed copy is draggable even though the first copy is already placed")
+	ui.scene_frame.set_interaction_enabled(false)
+	_check(ui.scene_frame.caption_label.text == "ARCHIVED", "the camera archives once interaction locks, not the instant a scene is first printed")
+	ui.scene_frame.set_interaction_enabled(true)
 
 	# Scene-first rule now lives on each slot directly: character drops rejected until
 	# that specific slot already has a scene dropped into it.
 	var soldier: CharacterDef = report.characters[0]
 	var civilian: CharacterDef = report.characters[1]
-	var witness: CharacterDef = report.characters[2]
 	var scene_action: ActionDef = report.available_actions[0]
 	var character_payload := {"type": "broadcast_character", "character": soldier}
-	var scene_payload := {"type": "broadcast_scene", "action": scene_action}
+	var scene_payload := {"type": "broadcast_scene", "action": scene_action, "card": emitted_polaroid}
 
 	_check(
 		ui.cause_slot._can_drop_data(Vector2.ZERO, character_payload),
@@ -134,12 +149,14 @@ func _run() -> void:
 		"character drop accepted once this slot has a scene"
 	)
 
-	# 2-character cap, per slot.
+	# 2-character cap, per slot. Only two characters exist in this report, so the
+	# 3rd-drop attempt reuses "soldier" — the cap check runs before the
+	# already-placed check, so this still exercises the same rejection path.
 	ui.cause_slot._drop_data(Vector2.ZERO, character_payload)
 	ui.cause_slot._drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": civilian})
 	_check(ui.cause_slot.current_characters.size() == 2, "slot holds 2 characters")
 	_check(
-		not ui.cause_slot._can_drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": witness}),
+		not ui.cause_slot._can_drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": soldier}),
 		"a 3rd character is rejected once the slot is full"
 	)
 
@@ -147,7 +164,8 @@ func _run() -> void:
 	for slot in [ui.cause_slot, ui.conflict_slot, ui.outcome_slot]:
 		slot.clear()
 
-	# Truthful sequence
+	# Truthful sequence — a matched, airing sequence locks editing and plays the
+	# reaction lines, then moves straight into the (single-report) combined recap.
 	ui.cause_slot.place(ShotElement.new(report.truthful_sequence.cause_characters, report.truthful_sequence.cause_action))
 	ui.conflict_slot.place(ShotElement.new(report.truthful_sequence.conflict_characters, report.truthful_sequence.conflict_action))
 	ui.outcome_slot.place(ShotElement.new(report.truthful_sequence.outcome_characters, report.truthful_sequence.outcome_action))
@@ -157,11 +175,16 @@ func _run() -> void:
 	_check(_resolved_count == 1, "broadcast_resolved fired for truthful sequence")
 	_check(_last_matched, "truthful sequence matched")
 	_check(
-		_last_sequence != null and _last_sequence.headline == "Civilian Killed During Checkpoint Confrontation",
-		"truthful headline is correct"
+		_last_sequence != null and _last_sequence.reaction_lines[0].begins_with("The photographs are simple"),
+		"truthful route carries the resigned reaction line (reaction lines were swapped per script review)"
 	)
+	_advance_through_response(ui)
+	_check(ui._playback_active and ui._playback_is_recap, "solving the only report in the chain starts the combined recap")
+	_check(ui.dialogue_label.text.begins_with("And now, for Today's News"), "combined recap opens with the Today's News line")
 
-	# Propaganda sequence
+	# Propaganda sequence — reload fresh since the truthful pass above already aired.
+	ui.load_report(report)
+	_advance_through_playback(ui)
 	ui.cause_slot.place(ShotElement.new(report.propaganda_sequence.cause_characters, report.propaganda_sequence.cause_action))
 	ui.conflict_slot.place(ShotElement.new(report.propaganda_sequence.conflict_characters, report.propaganda_sequence.conflict_action))
 	ui.outcome_slot.place(ShotElement.new(report.propaganda_sequence.outcome_characters, report.propaganda_sequence.outcome_action))
@@ -169,20 +192,27 @@ func _run() -> void:
 	_check(_resolved_count == 2, "broadcast_resolved fired for propaganda sequence")
 	_check(_last_matched, "propaganda sequence matched")
 	_check(
-		_last_sequence != null and _last_sequence.headline == "Extremist Attacks Security Officer at Checkpoint",
-		"propaganda headline is correct"
+		_last_sequence != null and _last_sequence.reaction_lines[1] == "This… is the right thing to do.",
+		"propaganda route carries the self-justifying reaction line (reaction lines were swapped per script review)"
 	)
+	_advance_through_response(ui)
+	_check(ui._playback_active and ui._playback_is_recap, "solving propaganda also starts the combined recap")
 
-	# Unrecognized combination
-	var stray_action: ActionDef = report.available_actions[0]
-	ui.cause_slot.place(ShotElement.new([witness], stray_action))
-	ui.conflict_slot.place(ShotElement.new([witness], stray_action))
-	ui.outcome_slot.place(ShotElement.new([witness], stray_action))
+	# Unrecognized combination — reload fresh again; a non-match must return to editing.
+	# The soldier "attacking" in both cause and conflict (same order both times,
+	# never resisted) doesn't match either authored order-sensitive sequence.
+	ui.load_report(report)
+	_advance_through_playback(ui)
+	ui.cause_slot.place(ShotElement.new([soldier, civilian], scene_action))
+	ui.conflict_slot.place(ShotElement.new([soldier, civilian], scene_action))
+	ui.outcome_slot.place(ShotElement.new([soldier, civilian], report.available_actions[1]))
 	ui._on_broadcast_pressed()
 	_check(_resolved_count == 3, "broadcast_resolved fired for unrecognized combination")
 	_check(not _last_matched, "unrecognized combination does not match")
 	_check(_last_sequence == null, "unrecognized combination returns no sequence")
 	_check(ui.dialogue_label.text != "", "dialogue falls back gracefully instead of erroring")
+	_advance_through_response(ui)
+	_check(ui.phase == BroadcastInterface.Phase.EDITING and ui._editing_enabled, "a mismatch returns to editing instead of airing")
 
 	# --- Day 0: embedded interrogation, desk mission, and reporter handoff ---
 	var rooftop_report := BroadcastDemoData.rooftop_killing_report()
@@ -234,14 +264,14 @@ func _run() -> void:
 	_check(rooftop_report.characters.all(func(character: CharacterDef): return character.portrait_texture != null), "Akiibot's three authored roster portraits are available")
 	_check(ui.cause_slot.max_characters == 1, "redesigned Day 0 frames retain their one-character limit")
 	ui.scene_frame.eject_current()
-	var day0_card := ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Control
+	var day0_card := (ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Array)[0] as Control
 	var day0_footage_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, day0_card, false)
 	_check(day0_footage_payload.get("action") == rooftop_report.available_actions[0], "Day 0 polaroid carries the selected captured frame")
 	_check((day0_footage_payload.get("action") as ActionDef).scene_image != null, "Day 0 polaroid carries a visible footage texture")
 	ui.cause_slot._drop_data(Vector2.ZERO, day0_footage_payload)
 	_check(ui.cause_slot.current_action == rooftop_report.available_actions[0], "Day 0 frame receives the selected captured action")
 	_check(ui.cause_slot.scene_image.visible, "dropped Day 0 polaroid is visibly rendered inside its frame")
-	_check(ui.cause_slot.scene_image.texture == rooftop_report.available_actions[0].scene_image, "frame renders the selected Day 0 footage texture")
+	_check((ui.cause_slot.scene_image.texture as AtlasTexture).atlas == rooftop_report.available_actions[0].scene_image, "frame renders the selected Day 0 footage texture")
 	_check(ui.cause_slot.return_button.visible, "Day 0 footage provides a visible RETURN control")
 	ui.cause_slot._drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": rooftop_report.characters[0]})
 	ui.cause_slot.return_button.pressed.emit()
@@ -336,6 +366,27 @@ func _on_broadcast_resolved(sequence: BroadcastSequence, matched: bool) -> void:
 	_resolved_count += 1
 	_last_sequence = sequence
 	_last_matched = matched
+
+
+## Drives continue-presses through an intro/recap dialogue sequence until it ends.
+## Safe under instant_mode (no typing await gaps), bounded to avoid an infinite loop
+## if playback never terminates.
+func _advance_through_playback(ui: BroadcastInterface, max_steps := 40) -> void:
+	var steps := 0
+	while ui._playback_active and steps < max_steps:
+		ui._on_continue_pressed()
+		steps += 1
+
+
+## Drives continue-presses through a chain mission-response (reaction lines or the
+## mismatch line) until it resolves into either editing or the combined recap.
+## Stops as soon as _chain_mission_lines empties rather than watching `phase`,
+## since starting the combined recap does not change `phase` away from RESPONSE.
+func _advance_through_response(ui: BroadcastInterface, max_steps := 20) -> void:
+	var steps := 0
+	while not ui._chain_mission_lines.is_empty() and steps < max_steps:
+		ui._on_continue_pressed()
+		steps += 1
 
 
 func _check(condition: bool, description: String) -> void:

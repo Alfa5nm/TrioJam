@@ -10,10 +10,10 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(0.71, 0.745, 0.81, 0)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="ReturnNormal"]
 bg_color = Color(0.055, 0.075, 0.09, 0.9)
@@ -52,7 +52,6 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [node name="FrameSlot" type="Control"]
-custom_minimum_size = Vector2(256, 193)
 script = ExtResource("1_slot")
 
 [node name="Background" type="TextureRect" parent="."]
@@ -67,6 +66,18 @@ texture = ExtResource("2_outline")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="SceneImage" type="TextureRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+tooltip_text = "Right-click to return footage"
+expand_mode = 1
+stretch_mode = 6
+
 [node name="StateOverlay" type="Panel" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,22 +86,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StateOverlayStyle")
-
-[node name="SceneImage" type="TextureRect" parent="."]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 6.0
-offset_top = 6.0
-offset_right = -6.0
-offset_bottom = -6.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-tooltip_text = "Right-click to return footage"
-expand_mode = 1
-stretch_mode = 6
 
 [node name="ContentMargin" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -124,6 +119,8 @@ layout_mode = 2
 mouse_filter = 2
 autowrap_mode = 3
 theme_override_colors/font_color = Color(0.85, 0.87, 0.9, 0.6)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
 text = "— scene —"

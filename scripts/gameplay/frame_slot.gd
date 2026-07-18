@@ -3,8 +3,11 @@ extends Control
 
 signal composition_changed(slot: FrameSlot)
 signal capacity_warning(slot: FrameSlot)
-signal footage_removed(action: ActionDef)
-signal footage_placed(action: ActionDef)
+## card is the specific physical polaroid this footage came from (null when
+## placed programmatically via place(), not by dragging one) — lets the same
+## scene be printed and placed more than once without cards colliding.
+signal footage_removed(action: ActionDef, card: Control)
+signal footage_placed(action: ActionDef, card: Control)
 
 @export var slot_label := "CAUSE"
 
@@ -17,9 +20,12 @@ const COLOR_FAIL_BORDER := Color(0.714, 0.275, 0.310, 1)
 const COLOR_HIGHLIGHT_BORDER := Color(0.976, 0.831, 0.318, 1)
 const COLOR_TRUTH_REJECTED_BORDER := Color(0.38, 0.7, 0.96, 1)
 const FRAME_SIZE := Vector2(256, 193)
+const SCENE_ZOOM := 1.15
+const SCENE_PAN_BIAS := 0.15 # 0 = crop window flush left (content shifts right), 1 = flush right
 
 var current_action: ActionDef = null
 var current_characters: Array[CharacterDef] = []
+var current_scene_card: Control = null
 var interaction_enabled := true
 
 @onready var state_overlay: Panel = $StateOverlay
@@ -35,9 +41,11 @@ var _highlighted := false
 
 
 func _ready() -> void:
-	custom_minimum_size = FRAME_SIZE
-	size = FRAME_SIZE
-	pivot_offset = FRAME_SIZE * 0.5
+	# Each frame's painted border in the console art is a slightly different width,
+	# so the slot's rect is authored per-instance (and normalized by the interface).
+	# Do not clamp it to a single FRAME_SIZE here or the footage stops short of the
+	# border on the wider frames.
+	pivot_offset = size * 0.5
 	title_label.text = slot_label
 	_style = (state_overlay.get_theme_stylebox("panel") as StyleBoxFlat).duplicate()
 	state_overlay.add_theme_stylebox_override("panel", _style)
@@ -58,29 +66,52 @@ func is_filled() -> bool:
 
 func clear() -> void:
 	var removed := current_action
+	var removed_card := current_scene_card
 	current_action = null
+	current_scene_card = null
 	current_characters = []
 	hide_scene_reveal()
 	_refresh_visual()
 	if removed != null:
-		footage_removed.emit(removed)
+		footage_removed.emit(removed, removed_card)
 
 
 func remove_footage() -> void:
 	if not interaction_enabled or current_action == null:
 		return
 	var removed := current_action
+	var removed_card := current_scene_card
 	current_action = null
+	current_scene_card = null
 	hide_scene_reveal()
 	_refresh_visual()
-	footage_removed.emit(removed)
+	footage_removed.emit(removed, removed_card)
 	composition_changed.emit(self)
 
 
 func show_scene_reveal(texture: Texture2D) -> void:
-	scene_image.texture = texture
+	scene_image.texture = _build_panned_scene_texture(texture)
 	scene_image.visible = true
 	scene_label.visible = false
+
+
+func _build_panned_scene_texture(source: Texture2D) -> Texture2D:
+	if source == null:
+		return null
+	var source_size := source.get_size()
+	var frame_size := size if size.x > 1.0 and size.y > 1.0 else FRAME_SIZE
+	var target_ratio := frame_size.x / frame_size.y
+	var crop_height := source_size.y / SCENE_ZOOM
+	var crop_width := crop_height * target_ratio
+	if crop_width > source_size.x:
+		crop_width = source_size.x
+		crop_height = crop_width / target_ratio
+	var max_offset := Vector2(source_size.x - crop_width, source_size.y - crop_height)
+	var region := Rect2(max_offset.x * SCENE_PAN_BIAS, max_offset.y * 0.5, crop_width, crop_height)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = source
+	atlas.region = region
+	return atlas
 
 
 func hide_scene_reveal() -> void:
@@ -102,12 +133,14 @@ func current_shot() -> ShotElement:
 
 func place(shot: ShotElement) -> void:
 	if current_action != null and current_action != shot.action:
-		footage_removed.emit(current_action)
+		footage_removed.emit(current_action, current_scene_card)
 	current_action = shot.action
+	# Programmatic placement (tests, data-driven setup) has no physical card.
+	current_scene_card = null
 	current_characters = shot.characters.duplicate()
 	_refresh_visual()
 	if current_action != null:
-		footage_placed.emit(current_action)
+		footage_placed.emit(current_action, null)
 	composition_changed.emit(self)
 
 
@@ -130,9 +163,12 @@ func _refresh_visual() -> void:
 	scene_label.text = current_action.display_name if current_action != null else "— scene —"
 	return_button.visible = current_action != null and interaction_enabled
 	if current_action != null and current_action.scene_image != null:
-		scene_image.texture = current_action.scene_image
+		scene_image.texture = _build_panned_scene_texture(current_action.scene_image)
 		scene_image.visible = true
-		scene_label.visible = false
+		# Always caption the scene, even over a photo — some placeholder scenes
+		# currently share the exact same image (e.g. Licensing Seeds and Arrest),
+		# so the name is the only way to tell them apart once dropped in a frame.
+		scene_label.visible = true
 	else:
 		scene_image.texture = null
 		scene_image.visible = false
@@ -143,7 +179,7 @@ func _refresh_visual() -> void:
 	for character in current_characters:
 		var chip_button := TextureButton.new()
 		chip_button.custom_minimum_size = Vector2(64, 64)
-		chip_button.texture_normal = character.portrait_texture
+		chip_button.texture_normal = character.get_display_texture()
 		chip_button.ignore_texture_size = true
 		chip_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		chip_button.tooltip_text = character.display_name + " (click to remove)"
@@ -195,9 +231,10 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	match data.get("type"):
 		"broadcast_scene":
 			if current_action != null and current_action != data["action"]:
-				footage_removed.emit(current_action)
+				footage_removed.emit(current_action, current_scene_card)
 			current_action = data["action"]
-			footage_placed.emit(current_action)
+			current_scene_card = data.get("card")
+			footage_placed.emit(current_action, current_scene_card)
 		"broadcast_character":
 			current_characters.append(data["character"])
 	_refresh_visual()

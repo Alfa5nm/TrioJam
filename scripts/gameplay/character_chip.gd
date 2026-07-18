@@ -22,7 +22,7 @@ func setup(p_character: CharacterDef) -> void:
 func _refresh_visual() -> void:
 	if character == null:
 		return
-	portrait_rect.texture = character.portrait_texture
+	portrait_rect.texture = character.get_display_texture()
 	name_label.text = character.display_name
 
 
@@ -35,14 +35,14 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 
 
 func drag_payload() -> Variant:
-	if character == null or character.portrait_texture == null:
+	if character == null:
 		return null
 	return {"type": "broadcast_character", "character": character}
 
 
 func _build_preview() -> Control:
 	var preview := TextureRect.new()
-	preview.texture = character.portrait_texture
+	preview.texture = character.get_display_texture()
 	preview.custom_minimum_size = Vector2(72, 72)
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

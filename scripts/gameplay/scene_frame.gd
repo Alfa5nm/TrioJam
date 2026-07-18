@@ -10,7 +10,11 @@ var current_action: ActionDef
 var interaction_enabled := true
 var _available_actions: Array[ActionDef] = []
 var _ejected: Dictionary = {}
-var _placed: Dictionary = {}
+## action.id -> Array[Control]: every polaroid ever printed for that scene, so the
+## same scene can be printed (and placed) more than once, e.g. a shot reused in
+## both the CAUSE and CONFLICT frames. Placement state lives per-card as
+## metadata ("placed"), not per-action, so printing one more copy of an
+## already-placed scene stays independently draggable.
 var _polaroids: Dictionary = {}
 var _action_index := -1
 var _dragged_card: Control
@@ -44,10 +48,10 @@ func _notification(what: int) -> void:
 func setup(available_actions: Array[ActionDef]) -> void:
 	_available_actions = available_actions
 	_ejected.clear()
-	_placed.clear()
-	for card in _polaroids.values():
-		if is_instance_valid(card):
-			card.queue_free()
+	for cards in _polaroids.values():
+		for card in cards:
+			if is_instance_valid(card):
+				card.queue_free()
 	_polaroids.clear()
 	_action_index = 0 if not _available_actions.is_empty() else -1
 	current_action = _available_actions[0] if not _available_actions.is_empty() else null
@@ -70,10 +74,9 @@ func eject_current() -> void:
 		cycle_scene(1)
 	if current_action == null:
 		return
-	if _ejected.has(current_action.id):
-		# Compatibility: clicking an archived capture still selects it for dragging.
-		_refresh_visual()
-		return
+	# Every press prints a fresh, independently-placeable copy — a scene needed in
+	# more than one frame (e.g. the same "Attack" in both CAUSE and CONFLICT) can
+	# be printed as many times as it's needed.
 	_ejected[current_action.id] = true
 	eject_requested.emit(current_action)
 	footage_ejected.emit(current_action)
@@ -81,8 +84,11 @@ func eject_current() -> void:
 	_refresh_visual()
 
 
-func return_card(action: ActionDef) -> void:
-	if action == null:
+## card is the specific physical polaroid being returned — with a scene now
+## printable multiple times, only that instance should come back to the tray,
+## not every copy of the same scene.
+func return_card(action: ActionDef, card: Control = null) -> void:
+	if action == null or card == null or not is_instance_valid(card):
 		return
 	var return_index := -1
 	for index in _available_actions.size():
@@ -92,26 +98,26 @@ func return_card(action: ActionDef) -> void:
 	# Ignore cleanup signals from a report that is no longer loaded.
 	if return_index < 0:
 		return
-	_placed.erase(action.id)
+	card.set_meta("placed", false)
 	current_action = action
 	_action_index = return_index
 	_refresh_visual()
-	if _polaroids.has(action.id):
-		var card := _polaroids[action.id] as Control
-		if card.get_parent() != front_ejection_layer:
-			card.reparent(front_ejection_layer, true)
-		card.visible = true
-		card.modulate.a = 0.0
-		card.scale = Vector2(0.86, 0.86)
-		var tween := create_tween().set_parallel()
-		tween.tween_property(card, "modulate:a", 1.0, 0.12)
-		tween.tween_property(card, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if card.get_parent() != front_ejection_layer:
+		card.reparent(front_ejection_layer, true)
+	card.visible = true
+	card.modulate.a = 0.0
+	card.scale = Vector2(0.86, 0.86)
+	var tween := create_tween().set_parallel()
+	tween.tween_property(card, "modulate:a", 1.0, 0.12)
+	tween.tween_property(card, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-func mark_placed(action: ActionDef) -> void:
-	if action != null:
-		_placed[action.id] = true
-		_refresh_visual()
+func mark_placed(action: ActionDef, card: Control = null) -> void:
+	if action == null:
+		return
+	if card != null and is_instance_valid(card):
+		card.set_meta("placed", true)
+	_refresh_visual()
 
 
 func is_ejected(action: ActionDef) -> bool:
@@ -123,10 +129,12 @@ func set_interaction_enabled(enabled: bool) -> void:
 	click_region.disabled = not enabled
 	previous_button.disabled = not enabled
 	next_button.disabled = not enabled
-	for card in _polaroids.values():
-		if is_instance_valid(card):
-			var control := card as Control
-			control.mouse_filter = Control.MOUSE_FILTER_STOP if enabled and control.get_parent() == front_ejection_layer else Control.MOUSE_FILTER_IGNORE
+	for cards in _polaroids.values():
+		for card in cards:
+			if is_instance_valid(card):
+				var control := card as Control
+				control.mouse_filter = Control.MOUSE_FILTER_STOP if enabled and control.get_parent() == front_ejection_layer else Control.MOUSE_FILTER_IGNORE
+	_refresh_visual()
 
 
 func _refresh_visual() -> void:
@@ -138,14 +146,17 @@ func _refresh_visual() -> void:
 		return
 	caption_label.text = current_action.display_name.to_upper()
 	screen_image.texture = current_action.scene_image
-	var is_archived := _ejected.has(current_action.id)
+	# The whole camera archives together once editing locks (BROADCAST pressed),
+	# not the instant a single scene is first printed — a scene may still need
+	# printing again for another frame right up until then.
+	var is_archived := not interaction_enabled
 	# The flat v5 camera keeps the LCD as a pure live preview. Archive state is
 	# rendered beneath the hardware, never stamped over the footage itself.
 	archive_label.visible = false
 	if is_archived:
 		caption_label.text = "ARCHIVED"
 	_show_only_polaroid(current_action.id)
-	click_region.tooltip_text = "Footage archived — drag the printed polaroid" if is_archived else "Eject captured footage"
+	click_region.tooltip_text = "Footage archived — drag a printed polaroid" if is_archived else "Eject captured footage"
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
@@ -155,7 +166,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 
 
 func _get_polaroid_drag_data(at_position: Vector2, action: ActionDef, card: Control, show_preview := true) -> Variant:
-	if action == null or not interaction_enabled or _placed.has(action.id):
+	if action == null or not interaction_enabled or card.get_meta("placed", false):
 		return null
 	current_action = action
 	for index in _available_actions.size():
@@ -170,7 +181,9 @@ func _get_polaroid_drag_data(at_position: Vector2, action: ActionDef, card: Cont
 		card.set_drag_preview(_build_preview_for(action, at_position))
 		_dragged_card = card
 		card.call_deferred("set_modulate", Color(1, 1, 1, 0))
-	return {"type": "broadcast_scene", "action": action, "captured_card": true}
+	# The specific card travels with the payload so mark_placed/return_card can
+	# target this exact printed copy instead of every copy of the same scene.
+	return {"type": "broadcast_scene", "action": action, "captured_card": true, "card": card}
 
 
 func _build_preview_for(action: ActionDef, grab_position := Vector2(95.0, 10.0)) -> Control:
@@ -220,29 +233,32 @@ func _build_preview_for(action: ActionDef, grab_position := Vector2(95.0, 10.0))
 
 func _eject_polaroid(action: ActionDef) -> void:
 	_pulse_camera()
-	if _polaroids.has(action.id):
-		var existing := _polaroids[action.id] as Control
-		if existing.get_parent() != front_ejection_layer:
-			existing.reparent(front_ejection_layer, true)
-		_show_only_polaroid(action.id)
-		return
+	if not _polaroids.has(action.id):
+		_polaroids[action.id] = []
+	var stack: Array = _polaroids[action.id]
+	var stack_index := stack.size()
+	# A small fan-out per stacked copy so multiple prints of the same scene read
+	# as a physical stack of photos rather than perfectly overlapping.
+	var settle_position := Vector2(70, -104) + Vector2(stack_index * 3.0, stack_index * -2.0)
+	var settle_rotation := deg_to_rad(2.0 + stack_index * 3.0)
+
 	var card := _build_polaroid(action)
 	rear_ejection_layer.add_child(card)
-	_polaroids[action.id] = card
+	stack.append(card)
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.position = Vector2(70, 48)
 	card.rotation = deg_to_rad(-1.5)
 	card.modulate.a = 0.0
 	card.scale = Vector2(0.96, 0.96)
 	if is_zero_approx(ejection_time_scale):
-		card.position = Vector2(70, -104)
-		card.rotation = deg_to_rad(2.0)
+		card.position = settle_position
+		card.rotation = settle_rotation
 		card.modulate.a = 1.0
 		card.scale = Vector2.ONE
 		card.reparent(front_ejection_layer, true)
 		card.mouse_filter = Control.MOUSE_FILTER_STOP if interaction_enabled else Control.MOUSE_FILTER_IGNORE
 		return
-	var clearance_target := Vector2(70, -83)
+	var clearance_target := Vector2(70, -83) + Vector2(stack_index * 3.0, 0.0)
 	var tween := create_tween().set_parallel()
 	tween.tween_property(card, "position", clearance_target, 0.52 * ejection_time_scale).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(card, "rotation", deg_to_rad(0.6), 0.52 * ejection_time_scale).set_trans(Tween.TRANS_SINE)
@@ -253,8 +269,8 @@ func _eject_polaroid(action: ActionDef) -> void:
 		return
 	card.reparent(front_ejection_layer, true)
 	var settle := create_tween().set_parallel()
-	settle.tween_property(card, "position", Vector2(70, -104), 0.16 * ejection_time_scale).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	settle.tween_property(card, "rotation", deg_to_rad(2.0), 0.16 * ejection_time_scale).set_trans(Tween.TRANS_SINE)
+	settle.tween_property(card, "position", settle_position, 0.16 * ejection_time_scale).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	settle.tween_property(card, "rotation", settle_rotation, 0.16 * ejection_time_scale).set_trans(Tween.TRANS_SINE)
 	await settle.finished
 	if is_instance_valid(card):
 		card.mouse_filter = Control.MOUSE_FILTER_STOP if interaction_enabled else Control.MOUSE_FILTER_IGNORE
@@ -302,8 +318,10 @@ func _build_polaroid(action: ActionDef) -> PanelContainer:
 
 func _show_only_polaroid(action_id: StringName) -> void:
 	for id in _polaroids:
-		var card: Control = _polaroids[id]
-		card.visible = id == action_id and not _placed.has(id)
+		var cards: Array = _polaroids[id]
+		for card in cards:
+			if is_instance_valid(card):
+				card.visible = id == action_id and not card.get_meta("placed", false)
 
 
 func _pulse_camera() -> void:
