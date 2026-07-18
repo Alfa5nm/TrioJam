@@ -179,6 +179,93 @@ static func day1_reports() -> Array[BroadcastReport]:
 	return [checkpoint_killing_report(), seedless_fruit_report()]
 
 
+## Day 2's "Emergency Reporting Directive" (the Peace Rally bombing). Built as a
+## standalone single-report function — unlike day1_reports(), nothing calls this
+## automatically. Wire it in with load_report(BroadcastDemoData.bombing_report())
+## wherever it belongs in the actual game flow.
+static func bombing_report() -> BroadcastReport:
+	var suspicious_individual := _character(&"suspicious_individual", "Suspicious Individual", Color(0.55, 0.53, 0.58, 1))
+	var civilians := _character(&"civilians", "Civilians", Color(0.243, 0.761, 0.91, 1))
+	var opposition := _character(&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1))
+	var soldiers := _character(&"soldiers", "Soldiers", Color(0.714, 0.275, 0.310, 1))
+
+	var planting_bomb := _action(&"planting_bomb", "Planting Bomb Scene", "res://assets/art/ui/broadcast/scene_planting_bomb.png")
+	var peace_rally_victims := _action(&"peace_rally_victims", "Peace Rally Victims", "res://assets/art/ui/broadcast/scene_peace_rally_victims.png")
+	# Order matters here — the scene literally asks "Who is Helping Who?": the
+	# first character placed is the one doing the helping, the second is who's helped.
+	var helping := _action(&"helping", "Who is Helping Who?", "res://assets/art/ui/broadcast/scene_helping.png")
+
+	var truthful := BroadcastSequence.new()
+	truthful.order_sensitive = true
+	truthful.cause_characters = [suspicious_individual]
+	truthful.cause_action = planting_bomb
+	truthful.conflict_characters = [civilians]
+	truthful.conflict_action = peace_rally_victims
+	truthful.outcome_characters = [opposition, civilians]
+	truthful.outcome_action = helping
+	truthful.reaction_lines = [
+		"This is going too far. I'm going to tell lies about this murderous being",
+		"I can't exactly tell their name… But this is good enough.",
+		"I'm not going to let this pass.",
+	]
+	truthful.broadcast_lines = [
+		"…And now, Today's news.",
+		"New evidence suggests that the Peace Rally bombing may have been deliberately planned.",
+		"A suspicious individual was photographed placing a package beneath the stage shortly before the explosion.",
+		"The blast struck a peaceful crowd gathered to hear the Opposition leader call for negotiation and unity.",
+		"Following the explosion, the leader helped wounded civilians escape and repeatedly called for calm.",
+		"Authorities have not explained the identity of the individual seen placing the package.",
+		"The rally was meant to end the violence, however someone wanted it to become another reason for war.",
+	]
+	truthful.broadcast_line_frames = [-1, -1, 0, 1, 2, -1, -1]
+
+	var propaganda := BroadcastSequence.new()
+	propaganda.order_sensitive = true
+	propaganda.cause_characters = [opposition]
+	propaganda.cause_action = planting_bomb
+	propaganda.conflict_characters = [soldiers]
+	propaganda.conflict_action = peace_rally_victims
+	propaganda.outcome_characters = [soldiers, civilians]
+	propaganda.outcome_action = helping
+	propaganda.reaction_lines = [
+		"…..",
+		"I'm… definitely bound to hell after publishing this. There's no god for me, I'm sure.",
+	]
+	propaganda.broadcast_lines = [
+		"Authorities have linked today's deadly rally explosion to violent Opposition activity.",
+		"An Opposition member was seen placing a suspicious package near the stage shortly before the blast.",
+		"The explosion endangered both the Opposition leader and security personnel assigned to protect the event.",
+		"Soldiers entered the damaged square, rescued civilians and restored order.",
+		"Officials are now investigating the Opposition leader's connection to the attack.",
+		"A rally advertised as peaceful became an act of terror. Security forces have promised that those responsible will be found.",
+		"Peace cannot survive those who use it as a disguise.",
+	]
+	propaganda.broadcast_line_frames = [-1, 0, 1, 2, -1, -1, -1]
+
+	var report := BroadcastReport.new()
+	report.report_id = &"day2_bombing"
+	report.directive_text = "The Opposition leader organized a violent rally that resulted in a terrorist explosion."
+	report.intro_lines = [
+		"The Opposition leader organized a violent rally that resulted in a terrorist explosion.",
+		"Opposition militants attacked security forces following the detonation.",
+		"Military personnel intervened to protect civilians and restore public order.",
+		"…..",
+		"…Oh there has to be a limit to everything. Now I need to lie about a bomb planter…?!",
+		"No fucking way….",
+	]
+	report.intro_speakers = [
+		&"government", &"government", &"government",
+		&"mc", &"mc", &"mc",
+	]
+	report.max_characters_per_frame = 2
+	report.mismatch_line = "…None of this adds up."
+	report.characters = [suspicious_individual, civilians, opposition, soldiers]
+	report.available_actions = [planting_bomb, peace_rally_victims, helping]
+	report.truthful_sequence = truthful
+	report.propaganda_sequence = propaganda
+	return report
+
+
 static func rooftop_killing_report() -> BroadcastReport:
 	var session := (Engine.get_main_loop() as SceneTree).root.get_node_or_null("GameSession")
 	var player_name := str(session.player_name) if session != null else "MC"
