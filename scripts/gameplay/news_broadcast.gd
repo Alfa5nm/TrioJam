@@ -5,7 +5,6 @@ signal broadcast_finished
 
 const PRESENTER_SHEET := preload("res://assets/art/Broadcast/presenter-sheet-v1.png")
 const CELL_SIZE := Vector2(444, 444)
-const HARD_NEWS_LINES := [3, 4, 6]
 
 @export var instant_mode := false
 @export var auto_advance_to_epilogue := true
@@ -17,7 +16,6 @@ var _typing := false
 var _skip_requested := false
 var _ended := false
 var _scroll_tween: Tween
-var _bang_sound_played := false
 
 @onready var presenter: AnimatedSprite2D = $Presenter
 @onready var teleprompter_text: Label = %TeleprompterText
@@ -33,14 +31,11 @@ var _bang_sound_played := false
 @onready var intro_sting: AudioStreamPlayer = $Audio/IntroSting
 @onready var news_bed: AudioStreamPlayer = $Audio/NewsBed
 @onready var presenter_blip: AudioStreamPlayer = $Audio/PresenterBlip
-@onready var table_bang: AudioStreamPlayer = $Audio/TableBang
 @onready var fade: ColorRect = %Fade
 
 
 func _ready() -> void:
 	_setup_presenter_frames()
-	presenter.frame_changed.connect(_on_presenter_frame_changed)
-	presenter.animation_finished.connect(_on_presenter_animation_finished)
 	var report := BroadcastDemoData.rooftop_killing_report()
 	_lines = report.propaganda_sequence.broadcast_lines
 	_line_frames = report.propaganda_sequence.broadcast_line_frames
@@ -125,22 +120,7 @@ func _present_current_line() -> void:
 
 
 func _start_presenter_motion() -> void:
-	if _line_index in HARD_NEWS_LINES:
-		_bang_sound_played = false
-		presenter.play(&"bang")
-	else:
-		presenter.play(&"talk")
-
-
-func _on_presenter_frame_changed() -> void:
-	if presenter.animation == &"bang" and presenter.frame == 2 and not _bang_sound_played:
-		_bang_sound_played = true
-		table_bang.play()
-
-
-func _on_presenter_animation_finished() -> void:
-	if presenter.animation == &"bang" and _typing:
-		presenter.play(&"talk")
+	presenter.play(&"talk")
 
 
 func _set_card_focus(frame_index: int) -> void:
@@ -175,12 +155,8 @@ func _setup_presenter_frames() -> void:
 	frames.add_animation(&"talk")
 	frames.set_animation_loop(&"talk", true)
 	frames.set_animation_speed(&"talk", 7.0)
-	frames.add_animation(&"bang")
-	frames.set_animation_loop(&"bang", false)
-	frames.set_animation_speed(&"bang", 6.5)
 	for column in 4:
 		frames.add_frame(&"talk", _atlas_frame(column, 0))
-		frames.add_frame(&"bang", _atlas_frame(column, 1))
 	presenter.sprite_frames = frames
 	presenter.animation = &"talk"
 	presenter.frame = 0

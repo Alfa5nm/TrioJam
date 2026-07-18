@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/frame_slot.gd" id="1_slot"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/frame_outline.png" id="2_outline"]
@@ -14,6 +14,42 @@ corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="ReturnNormal"]
+bg_color = Color(0.055, 0.075, 0.09, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.48, 0.56, 0.61, 0.9)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="ReturnHover"]
+bg_color = Color(0.22, 0.07, 0.065, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.46, 0.36, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="ReturnPressed"]
+bg_color = Color(0.38, 0.08, 0.06, 1)
+border_width_left = 2
+border_width_top = 3
+border_width_right = 2
+border_width_bottom = 1
+border_color = Color(1, 0.62, 0.44, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="FrameSlot" type="Control"]
 custom_minimum_size = Vector2(256, 193)
@@ -98,3 +134,25 @@ size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 8
 alignment = 1
+
+[node name="ReturnButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -79.0
+offset_top = 9.0
+offset_right = -9.0
+offset_bottom = 37.0
+grow_horizontal = 0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.9, 0.93, 0.94, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("ReturnNormal")
+theme_override_styles/hover = SubResource("ReturnHover")
+theme_override_styles/pressed = SubResource("ReturnPressed")
+theme_override_styles/disabled = SubResource("ReturnNormal")
+text = "RETURN"
+tooltip_text = "Return this polaroid; assigned character chips remain"

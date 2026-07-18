@@ -25,10 +25,10 @@ func _run() -> void:
 
 	_check(scene.get_node("UI/NewsLabel").text == "NEWS", "studio display is labelled NEWS rather than LIVE FEED")
 	_check(scene.presenter.sprite_frames.get_frame_count(&"talk") == 4, "presenter has four registered mouth frames")
-	_check(scene.presenter.sprite_frames.get_frame_count(&"bang") == 4, "presenter has a four-frame table-bang action")
+	_check(not scene.presenter.sprite_frames.has_animation(&"bang"), "presenter no longer has an unnecessary table-bang animation")
 	_check(scene.news_bed.playing, "looping news-channel bed starts after the intro")
 	_check(scene.intro_sting.stream != null and scene.presenter_blip.stream != null, "news intro and high-pitched presenter blip are assigned")
-	_check(scene.table_bang.stream != null, "table-bang impact sound is assigned")
+	_check(not scene.has_node("Audio/TableBang"), "unused table-bang audio is removed")
 	_check(scene.get_node("UI/Teleprompter").clip_contents, "teleprompter clips scrolling dialogue to its housing")
 	_check(is_equal_approx(scene.teleprompter_text.position.y, 14.0), "teleprompter stops inside the screen instead of travelling too far upward")
 	_check(scene.cards.size() == 3, "all three Broadcast Interface frames are available chronologically")
@@ -46,9 +46,7 @@ func _run() -> void:
 	_check(not scene.cards[0].visible and scene.cards[1].visible and not scene.cards[2].visible, "Frame Two replaces Frame One for the rifle line")
 
 	_check(scene._line_index == 3, "manual progression reaches the hard-news rifle line")
-	_check(scene.presenter.animation == &"bang", "hard-news line triggers the presenter frustration animation")
-	await create_timer(0.55).timeout
-	_check(scene.table_bang.playing or scene._bang_sound_played, "table impact synchronizes with the strike frame")
+	_check(scene.presenter.animation == &"talk", "hard-news lines keep the presenter on mouth-only talking animation")
 
 	while not scene._ended:
 		scene._request_advance()

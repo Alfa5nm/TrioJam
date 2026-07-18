@@ -49,8 +49,8 @@ func setup(available_actions: Array[ActionDef]) -> void:
 		if is_instance_valid(card):
 			card.queue_free()
 	_polaroids.clear()
-	_action_index = -1
-	current_action = null
+	_action_index = 0 if not _available_actions.is_empty() else -1
+	current_action = _available_actions[0] if not _available_actions.is_empty() else null
 	_refresh_visual()
 
 
@@ -84,8 +84,28 @@ func eject_current() -> void:
 func return_card(action: ActionDef) -> void:
 	if action == null:
 		return
+	var return_index := -1
+	for index in _available_actions.size():
+		if _available_actions[index].id == action.id:
+			return_index = index
+			break
+	# Ignore cleanup signals from a report that is no longer loaded.
+	if return_index < 0:
+		return
 	_placed.erase(action.id)
+	current_action = action
+	_action_index = return_index
 	_refresh_visual()
+	if _polaroids.has(action.id):
+		var card := _polaroids[action.id] as Control
+		if card.get_parent() != front_ejection_layer:
+			card.reparent(front_ejection_layer, true)
+		card.visible = true
+		card.modulate.a = 0.0
+		card.scale = Vector2(0.86, 0.86)
+		var tween := create_tween().set_parallel()
+		tween.tween_property(card, "modulate:a", 1.0, 0.12)
+		tween.tween_property(card, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func mark_placed(action: ActionDef) -> void:

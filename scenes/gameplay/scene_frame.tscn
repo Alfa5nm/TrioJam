@@ -133,7 +133,7 @@ tooltip_text = "Archive current capture"
 unique_name_in_owner = true
 offset_right = 330.0
 offset_bottom = 250.0
-mouse_filter = 1
+mouse_filter = 2
 
 [node name="CaptionLabel" type="Label" parent="."]
 offset_left = 12.0

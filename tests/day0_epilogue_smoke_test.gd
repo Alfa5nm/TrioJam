@@ -21,6 +21,11 @@ func _run() -> void:
 	await process_frame
 
 	_check(not scene.bedroom.visible, "civilian accusations begin on a pure black screen")
+	var dialogue_style := scene.dialogue_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	_check(dialogue_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.96)), "epilogue dialogue uses the navy backdrop")
+	_check(dialogue_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "epilogue dialogue uses the neon-blue outline")
+	_check(scene.dialogue_label.get_theme_color("font_color") == Color.WHITE, "epilogue dialogue text remains white")
+	_check(scene.dialogue_label.get_theme_font("font").resource_path.ends_with("Newsreader.ttf"), "epilogue dialogue uses the newsletter font")
 	_check(scene.has_node("DialoguePanel/Margin/Layout/SpeakerLabel") and scene.speaker_label.text == "Civilian 1", "first civilian dialogue displays its requested header")
 	_check(scene.dialogue_label.text == "They murdered him!", "first accusation is exact")
 	scene._request_advance()

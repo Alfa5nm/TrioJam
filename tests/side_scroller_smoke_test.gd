@@ -33,8 +33,12 @@ func _run() -> void:
 	_check(level.has_node("LandingLightBeam") and level.get_node("LandingLightBeam").material is ShaderMaterial, "landing fixture includes a soft additive light-volume treatment")
 	_check(level.get_node("CinematicDialogue/Blip").stream != null, "Day Zero dialogue has a restrained text blip")
 	var dialogue_line := level.get_node("CinematicDialogue/Dialogue/Bubble/Panel/Margin/Line") as Label
-	_check(dialogue_line.get_theme_font(&"font").resource_path.ends_with("DiarioDeAndy.otf"), "character dialogue uses DiarioDeAndy")
+	var dialogue_panel := level.get_node("CinematicDialogue/Dialogue/Bubble/Panel") as PanelContainer
+	var dialogue_style := dialogue_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	_check(dialogue_line.get_theme_font(&"font").resource_path.ends_with("Newsreader.ttf"), "character dialogue uses the newsletter font")
 	_check(dialogue_line.get_theme_color(&"font_color") == Color.WHITE, "character dialogue is pure white")
+	_check(dialogue_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.96)), "character dialogue uses the navy backdrop")
+	_check(dialogue_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "character dialogue uses the neon-blue outline")
 	_check(level.get_node("CinematicDialogue/Dialogue/Bubble").size.x <= 440.0, "dialogue uses a compact hovering character bubble")
 	_check(player.animated_sprite.scale.x >= 0.6, "character scale matches the stairwell architecture")
 	_check(player.footstep_stream != null, "stairwell concrete footstep is assigned")

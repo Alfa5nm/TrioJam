@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://5c0tjaa7yhrm"]
+
+[ext_resource type="Script" uid="uid://gfqsfm1eaags" path="res://scripts/world/protest_crowd.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cahn5fhr0aod7" path="res://assets/art/Day1 Scene 1/protest/sign_male-chant-v1.png" id="2_sign_male"]
+[ext_resource type="Texture2D" uid="uid://bbfn7jywau71s" path="res://assets/art/Day1 Scene 1/protest/fist_chanter-chant-v1.png" id="3_fist"]
+[ext_resource type="Texture2D" uid="uid://dluu1v5miu34d" path="res://assets/art/Day1 Scene 1/protest/sign_female-chant-v1.png" id="4_sign_female"]
+[ext_resource type="Texture2D" uid="uid://4hw1cu60pvkr" path="res://assets/art/Day1 Scene 1/protest/megaphone_worker-chant-v1.png" id="5_megaphone"]
+[ext_resource type="AudioStream" uid="uid://d2aath1mvhbe5" path="res://assets/audio/ambience/day1/angry-crowd-70647.mp3" id="6_crowd_audio"]
+
+[sub_resource type="Gradient" id="Gradient_shadow"]
+colors = PackedColorArray(0.039, 0.055, 0.102, 0.42, 0.039, 0.055, 0.102, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_shadow"]
+gradient = SubResource("Gradient_shadow")
+width = 128
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="Day1ProtestCrowd" type="Node2D" unique_id=1289606101]
+z_index = 4
+script = ExtResource("1_script")
+
+[node name="BackShadow" type="Sprite2D" parent="." unique_id=1628947060]
+position = Vector2(11.000001, -150)
+scale = Vector2(8.7, 1.8)
+texture = SubResource("GradientTexture_shadow")
+
+[node name="BackSignMale" type="Sprite2D" parent="." unique_id=729808664]
+modulate = Color(0.72, 0.84, 1, 0.92)
+position = Vector2(-462, -257)
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("2_sign_male")
+hframes = 4
+
+[node name="BackFist" type="Sprite2D" parent="."]
+modulate = Color(0.72, 0.84, 1, 0.92)
+position = Vector2(-240, -248)
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("3_fist")
+hframes = 4
+frame = 2
+
+[node name="BackSignFemale" type="Sprite2D" parent="." unique_id=1386995696]
+modulate = Color(0.72, 0.84, 1, 0.92)
+position = Vector2(10, -252)
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("4_sign_female")
+hframes = 4
+frame = 1
+
+[node name="BackMegaphone" type="Sprite2D" parent="." unique_id=395763379]
+modulate = Color(0.72, 0.84, 1, 0.92)
+position = Vector2(282, -248)
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("5_megaphone")
+hframes = 4
+frame = 3
+
+[node name="BackSignMale2" type="Sprite2D" parent="."]
+modulate = Color(0.72, 0.84, 1, 0.92)
+position = Vector2(500, -256)
+scale = Vector2(-0.35, 0.35)
+texture = ExtResource("2_sign_male")
+hframes = 4
+frame = 2
+
+[node name="FrontShadow" type="Sprite2D" parent="." unique_id=1121466682]
+position = Vector2(-7, -160)
+scale = Vector2(7.3, 1.7)
+texture = SubResource("GradientTexture_shadow")
+
+[node name="FrontFist" type="Sprite2D" parent="." unique_id=1178456993]
+modulate = Color(0.86, 0.92, 1, 1)
+position = Vector2(-330, -227)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_fist")
+hframes = 4
+frame = 1
+
+[node name="FrontSignFemale" type="Sprite2D" parent="." unique_id=883991388]
+modulate = Color(0.86, 0.92, 1, 1)
+position = Vector2(-92, -234)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("4_sign_female")
+hframes = 4
+frame = 3
+
+[node name="FrontMegaphone" type="Sprite2D" parent="." unique_id=729194346]
+modulate = Color(0.86, 0.92, 1, 1)
+position = Vector2(180, -229)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("5_megaphone")
+hframes = 4
+frame = 1
+
+[node name="FrontFist2" type="Sprite2D" parent="."]
+modulate = Color(0.86, 0.92, 1, 1)
+position = Vector2(414, -225)
+scale = Vector2(-0.4, 0.4)
+texture = ExtResource("3_fist")
+hframes = 4
+frame = 3
+
+[node name="CrowdAmbience" type="AudioStreamPlayer2D" parent="." unique_id=1361317616]
+stream = ExtResource("6_crowd_audio")
+volume_db = -5.0
+max_distance = 2600.0
+attenuation = 1.15
+bus = &"Ambience"

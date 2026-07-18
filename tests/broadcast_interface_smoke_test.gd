@@ -29,18 +29,45 @@ func _run() -> void:
 	_check(ui.cause_slot != null, "cause slot exists")
 	_check(ui.conflict_slot != null, "conflict slot exists")
 	_check(ui.outcome_slot != null, "outcome slot exists")
+	_check([ui.cause_slot, ui.conflict_slot, ui.outcome_slot].all(func(slot: FrameSlot): return slot.size == FrameSlot.FRAME_SIZE), "all three story frames share the canonical 256x193 size")
+	_check(is_equal_approx(ui.cause_slot.position.y, ui.conflict_slot.position.y) and is_equal_approx(ui.conflict_slot.position.y, ui.outcome_slot.position.y), "all three story frames share one baseline")
+	_check(ui.cause_slot.position.x == 390.0 and ui.conflict_slot.position.x == 679.0 and ui.outcome_slot.position.x == 953.0, "all three story frames use the authored horizontal grid")
 	_check(ui.scene_frame != null, "scene frame exists")
 	_check(ui.scene_frame.click_region != null, "redesigned scene selector has its interactive region")
 	_check(ui.character_roster != null, "character roster exists")
 	_check(ui.broadcast_button != null, "broadcast button exists")
+	_check(ui.broadcast_button.text.is_empty(), "painted Broadcast button does not receive an overlapping code-rendered label")
 	_check(ui.get_node("Background").texture != null, "Akiibot's redesigned Broadcast background is loaded")
 	_check(ui.crt_material != null, "interrogation is localized through the CRT material")
 	_check(ui.phase == BroadcastInterface.Phase.INTERROGATION, "Day 0 starts in the cinematic interrogation phase")
+	_check(not ui.cinema_rig.visible and ui.desk_root.visible, "Day 0 interrogation uses the Broadcast Interface left panel instead of a separate room")
+	_check(ui.conversation_scroll.visible and ui.conversation_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "left-panel conversation history is scrollable")
 	_check(ui.tv_power.stream != null and ui.tv_hum.stream != null, "CRT power and ambience cues are assigned")
 	_check(ui.eject_sound.stream != null and ui.button_sound.stream != null, "desk hardware cues are assigned")
 	_check((ui.get_node("DeskRoot/GeneratedConsole") as TextureRect).texture.resource_path.ends_with("broadcast-console-base-v4.png"), "desk uses the decomposed hardware-free base plate")
 	_check(ui.scene_frame.camera_body.texture.resource_path.ends_with("evidence-camera-v5.png"), "capture camera uses the flat interaction-aligned painted object")
 	_check(ui.scene_frame.previous_button.text.is_empty() and ui.scene_frame.next_button.text.is_empty(), "camera arrows use embedded painted controls rather than GUI glyph buttons")
+	_check(ui.scene_frame.front_ejection_layer.mouse_filter == Control.MOUSE_FILTER_IGNORE, "empty polaroid layer does not block the camera controls")
+
+	# The first Continue/E press during typewriter playback completes the visible
+	# transcript card rather than leaving it truncated.
+	ui.instant_mode = false
+	var skip_text := "This deliberately long interrogation sentence must remain complete when the player skips its typewriter animation."
+	ui._current_speaker = &"government"
+	ui._type_dialogue(skip_text)
+	await process_frame
+	_check(ui._typing_response, "long transcript line begins typewriter playback")
+	ui._on_continue_pressed()
+	while ui._typing_response:
+		await process_frame
+	_check(ui.dialogue_label.visible_characters == -1 and ui._active_transcript_label.visible_characters == -1, "E/Continue completes both dialogue representations without truncation")
+	_check(ui._active_transcript_label.text == skip_text, "skipped transcript card retains the complete authored text")
+	for index in 4:
+		ui._append_transcript_entry("SYSTEM", "Auto-scroll verification entry %d with enough text to occupy another wrapped row." % index, &"system", true)
+	await process_frame
+	await process_frame
+	_check(ui._transcript_is_at_bottom(), "conversation log follows the latest entry after its layout grows")
+	ui.instant_mode = true
 
 	if ui.cause_slot == null or ui.conflict_slot == null or ui.outcome_slot == null or ui.broadcast_button == null:
 		ui.queue_free()
@@ -56,9 +83,13 @@ func _run() -> void:
 	_check(ui.broadcast_button.disabled, "broadcast disabled with 0/3 filled")
 
 	# The redesigned scene card owns its cycle interaction.
-	_check(ui.scene_frame.current_action == null, "scene frame starts with no scene picked")
+	_check(ui.scene_frame.current_action == report.available_actions[0], "Day 0 camera preloads the first captured frame")
+	_check(ui.scene_frame.screen_image.texture == report.available_actions[0].scene_image, "preloaded Day 0 footage is visible in the camera")
+	ui.scene_frame.next_button.pressed.emit()
+	_check(ui.scene_frame.current_action == report.available_actions[1], "painted right camera button selects the next capture")
+	ui.scene_frame.previous_button.pressed.emit()
+	_check(ui.scene_frame.current_action == report.available_actions[0], "painted left camera button selects the previous capture")
 	ui.scene_frame.click_region.pressed.emit()
-	_check(ui.scene_frame.current_action != null, "clicking SCENE picks a scene")
 	_check(ui.scene_frame.is_ejected(ui.scene_frame.current_action), "red monitor control ejects a unique physical footage card")
 	_check(ui.scene_frame._polaroids.has(ui.scene_frame.current_action.id), "archiving physically creates a polaroid above the camera")
 	var emitted_polaroid := ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Control
@@ -90,7 +121,12 @@ func _run() -> void:
 	)
 	ui.cause_slot._drop_data(Vector2.ZERO, scene_payload)
 	_check(ui.cause_slot.current_action == scene_action, "slot records the dropped scene")
-	ui.cause_slot.show_scene_reveal(scene_action.scene_image)
+	_check(ui.cause_slot.scale == Vector2.ONE, "drop feedback does not resize a story frame")
+	_check(ui.cause_slot.return_button.visible, "filled frame exposes a visible RETURN control")
+	ui.cause_slot.return_button.pressed.emit()
+	_check(ui.cause_slot.current_action == null, "RETURN removes incorrect footage from its frame")
+	_check(emitted_polaroid.visible, "RETURN restores the same physical polaroid above the camera")
+	ui.cause_slot._drop_data(Vector2.ZERO, scene_payload)
 	_check(ui.cause_slot.scene_image.mouse_filter == Control.MOUSE_FILTER_IGNORE, "visible footage cannot intercept character drops")
 	_check(ui.scene_frame._get_drag_data(Vector2.ZERO) == null, "placed footage cannot be duplicated into another frame")
 	_check(
@@ -153,8 +189,21 @@ func _run() -> void:
 	ui.load_report(rooftop_report)
 	_check(ui._playback_active, "Day 0 Government interrogation begins inside the Broadcast UI")
 	_check(rooftop_report.intro_beats.size() == rooftop_report.intro_lines.size(), "interrogation uses emotion-aware dialogue beats")
-	_check(ui.dialogue_label.text == "...", "Government Man opens the embedded interrogation")
-	_check(ui.speaker_portrait.visible and ui.speaker_portrait.texture == rooftop_report.speaker_portraits[&"government"], "Government portrait is shown for his dialogue")
+	_check(rooftop_report.intro_lines.size() == 17 and rooftop_report.intro_lines[7] == "…It’s G-03S-93", "interrogation uses the exact revised seventeen-beat script")
+	_check(rooftop_report.intro_lines[16] == "(…But they’ll be hearing a lie. Not that it matters to them.)", "interrogation preserves the authored closing thought")
+	_check(rooftop_report.speaker_portraits[&"government"].resource_path.ends_with("interrogation/government.png"), "left panel uses the supplied Government portrait")
+	_check(BroadcastInterface.MC_NEUTRAL.resource_path.ends_with("interrogation/mc-neutral.png") and BroadcastInterface.MC_DIRTY.resource_path.ends_with("interrogation/mc-dirty.png"), "left panel uses the supplied neutral and dirty MC portraits")
+	_check(BroadcastInterface.NEWSLETTER_FONT.resource_path.ends_with("Newsreader.ttf"), "conversation log uses the bundled news-reading typeface")
+	_check(ui.dialogue_label.text == "…", "Government Man opens the embedded interrogation")
+	_check(ui.desk_portrait.visible and ui.desk_portrait.texture == rooftop_report.speaker_portraits[&"government"], "Government portrait is shown in the left panel for his dialogue")
+	_check(ui.conversation_history.get_child_count() == 1, "the first interrogation line is retained in the conversation log")
+	var first_entry := ui.conversation_history.get_child(0) as PanelContainer
+	var first_body := first_entry.get_child(0).get_child(1) as Label
+	var first_style := first_entry.get_theme_stylebox("panel") as StyleBoxFlat
+	_check(first_body.get_theme_font("font") == BroadcastInterface.NEWSLETTER_FONT and first_body.get_theme_color("font_color") == Color.WHITE, "conversation text uses the news font in white")
+	_check(first_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.97)), "conversation cards use the navy backdrop")
+	_check(first_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "conversation cards use the neon-blue outline")
+	_check(ui._mc_texture(&"dirty", false) == BroadcastInterface.MC_DIRTY, "dirty interrogation beats select the supplied dirty MC face")
 	for _index in range(3):
 		ui.continue_button.pressed.emit()
 	_check(ui._awaiting_name and ui.name_entry.visible, "embedded interrogation pauses at the naming prompt")
@@ -162,7 +211,7 @@ func _run() -> void:
 	ui.name_input.text = "Test MC"
 	ui._confirm_name()
 	_check(ui.dialogue_label.text == "Test MC.", "entered name is spoken as the MC response")
-	_check(ui.speaker_portrait.texture == BroadcastInterface.MC_GUARDED, "generated emotion-aware MC portrait accompanies the entered name")
+	_check(ui.speaker_portrait.texture == BroadcastInterface.MC_NEUTRAL, "authored neutral MC portrait accompanies the entered name")
 	ui.continue_button.pressed.emit()
 	for _index in range(rooftop_report.intro_lines.size() - 4):
 		ui.continue_button.pressed.emit()
@@ -170,11 +219,35 @@ func _run() -> void:
 	_check(ui.dialogue_label.text == rooftop_report.directive_text, "desk directive follows the embedded interrogation")
 	_check(ui.scene_frame.click_region.disabled == false, "desk editing unlocks only after interrogation")
 	_check(not ui.continue_button.visible, "Continue is hidden while the player constructs the report")
+	_check(ui.desk_continue_button.visible and ui.desk_continue_button.disabled and ui.desk_continue_button.text == "CONTINUE  >", "left hardware keeps one stable Continue overlay while editing")
+	_check(ui.conversation_history.get_child_count() >= rooftop_report.intro_lines.size(), "completed interrogation remains available as scrollback")
+	await process_frame
+	await process_frame
+	var transcript_bar := ui.conversation_scroll.get_v_scroll_bar()
+	_check(transcript_bar.max_value > transcript_bar.page, "conversation history overflows into a real vertical scroll range")
+	transcript_bar.value = 0.0
+	await process_frame
+	_check(is_zero_approx(transcript_bar.value), "player can scroll back to the beginning without being forced to the latest line")
 	_check(rooftop_report.truthful_sequence != null, "rooftop report recognizes its truthful reconstruction")
 	_check(rooftop_report.intro_lines.all(func(line: String): return line not in rooftop_report.propaganda_sequence.broadcast_lines), "interrogation lines remain separate from the Broadcast Lady script")
 	_check(rooftop_report.available_actions.all(func(action: ActionDef): return action.scene_image != null), "Akiibot's three authored frame images are available")
 	_check(rooftop_report.characters.all(func(character: CharacterDef): return character.portrait_texture != null), "Akiibot's three authored roster portraits are available")
 	_check(ui.cause_slot.max_characters == 1, "redesigned Day 0 frames retain their one-character limit")
+	ui.scene_frame.eject_current()
+	var day0_card := ui.scene_frame._polaroids[ui.scene_frame.current_action.id] as Control
+	var day0_footage_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, day0_card, false)
+	_check(day0_footage_payload.get("action") == rooftop_report.available_actions[0], "Day 0 polaroid carries the selected captured frame")
+	_check((day0_footage_payload.get("action") as ActionDef).scene_image != null, "Day 0 polaroid carries a visible footage texture")
+	ui.cause_slot._drop_data(Vector2.ZERO, day0_footage_payload)
+	_check(ui.cause_slot.current_action == rooftop_report.available_actions[0], "Day 0 frame receives the selected captured action")
+	_check(ui.cause_slot.scene_image.visible, "dropped Day 0 polaroid is visibly rendered inside its frame")
+	_check(ui.cause_slot.scene_image.texture == rooftop_report.available_actions[0].scene_image, "frame renders the selected Day 0 footage texture")
+	_check(ui.cause_slot.return_button.visible, "Day 0 footage provides a visible RETURN control")
+	ui.cause_slot._drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": rooftop_report.characters[0]})
+	ui.cause_slot.return_button.pressed.emit()
+	_check(ui.cause_slot.current_action == null and day0_card.visible, "RETURN removes Day 0 footage and restores its physical polaroid")
+	_check(ui.cause_slot.current_characters.size() == 1, "returning footage preserves the independently assigned character chip")
+	ui.cause_slot.clear()
 	var session := root.get_node_or_null("GameSession")
 	_check(session != null and rooftop_report.characters[1].display_name == session.player_name, "Broadcast roster uses the embedded interrogation name")
 	var live_chip := ui.character_roster.get_child(0) as CharacterChip

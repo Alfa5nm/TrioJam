@@ -66,7 +66,8 @@ func _run() -> void:
 	root.add_child(broadcast)
 	await process_frame
 	_check(broadcast._playback_active, "Government interrogation now begins inside the Broadcast Interface")
-	_check(broadcast.speaker_portrait.visible, "Broadcast interrogation opens with the Government Man portrait")
+	_check(not broadcast.cinema_rig.visible and broadcast.desk_portrait.visible, "Broadcast interrogation opens in the left panel with the Government Man portrait")
+	_check(broadcast.conversation_history.get_child_count() == 1, "Broadcast left panel begins retaining the interrogation transcript")
 	for _index in range(3):
 		broadcast.continue_button.pressed.emit()
 	_check(broadcast._awaiting_name, "Broadcast interrogation pauses for naming after the identification request")
