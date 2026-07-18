@@ -2,15 +2,46 @@ class_name BroadcastDemoData
 
 
 static func checkpoint_killing_report() -> BroadcastReport:
-	var soldier := _character(&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1))
-	var civilian := _character(&"civilian", "Civilian", Color(0.243, 0.761, 0.91, 1))
+	var soldier := _character(
+		&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1),
+		"res://assets/art/ui/broadcast/portrait_soldier.png"
+	)
+	var civilian := _character(
+		&"civilian", "Civilian", Color(0.243, 0.761, 0.91, 1),
+		"res://assets/art/ui/broadcast/portrait_civilian.png"
+	)
 
 	# Only two scenes exist. "Attack" is reused for both cause and conflict; each
 	# sequence is order_sensitive below, so the ORDER characters are placed in a
 	# frame carries the story — the first character is the attacker/killer, the
 	# second is the target. This is what lets the same two scenes tell either route.
-	var attack := _action(&"attack", "Attack", "res://assets/art/ui/broadcast/scene_checkpoint_cause_truthful.png", 2)
-	var kill := _action(&"kill", "Kill", "res://assets/art/ui/broadcast/scene_checkpoint_outcome.png", 2)
+	var attack := _action(&"attack", "Attack", "res://assets/art/ui/broadcast/scene_checkpoint_attack.png", 2)
+	var kill := _action(&"kill", "Kill", "res://assets/art/ui/broadcast/scene_checkpoint_shoot.png", 2)
+
+	# Full-frame character art layered over each scene's photo, one layer per
+	# placed character. Each entry is [pose as 1st character, pose as 2nd
+	# character] since order_sensitive gives the same character a different
+	# pose depending on whether they're the attacker/shooter or the target.
+	attack.character_overlays = {
+		soldier.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_attack1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_attack2.png"),
+		],
+		civilian.id: [
+			load("res://assets/art/ui/broadcast/character_civilian_attack1.png"),
+			load("res://assets/art/ui/broadcast/character_civilian_attack2.png"),
+		],
+	}
+	kill.character_overlays = {
+		soldier.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_shoot1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_shoot2.png"),
+		],
+		civilian.id: [
+			load("res://assets/art/ui/broadcast/character_civilian_shoot1.png"),
+			load("res://assets/art/ui/broadcast/character_civilian_shoot2.png"),
+		],
+	}
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true
@@ -289,12 +320,27 @@ static func rooftop_killing_report() -> BroadcastReport:
 		&"rooftop_scene", "Rooftop Scene", "res://assets/art/ui/broadcast/scene_rooftop.png", 1
 	)
 	var rooftop_shoots := _action(
-		# Identity-neutral evidence: the perpetrator is assigned by a separate physical chip.
-		&"rooftop_shoots", "Rooftop Shoots", "res://assets/art/ui/broadcast/scene_rooftop.png", 1
+		# Identity-neutral evidence: the perpetrator is assigned by a separate physical chip,
+		# not by which character is visible in the photo itself.
+		&"rooftop_shoots", "Rooftop Shoots", "res://assets/art/ui/broadcast/scene_rooftop_shoots.png", 1
 	)
 	var victim_shot := _action(
 		&"victim_shot", "The victim being shot", "res://assets/art/ui/broadcast/scene_victim_shot.png", 1
 	)
+
+	# Full-frame character art layered over each scene's photo once that
+	# character is the one placed in the frame (see ActionDef.character_overlays).
+	rooftop_scene.character_overlays = {
+		mc.id: load("res://assets/art/ui/broadcast/character_mc_going.png"),
+		opposition_person.id: load("res://assets/art/ui/broadcast/character_oppo_going.png"),
+	}
+	rooftop_shoots.character_overlays = {
+		mc.id: load("res://assets/art/ui/broadcast/character_mc_shoots.png"),
+		opposition_person.id: load("res://assets/art/ui/broadcast/character_oppo_shoots.png"),
+	}
+	victim_shot.character_overlays = {
+		government_official.id: load("res://assets/art/ui/broadcast/character_gov_shot.png"),
+	}
 
 	var truthful := BroadcastSequence.new()
 	truthful.headline = "MC refuses to broadcast the true story"

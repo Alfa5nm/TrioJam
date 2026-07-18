@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dy1kw8mpy8gxp"
-path="res://.godot/imported/scene_checkpoint_outcome.png-a29e8b49a8f3e75e4c84dcffc16ed0f4.ctex"
+uid="uid://b10r75pynluyi"
+path="res://.godot/imported/character_gov_shot.png-b9b16c3ebd78df0f5eb9f9f6f58f6162.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/ui/broadcast/scene_checkpoint_outcome.png"
-dest_files=["res://.godot/imported/scene_checkpoint_outcome.png-a29e8b49a8f3e75e4c84dcffc16ed0f4.ctex"]
+source_file="res://assets/art/ui/broadcast/character_gov_shot.png"
+dest_files=["res://.godot/imported/character_gov_shot.png-b9b16c3ebd78df0f5eb9f9f6f58f6162.ctex"]
 
 [params]
 

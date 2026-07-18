@@ -35,6 +35,7 @@ var interaction_enabled := true
 
 @onready var state_overlay: Panel = $StateOverlay
 @onready var scene_image: TextureRect = $SceneImage
+@onready var character_overlay: TextureRect = $CharacterOverlay
 @onready var title_label: Label = $ContentMargin/Layout/SlotTitle
 @onready var scene_label: Label = $ContentMargin/Layout/SceneLabel
 @onready var characters_row: HBoxContainer = $ContentMargin/Layout/CharactersRow
@@ -43,6 +44,12 @@ var interaction_enabled := true
 var _style: StyleBoxFlat
 var _base_border_color: Color = COLOR_EMPTY_BORDER
 var _highlighted := false
+## Pooled layers for any character overlays beyond the first (see character_overlay).
+var _extra_overlays: Array[TextureRect] = []
+## Parallel to the active overlay layers (character_overlay + _extra_overlays,
+## in that order) — which CharacterDef each currently-visible layer belongs to,
+## so a click can be pixel-tested against the right one and removed.
+var _overlay_characters: Array[CharacterDef] = []
 
 
 func _ready() -> void:
@@ -55,10 +62,11 @@ func _ready() -> void:
 	_style = (state_overlay.get_theme_stylebox("panel") as StyleBoxFlat).duplicate()
 	state_overlay.add_theme_stylebox_override("panel", _style)
 	_refresh_visual()
-	# SceneImage is a purely visual child. Keeping it mouse-active makes Godot
-	# choose it as the drop target once footage is visible, bypassing this
+	# SceneImage/CharacterOverlay are purely visual children. Keeping them mouse-active
+	# makes Godot choose them as the drop target once footage is visible, bypassing this
 	# FrameSlot's _can_drop_data/_drop_data methods.
 	scene_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	character_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return_button.pressed.connect(remove_footage)
 	gui_input.connect(_on_frame_input)
 	mouse_entered.connect(_on_hover.bind(true))
@@ -198,9 +206,16 @@ func _refresh_visual() -> void:
 		scene_image.visible = false
 		scene_label.visible = current_action == null or current_action.scene_image == null
 
+	_refresh_character_overlay()
+
 	for child in characters_row.get_children():
 		child.queue_free()
+	var overlaid_ids: Dictionary = current_action.character_overlays if current_action != null else {}
 	for character in current_characters:
+		# Already drawn full-frame by _refresh_character_overlay() above — showing
+		# the small chip too would just duplicate the same character on screen.
+		if overlaid_ids.has(character.id):
+			continue
 		var chip_button := TextureButton.new()
 		chip_button.custom_minimum_size = Vector2(64, 64)
 		chip_button.texture_normal = character.get_display_texture()
@@ -213,6 +228,94 @@ func _refresh_visual() -> void:
 
 	_base_border_color = COLOR_FILLED_BORDER if is_filled() else COLOR_EMPTY_BORDER
 	_apply_border_color()
+
+
+## Stacks every placed character's art from current_action.character_overlays
+## full-frame on top of scene_image (same pan/crop, so it lines up with the
+## background), one layer per character so e.g. an order_sensitive Attack scene
+## shows both the soldier and the civilian standing in it at once. Most scenes
+## have no overlay art and this just hides everything.
+func _refresh_character_overlay() -> void:
+	var textures: Array[Texture2D] = []
+	var characters: Array[CharacterDef] = []
+	if current_action != null and not current_action.character_overlays.is_empty():
+		for i in current_characters.size():
+			var texture := _overlay_texture_for(current_characters[i], i)
+			if texture != null:
+				textures.append(texture)
+				characters.append(current_characters[i])
+	_overlay_characters = characters
+
+	if textures.is_empty():
+		character_overlay.texture = null
+		character_overlay.visible = false
+	else:
+		character_overlay.texture = _build_panned_scene_texture(textures[0])
+		character_overlay.visible = true
+
+	while _extra_overlays.size() < textures.size() - 1:
+		var rect := TextureRect.new()
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rect.expand_mode = character_overlay.expand_mode
+		rect.stretch_mode = character_overlay.stretch_mode
+		rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		add_child(rect)
+		move_child(rect, character_overlay.get_index() + 1 + _extra_overlays.size())
+		_extra_overlays.append(rect)
+
+	for i in _extra_overlays.size():
+		var rect := _extra_overlays[i]
+		var texture_index := i + 1
+		if texture_index < textures.size():
+			rect.texture = _build_panned_scene_texture(textures[texture_index])
+			rect.visible = true
+		else:
+			rect.texture = null
+			rect.visible = false
+
+
+## entry may be a single Texture2D (shown regardless of order) or an
+## Array[Texture2D] indexed by this character's position in current_characters.
+func _overlay_texture_for(character: CharacterDef, position_index: int) -> Texture2D:
+	if not current_action.character_overlays.has(character.id):
+		return null
+	var entry = current_action.character_overlays[character.id]
+	if entry is Array:
+		return entry[position_index] if position_index < entry.size() else null
+	return entry as Texture2D
+
+
+func _overlay_rect(index: int) -> TextureRect:
+	return character_overlay if index == 0 else _extra_overlays[index - 1]
+
+
+## Finds which (if any) placed character's overlay art has a non-transparent
+## pixel under local_pos (in this FrameSlot's own coordinate space, same as
+## gui_input's event.position), so a click can remove exactly that character
+## instead of the whole scene — clicking empty background does nothing.
+func _character_overlay_at(local_pos: Vector2) -> CharacterDef:
+	for i in range(_overlay_characters.size() - 1, -1, -1):
+		var rect := _overlay_rect(i)
+		if not rect.visible:
+			continue
+		var atlas := rect.texture as AtlasTexture
+		if atlas == null or atlas.atlas == null:
+			continue
+		var rect_size := rect.size
+		if rect_size.x <= 0.0 or rect_size.y <= 0.0:
+			continue
+		var uv := Vector2(local_pos.x / rect_size.x, local_pos.y / rect_size.y)
+		if uv.x < 0.0 or uv.x > 1.0 or uv.y < 0.0 or uv.y > 1.0:
+			continue
+		var image := atlas.atlas.get_image()
+		if image == null:
+			continue
+		var source_pos := atlas.region.position + uv * atlas.region.size
+		var px := clampi(int(source_pos.x), 0, image.get_width() - 1)
+		var py := clampi(int(source_pos.y), 0, image.get_height() - 1)
+		if image.get_pixel(px, py).a > 0.05:
+			return _overlay_characters[i]
+	return null
 
 
 func set_interaction_enabled(enabled: bool) -> void:
@@ -268,8 +371,14 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 
 
 func _on_frame_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+	if event.button_index == MOUSE_BUTTON_RIGHT:
 		remove_footage()
+	elif event.button_index == MOUSE_BUTTON_LEFT and interaction_enabled:
+		var character := _character_overlay_at(event.position)
+		if character != null:
+			remove_character(character)
 
 
 func _on_hover(active: bool) -> void:

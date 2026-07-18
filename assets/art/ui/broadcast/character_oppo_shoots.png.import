@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wfit5xr7i427"
-path="res://.godot/imported/scene_checkpoint_cause_truthful.png-39e25fef200155e8c7b2921cb90ac1dd.ctex"
+uid="uid://7kpmk4143egw"
+path="res://.godot/imported/character_oppo_shoots.png-49e9d1133ce4d78dba52619d99af676e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/ui/broadcast/scene_checkpoint_cause_truthful.png"
-dest_files=["res://.godot/imported/scene_checkpoint_cause_truthful.png-39e25fef200155e8c7b2921cb90ac1dd.ctex"]
+source_file="res://assets/art/ui/broadcast/character_oppo_shoots.png"
+dest_files=["res://.godot/imported/character_oppo_shoots.png-49e9d1133ce4d78dba52619d99af676e.ctex"]
 
 [params]
 

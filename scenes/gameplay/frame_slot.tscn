@@ -78,6 +78,17 @@ tooltip_text = "Right-click to return footage"
 expand_mode = 1
 stretch_mode = 6
 
+[node name="CharacterOverlay" type="TextureRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
 [node name="StateOverlay" type="Panel" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -137,7 +148,7 @@ visible = false
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -79.0
+offset_left = -37.0
 offset_top = 9.0
 offset_right = -9.0
 offset_bottom = 37.0
@@ -146,10 +157,10 @@ focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.9, 0.93, 0.94, 1)
 theme_override_colors/font_hover_color = Color(1, 0.84, 0.75, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 17
 theme_override_styles/normal = SubResource("ReturnNormal")
 theme_override_styles/hover = SubResource("ReturnHover")
 theme_override_styles/pressed = SubResource("ReturnPressed")
 theme_override_styles/disabled = SubResource("ReturnNormal")
-text = "RETURN"
+text = "↩"
 tooltip_text = "Return this polaroid; assigned character chips remain"
