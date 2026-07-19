@@ -1,0 +1,97 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+DAY2_STORY_TEST_START
+PASS: Day 2 rally scene loads
+PASS: playable MC is present
+PASS: Day 2 ground uses the shared player's physics layer
+PASS: player settles on the Day 2 pavement instead of falling through the world
+PASS: player remains above the fall boundary
+PASS: route-dependent opening dialogue becomes visible at scene start
+PASS: world dialogue canvas and its presentation root are visible while a bark plays
+PASS: CinematicDialogue canvas remains visible in-tree while its internal root is idle
+PASS: Day2CinematicOverlay canvas remains visible in-tree while its internal root is idle
+PASS: horizontal camera follows the player
+PASS: peaceful rally background starts visible
+PASS: aftermath is initially hidden
+PASS: containment civilians are hidden before the blast
+PASS: containment exchange is inactive before the blast
+PASS: left retreat blocker is inactive before the blast
+PASS: explosion is routed through SFX
+PASS: rally crowd is routed through Ambience
+PASS: pre-blast leaves and motes are staged
+PASS: stage lighting has an authored occluder
+PASS: route-dependent fruit opening returns movement
+PASS: camera rally, suspicion, and explosion reach playable escape
+PASS: pre-blast CG frames play in authored order
+PASS: CG image and dynamic caption controls are visible while frames play
+PASS: detonation hides the peaceful background
+PASS: detonation reveals the supplied damaged background
+PASS: blast starts smoke and ember layers
+PASS: blast blocks retreat to the left
+PASS: approaching the soldiers arms the containment exchange
+PASS: persistent civilians face the soldier line after the blast
+PASS: the right-side containment bottleneck has a readable civilian group
+PASS: blast removes the leader and suspicious worker before aftermath
+PASS: normal-stage podium crop cannot leak over the aftermath
+PASS: five distinct animated dispersal identities plus restrained crowd duplicates are staged
+PASS: RunnerA has exactly three stepped animation frames
+PASS: RunnerB has exactly three stepped animation frames
+PASS: Mother has exactly three stepped animation frames
+PASS: ShovedCivilian has exactly three stepped animation frames
+PASS: RunnerE has exactly three stepped animation frames
+PASS: RunnerF has exactly three stepped animation frames
+PASS: RunnerG has exactly three stepped animation frames
+PASS: RunnerH has exactly three stepped animation frames
+PASS: all five approved NPC identities remain readable in the dispersal crowd
+PASS: most right-running civilians stop at the soldier containment line
+PASS: dedicated Peace Leader sprite replaces the Seedless representative
+PASS: Peace Leader is depth-occluded behind the foreground podium
+PASS: blockade sequence reaches rescue and restores side-scroller exit
+PASS: containment and MC confrontation lines play in exact authored order
+PASS: the civilian struggle physically opens the soldier line
+PASS: the struggling civilian visibly recoils from the push
+PASS: the eastern passage opens after the confrontation
+PASS: all supplied CG frames play in exact order through rescue
+PASS: r1c3-occupation-protester-b frame 1 is a valid 384x384 alpha sprite
+PASS: r1c3-occupation-protester-b frame 1 has transparent corners
+PASS: r1c3-occupation-protester-b frame 2 is a valid 384x384 alpha sprite
+PASS: r1c3-occupation-protester-b frame 2 has transparent corners
+PASS: r1c3-occupation-protester-b frame 3 is a valid 384x384 alpha sprite
+PASS: r1c3-occupation-protester-b frame 3 has transparent corners
+PASS: r1c3-occupation-protester-b runtime strip is 1152x384
+PASS: r2c3-gossiping-gal-a frame 1 is a valid 384x384 alpha sprite
+PASS: r2c3-gossiping-gal-a frame 1 has transparent corners
+PASS: r2c3-gossiping-gal-a frame 2 is a valid 384x384 alpha sprite
+PASS: r2c3-gossiping-gal-a frame 2 has transparent corners
+PASS: r2c3-gossiping-gal-a frame 3 is a valid 384x384 alpha sprite
+PASS: r2c3-gossiping-gal-a frame 3 has transparent corners
+PASS: r2c3-gossiping-gal-a runtime strip is 1152x384
+PASS: r2c4-gossiping-gal-b frame 1 is a valid 384x384 alpha sprite
+PASS: r2c4-gossiping-gal-b frame 1 has transparent corners
+PASS: r2c4-gossiping-gal-b frame 2 is a valid 384x384 alpha sprite
+PASS: r2c4-gossiping-gal-b frame 2 has transparent corners
+PASS: r2c4-gossiping-gal-b frame 3 is a valid 384x384 alpha sprite
+PASS: r2c4-gossiping-gal-b frame 3 has transparent corners
+PASS: r2c4-gossiping-gal-b runtime strip is 1152x384
+PASS: r4c1-anti-seedless-protester-a frame 1 is a valid 384x384 alpha sprite
+PASS: r4c1-anti-seedless-protester-a frame 1 has transparent corners
+PASS: r4c1-anti-seedless-protester-a frame 2 is a valid 384x384 alpha sprite
+PASS: r4c1-anti-seedless-protester-a frame 2 has transparent corners
+PASS: r4c1-anti-seedless-protester-a frame 3 is a valid 384x384 alpha sprite
+PASS: r4c1-anti-seedless-protester-a frame 3 has transparent corners
+PASS: r4c1-anti-seedless-protester-a runtime strip is 1152x384
+PASS: r4c4-anti-seedless-protester-d frame 1 is a valid 384x384 alpha sprite
+PASS: r4c4-anti-seedless-protester-d frame 1 has transparent corners
+PASS: r4c4-anti-seedless-protester-d frame 2 is a valid 384x384 alpha sprite
+PASS: r4c4-anti-seedless-protester-d frame 2 has transparent corners
+PASS: r4c4-anti-seedless-protester-d frame 3 is a valid 384x384 alpha sprite
+PASS: r4c4-anti-seedless-protester-d frame 3 has transparent corners
+PASS: r4c4-anti-seedless-protester-d runtime strip is 1152x384
+PASS: animated presenter recognizes Day 2 context
+PASS: presenter reads the selected Day 2 propaganda report
+PASS: presenter metadata identifies the Day 2 report
+PASS: selected report drives all three televised frames
+PASS: Day 2 report route is saved for Continue and Day 3
+DAY2_STORY_TEST_PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)

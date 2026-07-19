@@ -1,0 +1,53 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+NEWS_BROADCAST_TEST_START
+PASS: news broadcast scene loads
+PASS: studio display is labelled NEWS rather than LIVE FEED
+PASS: presenter has four registered mouth frames
+PASS: presenter no longer has an unnecessary table-bang animation
+PASS: looping news-channel bed starts after the intro
+PASS: news intro and high-pitched presenter blip are assigned
+PASS: unused table-bang audio is removed
+PASS: teleprompter clips scrolling dialogue to its housing
+PASS: teleprompter stops inside the screen instead of travelling too far upward
+PASS: all three Broadcast Interface frames are available chronologically
+PASS: introductory reporter line begins on a clean NEWS slate
+PASS: NEWS slate fills pauses that do not reference a story frame
+PASS: Frame One is shown alone for the rooftop setup
+PASS: Frame One remains alone while its dialogue continues
+PASS: Frame Two replaces Frame One for the rifle line
+PASS: manual progression reaches the hard-news rifle line
+PASS: hard-news lines keep the presenter on mouth-only talking animation
+PASS: broadcast completion signal fires after nine reporter lines
+PASS: teleprompter closes with the broadcast end slate
+PASS: Day 1 presenter mode is selected for truthful/truthful
+PASS: presenter includes the selected Report 1 route for truthful/truthful
+PASS: presenter includes the selected Report 2 route for truthful/truthful
+PASS: line metadata records both selected routes
+PASS: medical-allocation call is exclusive to truthful Report 1
+PASS: Report 1 selected cause frame is loaded into the studio
+PASS: truthful consequence displays the government phone silhouette
+PASS: Day 1 presenter mode is selected for truthful/propaganda
+PASS: presenter includes the selected Report 1 route for truthful/propaganda
+PASS: presenter includes the selected Report 2 route for truthful/propaganda
+PASS: line metadata records both selected routes
+PASS: medical-allocation call is exclusive to truthful Report 1
+PASS: Report 1 selected cause frame is loaded into the studio
+PASS: truthful consequence displays the government phone silhouette
+PASS: Day 1 presenter mode is selected for propaganda/truthful
+PASS: presenter includes the selected Report 1 route for propaganda/truthful
+PASS: presenter includes the selected Report 2 route for propaganda/truthful
+PASS: line metadata records both selected routes
+PASS: medical-allocation call is exclusive to truthful Report 1
+PASS: Report 1 selected cause frame is loaded into the studio
+PASS: Day 1 presenter mode is selected for propaganda/propaganda
+PASS: presenter includes the selected Report 1 route for propaganda/propaganda
+PASS: presenter includes the selected Report 2 route for propaganda/propaganda
+PASS: line metadata records both selected routes
+PASS: medical-allocation call is exclusive to truthful Report 1
+PASS: Report 1 selected cause frame is loaded into the studio
+NEWS_BROADCAST_TEST_PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

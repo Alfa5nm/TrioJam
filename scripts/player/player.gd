@@ -156,6 +156,18 @@ func play_execute_plan() -> void:
 	execute_plan_finished.emit()
 
 
+func play_pistol_plan() -> void:
+	controls_enabled = false
+	velocity = Vector2.ZERO
+	animated_sprite.speed_scale = 1.0
+	animated_sprite.flip_h = false
+	visual.rotation = 0.0
+	animated_sprite.play(&"pistol_draw")
+	await animated_sprite.animation_finished
+	animated_sprite.play(&"pistol_aim")
+	execute_plan_finished.emit()
+
+
 func _on_animation_frame_changed() -> void:
 	if animated_sprite.animation == &"walk" and animated_sprite.frame == 0:
 		if controls_enabled and is_on_floor() and absf(velocity.x) > 8.0 and _footstep_cooldown <= 0.0:
@@ -165,6 +177,11 @@ func _on_animation_frame_changed() -> void:
 			_play_foley(bag_search_player, &"bag_search")
 		elif animated_sprite.frame == 3:
 			_play_foley(rifle_assembly_player, &"rifle_assembly")
+	elif animated_sprite.animation == &"pistol_draw":
+		if animated_sprite.frame == 1:
+			_play_foley(bag_search_player, &"bag_search")
+		elif animated_sprite.frame == 3:
+			_play_foley(rifle_assembly_player, &"pistol_draw")
 
 
 func _play_next_footstep() -> void:

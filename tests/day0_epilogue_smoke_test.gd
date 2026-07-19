@@ -17,6 +17,7 @@ func _run() -> void:
 	var scene := packed_scene.instantiate() as Day0Epilogue
 	scene.instant_mode = true
 	scene.timing_scale = 0.01
+	scene.auto_advance_to_day1 = false
 	root.add_child(scene)
 	await process_frame
 
@@ -42,22 +43,37 @@ func _run() -> void:
 	await create_timer(0.03).timeout
 	scene._request_advance()
 	await process_frame
-	_check(scene.bedroom.visible and scene._bedroom_index == 0, "bedroom cutscene begins only after the black-screen dialogue")
-	_check(not scene.speaker_label.visible, "speaker header clears for internal bedroom narration")
-	_check(scene.dialogue_label.text.begins_with("I watched as the civilians"), "bedroom narration opens with the requested line")
-	_check(scene.curtains.sprite_frames.get_frame_count(&"close") == 4, "curtain close is a generated four-frame animation")
+	_check(scene.bedroom.visible and scene._bedroom_index == 0, "CG sequence begins only after the black-screen dialogue")
+	_check(not scene.has_node("Bedroom/Plate") and not scene.has_node("Bedroom/ReflectionLayer"), "generated bedroom/window interstitial is removed")
+	_check(scene.curtains.visible and scene.curtains.frame == 0, "curtain-pull CG carries the internal narration")
+	_check(scene.curtain_particles.emitting and scene.curtain_particles.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE, "curtain CG has a restrained particle layer")
+	_check(not scene.speaker_label.visible, "speaker header clears for internal CG narration")
+	_check(scene.dialogue_label.text.begins_with("I watched as the civilians"), "CG narration opens with the requested line")
+	_check(scene.curtains.sprite_frames.get_frame_count(&"close") == 2, "curtain close uses the two supplied illustrations")
+	_check(scene.curtains.sprite_frames.get_frame_texture(&"close", 0) == Day0Epilogue.CURTAIN_PULL, "curtain pull is the first frame")
+	_check(scene.curtains.sprite_frames.get_frame_texture(&"close", 1) == Day0Epilogue.CURTAIN_ENDING, "curtain ending is the second frame")
+	_check(scene.curtains.visible, "curtain illustration remains visible beneath the narration dialogue")
+	_check(scene.ambience.stream != null and scene.ambience.bus == &"Ambience", "Day Zero ending ambience is assigned to the Ambience bus")
+	_check(scene.music.stream != null and scene.music.bus == &"Ambience", "Day Zero ending music is assigned to the Ambience bus")
+	_check(scene.ambience.autoplay and scene.music.autoplay, "Day Zero ambience and music begin automatically")
+	_check(scene.ambience.stream.loop_mode != AudioStreamWAV.LOOP_DISABLED and scene.music.stream.loop_mode != AudioStreamWAV.LOOP_DISABLED, "Day Zero ambience and music loop cleanly")
+	_check(scene.curtain_impact.stream != null and scene.curtain_impact.bus == &"SFX", "curtain landing impact is assigned to SFX")
+	var session := root.get_node("GameSession")
+	_check(session.has_method(&"begin_day1_scene1") and session.CHECKPOINT_SCENES.get("day1_scene1") == Day0Epilogue.DAY1_SCENE, "Day Zero completion has a persistent Day 1 Scene 1 checkpoint")
 
 	for _line in 4:
 		scene._request_advance()
 	_check(scene._bedroom_index == 4, "gunshot consequence line occurs at the intended narrative beat")
-	_check(scene.gun_flash.modulate.a > 0.0 or scene.protest_glow.modulate.a > 0.12, "gunshot line activates unrest reflections")
+	_check(scene.curtain_particles.amount == 56 and scene.curtain_particles.emitting, "gunshot consequence line intensifies the CG particle drift")
 	for _line in 3:
 		scene._request_advance()
 	_check(scene.dialogue_label.text == "...", "silence precedes closing the curtains")
 	scene._request_advance()
-	_check(scene._closing and scene.curtains.is_playing(), "advancing from silence closes the curtains")
-	await create_timer(1.6).timeout
+	_check(scene._closing and scene.curtains.visible and scene.curtains.is_playing(), "advancing from silence starts on the curtain-pull illustration")
+	await create_timer(0.12).timeout
 	_check(scene._finished and scene.dialogue_label.text == "I have to work tomorrow...", "final line appears after the curtains fully close")
+	_check(scene.curtains.frame == 1 and scene.curtains.sprite_frames.get_frame_texture(&"close", scene.curtains.frame) == Day0Epilogue.CURTAIN_ENDING, "curtain-ending illustration remains on screen for the final line")
+	_check(not scene._transition_started, "tests can disable the automatic Day 1 handoff")
 
 	scene.queue_free()
 	await process_frame

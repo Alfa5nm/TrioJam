@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://c3cn7elo2qmia"]
+
+[ext_resource type="Texture2D" uid="uid://dhym1p6l1pw02" path="res://assets/art/Day 2 Side Scroll/Explosion aftermath total scene.png" id="1_5axv5"]
+[ext_resource type="Texture2D" uid="uid://c3d7ovrar6grr" path="res://assets/art/Day 2 Side Scroll/Day 2 side scroller.png" id="2_tryer"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jrauc"]
+size = Vector2(113.370964, 341.2959)
+
+[node name="Node2D" type="Node2D" unique_id=754767032]
+
+[node name="ExplosionAftermathTotalScene" type="Sprite2D" parent="." unique_id=1666932910]
+position = Vector2(1844, 354.49997)
+scale = Vector2(0.7716666, 0.77470773)
+texture = ExtResource("1_5axv5")
+
+[node name="Day2SideScroller" type="Sprite2D" parent="." unique_id=1113829111]
+position = Vector2(1844.0001, 355)
+scale = Vector2(0.772051, 0.77205104)
+texture = ExtResource("2_tryer")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Day2SideScroller" unique_id=411103043]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Day2SideScroller/StaticBody2D" unique_id=2065137420]
+position = Vector2(-3.8859115, -3.8857534)
+polygon = PackedVector2Array(-2384.5576, 458.51892, -2396.2148, 278.479, 2459.6816, 277.18372, 2463.5674, 459.81415)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=854697840]
+position = Vector2(392.2581, 313.40823)
+
+[node name="Border2" type="CollisionShape2D" parent="StaticBody2D" unique_id=360343631]
+position = Vector2(3247.742, 95.59177)
+shape = SubResource("RectangleShape2D_jrauc")
+
+[node name="Border" type="CollisionShape2D" parent="StaticBody2D" unique_id=341714426]
+position = Vector2(-327.94357, 92.239716)
+shape = SubResource("RectangleShape2D_jrauc")

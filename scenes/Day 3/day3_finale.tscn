@@ -1,0 +1,359 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://scripts/narrative/day3_finale.gd" id="1_script"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/gunshot.wav" id="2_gunshot"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/body-fall.wav" id="3_fall"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/radio-click.wav" id="4_radio"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/crowd-shock.wav" id="5_crowd"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/emergency-siren.wav" id="6_siren"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/helicopter.wav" id="7_helicopter"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/tv-static.wav" id="8_static"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/music/death-stinger.wav" id="9_death"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/music/shoot-stinger.wav" id="10_shoot"]
+[ext_resource type="PackedScene" path="res://scenes/ui/day3_tv_broadcast.tscn" id="11_tv"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="12_dialogue_blip"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/main-menu-title-screen.png" id="13_credits_backdrop"]
+[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="14_credits_font"]
+
+[sub_resource type="Shader" id="FilmShader"]
+code = "shader_type canvas_item;\nuniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;\nuniform float grain_strength : hint_range(0.0, 0.2) = 0.035;\nuniform float scanline_strength : hint_range(0.0, 0.2) = 0.045;\nfloat hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }\nvoid fragment(){\n vec4 c = texture(screen_texture, SCREEN_UV);\n float grain = (hash(UV * vec2(1280.0,720.0) + TIME * 41.0) - 0.5) * grain_strength;\n float scan = sin(UV.y * 720.0 * 3.14159) * scanline_strength;\n COLOR = vec4(c.rgb + grain - scan, c.a);\n}"
+
+[sub_resource type="ShaderMaterial" id="FilmMaterial"]
+shader = SubResource("FilmShader")
+
+[sub_resource type="Shader" id="CreditsCRTShader"]
+code = "shader_type canvas_item;\nfloat hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }\nvoid fragment(){\n vec2 q = UV - 0.5;\n float scan = (sin(UV.y * 720.0 * 3.14159265) * 0.5 + 0.5) * 0.105;\n float noise = (hash(floor(UV * vec2(640.0,360.0)) + floor(TIME * 24.0)) - 0.5) * 0.032;\n float vignette = smoothstep(0.34, 0.72, length(q * vec2(0.9, 1.0))) * 0.42;\n float alpha = clamp(0.035 + scan + vignette + max(noise, 0.0), 0.0, 0.58);\n COLOR = vec4(0.005, 0.008, 0.025, alpha);\n}"
+
+[sub_resource type="ShaderMaterial" id="CreditsCRTMaterial"]
+shader = SubResource("CreditsCRTShader")
+
+[sub_resource type="StyleBoxFlat" id="PlaceholderStyle"]
+bg_color = Color(0.015, 0.025, 0.055, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.82, 0.18, 0.27, 0.86)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="CaptionStyle"]
+bg_color = Color(0.008, 0.014, 0.035, 0.93)
+content_margin_left = 28.0
+content_margin_top = 18.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.33, 0.68, 0.92, 0.72)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="ParticleProcessMaterial" id="RedDustMaterial"]
+emission_shape = 3
+emission_box_extents = Vector3(650, 380, 1)
+direction = Vector3(-0.2, -1, 0)
+spread = 40.0
+gravity = Vector3(0, 7, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 18.0
+scale_min = 0.7
+scale_max = 2.2
+color = Color(0.95, 0.035, 0.12, 0.33)
+
+[sub_resource type="Gradient" id="VignetteGradient"]
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.82)
+
+[sub_resource type="GradientTexture2D" id="VignetteTexture"]
+gradient = SubResource("VignetteGradient")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+
+[node name="Day3Finale" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.003, 0.005, 0.014, 1)
+
+[node name="Image" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TVBroadcast" parent="." instance=ExtResource("11_tv")]
+visible = false
+layout_mode = 0
+offset_left = 579.0
+offset_top = 160.0
+offset_right = 1219.0
+offset_bottom = 520.0
+scale = Vector2(0.617, 0.667)
+
+[node name="RedDrift" type="CPUParticles2D" parent="."]
+position = Vector2(640, 360)
+emitting = false
+amount = 36
+lifetime = 7.0
+preprocess = 7.0
+process_material = SubResource("RedDustMaterial")
+
+[node name="Grade" type="ColorRect" parent="."]
+material = SubResource("FilmMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.15, 0.2, 0.4, 0.14)
+
+[node name="Vignette" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("VignetteTexture")
+expand_mode = 1
+
+[node name="Placeholder" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -115.0
+offset_right = 350.0
+offset_bottom = 115.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("PlaceholderStyle")
+
+[node name="Label" type="Label" parent="Placeholder"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "NAMED REPLACEMENT SLOT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CaptionPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 570.0
+offset_right = 1100.0
+offset_bottom = 680.0
+theme_override_styles/panel = SubResource("CaptionStyle")
+
+[node name="Caption" type="RichTextLabel" parent="CaptionPanel"]
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+theme_override_colors/default_color = Color(0.96, 0.96, 0.98, 1)
+theme_override_font_sizes/normal_font_size = 22
+theme_override_font_sizes/bold_font_size = 18
+bbcode_enabled = true
+text = "Caption"
+fit_content = false
+scroll_active = false
+autowrap_mode = 2
+
+[node name="Flash" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.93, 0.82, 1)
+
+[node name="CenterCard" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="CenterCard"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -55.0
+offset_right = 470.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.94, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 34
+text = "And Now, Today’s News."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Credits" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleBackdrop" type="TextureRect" parent="Credits"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("13_credits_backdrop")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Background" type="ColorRect" parent="Credits"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.005, 0.003, 0.014, 0.38)
+
+[node name="CreditsText" type="Label" parent="Credits"]
+offset_left = 710.0
+offset_right = 1240.0
+theme_override_colors/font_color = Color(0.96, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.015, 0.005, 0.03, 0.95)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("14_credits_font")
+theme_override_font_sizes/font_size = 21
+text = "CREDITS"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SkipHint" type="Label" parent="Credits"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -42.0
+offset_right = -24.0
+offset_bottom = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.62, 0.66, 0.76, 1)
+theme_override_fonts/font = ExtResource("14_credits_font")
+theme_override_font_sizes/font_size = 14
+text = "ENTER / E  SKIP CREDITS"
+horizontal_alignment = 2
+
+[node name="CRT" type="ColorRect" parent="Credits"]
+material = SubResource("CreditsCRTMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="RouteMusic" type="AudioStreamPlayer" parent="Audio"]
+bus = &"Ambience"
+
+[node name="Gunshot" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("2_gunshot")
+volume_db = -2.0
+bus = &"SFX"
+
+[node name="BodyFall" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("3_fall")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="Radio" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("4_radio")
+bus = &"UI"
+
+[node name="Crowd" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("5_crowd")
+volume_db = -7.0
+bus = &"Ambience"
+
+[node name="Siren" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("6_siren")
+volume_db = -10.0
+bus = &"Ambience"
+
+[node name="Helicopter" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("7_helicopter")
+volume_db = -7.0
+bus = &"Ambience"
+
+[node name="TelevisionStatic" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("8_static")
+volume_db = -14.0
+bus = &"Electrical"
+
+[node name="DeathStinger" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("9_death")
+volume_db = -5.0
+bus = &"SFX"
+
+[node name="ShootStinger" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("10_shoot")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="DialogueBlip" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("12_dialogue_blip")
+volume_db = -2.0
+bus = &"UI"

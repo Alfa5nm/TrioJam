@@ -11,6 +11,9 @@ extends Resource
 @export var intro_speakers: Array[StringName] = []
 ## Rich cinematic beats. When populated these replace intro_lines/intro_speakers.
 @export var intro_beats: Array[BroadcastDialogueBeat] = []
+## Plays the report's call-disconnect cue after this zero-based intro line.
+## -1 means the report has no authored disconnect beat.
+@export var disconnect_after_intro_line := -1
 ## Maps a speaker id (as used in intro_speakers) to the portrait texture shown for them.
 ## These are separate from the puzzle roster's CharacterDef portraits — the intro
 ## can feature people (e.g. an interrogating government agent) who never appear in the roster.

@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://cfa8ulrt405q1"]
+
+[ext_resource type="Script" uid="uid://bddqk3extlpy4" path="res://scripts/world/day1_gossip_conversation.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bnch6ayehjxdr" path="res://assets/art/Day1 Scene 1/npcs/r2c3-gossiping-gal-a.png" id="2_civilian_1"]
+[ext_resource type="Texture2D" uid="uid://ch6b7mxwpxipt" path="res://assets/art/Day1 Scene 1/npcs/r2c4-gossiping-gal-b.png" id="3_civilian_2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape_trigger"]
+size = Vector2(310, 190)
+
+[node name="Day1GossipConversation" type="Area2D" unique_id=360124475]
+collision_layer = 0
+monitorable = false
+script = ExtResource("1_script")
+
+[node name="Civilian1" type="Sprite2D" parent="." unique_id=451494796]
+z_index = 1
+texture_filter = 1
+position = Vector2(-60, -136)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("2_civilian_1")
+
+[node name="Civilian2" type="Sprite2D" parent="." unique_id=152371675]
+z_index = 1
+texture_filter = 1
+position = Vector2(60, -136)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("3_civilian_2")
+
+[node name="Civilian1Anchor" type="Node2D" parent="." unique_id=1879592491]
+position = Vector2(-53, -206)
+
+[node name="Civilian2Anchor" type="Node2D" parent="." unique_id=544520651]
+position = Vector2(54, -204)
+
+[node name="TriggerShape" type="CollisionShape2D" parent="." unique_id=1410134321]
+position = Vector2(0, -95)
+shape = SubResource("RectangleShape_trigger")
+disabled = true

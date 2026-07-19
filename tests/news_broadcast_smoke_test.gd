@@ -10,6 +10,9 @@ func _init() -> void:
 
 
 func _run() -> void:
+	var session := root.get_node("GameSession")
+	var previous_context: StringName = session.broadcast_context
+	session.broadcast_context = &"day0"
 	var packed_scene := load("res://scenes/gameplay/news_broadcast.tscn") as PackedScene
 	_check(packed_scene != null, "news broadcast scene loads")
 	if packed_scene == null:
@@ -56,9 +59,50 @@ func _run() -> void:
 
 	scene.queue_free()
 	await process_frame
+	await _check_day1_routes(packed_scene, session)
+	session.broadcast_context = previous_context
 	if failures == 0:
 		print("NEWS_BROADCAST_TEST_PASS")
 	quit(failures)
+
+
+func _check_day1_routes(packed_scene: PackedScene, session: Node) -> void:
+	for checkpoint_route in [&"truthful", &"propaganda"]:
+		for seedless_route in [&"truthful", &"propaganda"]:
+			session.broadcast_context = &"day1"
+			session.day1_checkpoint_route = checkpoint_route
+			session.day1_seedless_route = seedless_route
+			var scene := packed_scene.instantiate() as NewsBroadcast
+			scene.instant_mode = true
+			scene.auto_advance_to_epilogue = false
+			root.add_child(scene)
+			for _frame in 5:
+				await process_frame
+			var report1 := BroadcastDemoData.checkpoint_killing_report()
+			var report2 := BroadcastDemoData.seedless_fruit_report()
+			var sequence1 := report1.truthful_sequence if checkpoint_route == &"truthful" else report1.propaganda_sequence
+			var sequence2 := report2.truthful_sequence if seedless_route == &"truthful" else report2.propaganda_sequence
+			_check(scene._is_day1_context, "Day 1 presenter mode is selected for %s/%s" % [checkpoint_route, seedless_route])
+			_check(scene._lines.has(sequence1.broadcast_lines[0]), "presenter includes the selected Report 1 route for %s/%s" % [checkpoint_route, seedless_route])
+			_check(scene._lines.has(sequence2.broadcast_lines[0]), "presenter includes the selected Report 2 route for %s/%s" % [checkpoint_route, seedless_route])
+			_check(scene._line_routes.has(checkpoint_route) and scene._line_routes.has(seedless_route), "line metadata records both selected routes")
+			_check(scene._lines.has(NewsBroadcast.MEDICAL_PENALTY) == (checkpoint_route == &"truthful"), "medical-allocation call is exclusive to truthful Report 1")
+			var first_report_index := scene._line_report_ids.find(&"day1_checkpoint_killing")
+			while scene._line_index < first_report_index:
+				scene._request_advance()
+				await process_frame
+			_check(scene.card_images[0].texture == sequence1.cause_action.scene_image, "Report 1 selected cause frame is loaded into the studio")
+			if checkpoint_route == &"truthful":
+				var phone_index := scene._lines.find(NewsBroadcast.MEDICAL_PENALTY)
+				while scene._line_index < phone_index:
+					scene._request_advance()
+					await process_frame
+				_check(scene.phone_overlay.visible and scene.phone_portrait.visible, "truthful consequence displays the government phone silhouette")
+			while not scene._ended:
+				scene._request_advance()
+				await process_frame
+			scene.queue_free()
+			await process_frame
 
 
 func _check(condition: bool, description: String) -> void:

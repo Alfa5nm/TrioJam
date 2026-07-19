@@ -1,0 +1,223 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/day1_camera_capture.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="2_ui_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="3_dialogue_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/tense-dialogue-blip.wav" id="4_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/camera-click.wav" id="5_click"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/impact-hit-cc0.wav" id="6_hit"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/shove.wav" id="7_shove"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/scuffle-cc0.wav" id="8_scuffle"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/gunshot.wav" id="9_gunshot"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/running-away.wav" id="10_running"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/mc-heavy-breathing.wav" id="11_breathing"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/crowd-panic.wav" id="12_crowd"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/tense-ambience.wav" id="13_tense"]
+
+[sub_resource type="StyleBoxFlat" id="Style_caption"]
+content_margin_left = 38.0
+content_margin_top = 18.0
+content_margin_right = 38.0
+content_margin_bottom = 18.0
+bg_color = Color(0.025, 0.045, 0.095, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.24, 0.82, 1, 0.95)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 12
+
+[node name="Day1CameraCapture" type="CanvasLayer"]
+layer = 90
+script = ExtResource("1_script")
+
+[node name="Overlay" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="FrameImage" type="TextureRect" parent="Overlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Blackout" type="ColorRect" parent="Overlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CameraChrome" type="Control" parent="Overlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopShade" type="ColorRect" parent="Overlay/CameraChrome"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 58.0
+grow_horizontal = 2
+color = Color(0.005, 0.015, 0.025, 0.82)
+
+[node name="Rec" type="Label" parent="Overlay/CameraChrome"]
+offset_left = 34.0
+offset_top = 15.0
+offset_right = 210.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(1, 0.22, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_ui_font")
+theme_override_font_sizes/font_size = 21
+text = "● REC"
+
+[node name="FrameCounter" type="Label" parent="Overlay/CameraChrome"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -230.0
+offset_top = 15.0
+offset_right = -34.0
+offset_bottom = 48.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.8, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("2_ui_font")
+theme_override_font_sizes/font_size = 18
+text = "FRAME 01 / 03"
+horizontal_alignment = 2
+
+[node name="CornerTopLeft" type="Label" parent="Overlay/CameraChrome"]
+offset_left = 27.0
+offset_top = 71.0
+offset_right = 100.0
+offset_bottom = 118.0
+theme_override_colors/font_color = Color(0.72, 0.94, 1, 0.9)
+theme_override_fonts/font = ExtResource("2_ui_font")
+theme_override_font_sizes/font_size = 34
+text = "⌜"
+
+[node name="CornerTopRight" type="Label" parent="Overlay/CameraChrome"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -94.0
+offset_top = 71.0
+offset_right = -27.0
+offset_bottom = 118.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.72, 0.94, 1, 0.9)
+theme_override_fonts/font = ExtResource("2_ui_font")
+theme_override_font_sizes/font_size = 34
+text = "⌝"
+horizontal_alignment = 2
+
+[node name="CaptionPanel" type="PanelContainer" parent="Overlay"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 86.0
+offset_top = -177.0
+offset_right = -86.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("Style_caption")
+
+[node name="Margin" type="MarginContainer" parent="Overlay/CaptionPanel"]
+layout_mode = 2
+
+[node name="Caption" type="Label" parent="Overlay/CaptionPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("3_dialogue_font")
+theme_override_font_sizes/font_size = 29
+text = "Dialogue"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="HiddenPreviews" type="Control" parent="Overlay"]
+visible = false
+
+[node name="Frame1" type="TextureRect" parent="Overlay/HiddenPreviews"]
+
+[node name="Frame2" type="TextureRect" parent="Overlay/HiddenPreviews"]
+
+[node name="Frame3" type="TextureRect" parent="Overlay/HiddenPreviews"]
+
+[node name="Flash" type="ColorRect" parent="Overlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.82, 0.94, 1, 1)
+
+[node name="Blip" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_blip")
+volume_db = -5.0
+bus = &"UI"
+
+[node name="CameraClick" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_click")
+bus = &"SFX"
+
+[node name="Hit" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_hit")
+volume_db = 1.5
+bus = &"SFX"
+
+[node name="Shove" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_shove")
+bus = &"SFX"
+
+[node name="Scuffle" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_scuffle")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="Gunshot" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_gunshot")
+volume_db = 2.0
+bus = &"SFX"
+
+[node name="Running" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_running")
+bus = &"SFX"
+
+[node name="Breathing" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_breathing")
+volume_db = -2.0
+bus = &"SFX"
+
+[node name="Crowd" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_crowd")
+volume_db = -4.0
+bus = &"Ambience"
+
+[node name="TenseAmbience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_tense")
+volume_db = -7.0
+bus = &"Ambience"

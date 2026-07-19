@@ -22,12 +22,6 @@ enum State {
 
 const FRAME_SEQUENCE := [0, 1, 2, 3, 2, 1]
 const PANIC_RUN_INTERVAL := 0.11
-const PANIC_TEXTURES := {
-	"sign_male": preload("res://assets/art/Day1 Scene 1/protest/sign_male-panic-v1.png"),
-	"fist_chanter": preload("res://assets/art/Day1 Scene 1/protest/fist_chanter-panic-v1.png"),
-	"sign_female": preload("res://assets/art/Day1 Scene 1/protest/sign_female-panic-v1.png"),
-	"megaphone_worker": preload("res://assets/art/Day1 Scene 1/protest/megaphone_worker-panic-v1.png"),
-}
 
 var state := State.CHANTING
 var _elapsed := 0.0
@@ -83,7 +77,10 @@ func disperse(_threat_position := Vector2.ZERO) -> void:
 	_dispersal_elapsed = 0.0
 	for index in range(_sprites.size()):
 		var sprite := _sprites[index]
-		sprite.texture = _panic_texture_for(_chant_textures[index])
+		# Keep the authored chant atlas when no dedicated panic atlas is supplied.
+		# Day 2 owns its generated dispersal strips and does not depend on the
+		# intentionally removed Day 1 prototype protest atlases.
+		sprite.texture = _chant_textures[index]
 		sprite.frame = 0
 		sprite.scale.x = absf(_start_scales[index].x) * _flee_directions[index].x
 	dispersal_started.emit()
@@ -173,11 +170,3 @@ func _update_dispersal(delta: float) -> void:
 		state = State.DISPERSED
 		crowd_ambience.stop()
 		dispersal_finished.emit()
-
-
-func _panic_texture_for(chant_texture: Texture2D) -> Texture2D:
-	var path := chant_texture.resource_path
-	for actor_name in PANIC_TEXTURES:
-		if path.contains(actor_name):
-			return PANIC_TEXTURES[actor_name]
-	return chant_texture

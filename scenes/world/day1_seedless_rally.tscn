@@ -1,0 +1,230 @@
+[gd_scene format=3 uid="uid://ca1k7mgpx36y1"]
+
+[ext_resource type="Script" uid="uid://cdclbd0h2dkcd" path="res://scripts/world/day1_seedless_rally.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bj8r45oe6p6um" path="res://assets/art/Day1 Scene 1/npcs/r4c1-anti-seedless-protester-a.png" id="2_protester_a"]
+[ext_resource type="Texture2D" uid="uid://b11n7kr10tlcs" path="res://assets/art/Day1 Scene 1/npcs/r4c2-anti-seedless-protester-b.png" id="3_protester_b"]
+[ext_resource type="Texture2D" uid="uid://bdtfdig6qsu23" path="res://assets/art/Day1 Scene 1/npcs/r4c3-anti-seedless-protester-c.png" id="4_protester_c"]
+[ext_resource type="Texture2D" uid="uid://dfb5i7k42i2in" path="res://assets/art/Day1 Scene 1/npcs/r4c4-anti-seedless-protester-d.png" id="5_protester_d"]
+[ext_resource type="Texture2D" uid="uid://64f87nuwi5bj" path="res://scenes/Day 1/civilian_watermelon.png" id="6_0drei"]
+[ext_resource type="Texture2D" uid="uid://j4ume5eu775x" path="res://assets/art/Day1 Scene 1/npcs/r2c1-seedless-representative-guard-a.png" id="6_guard_a"]
+[ext_resource type="Texture2D" uid="uid://be8hx18d14ug4" path="res://assets/art/Day1 Scene 1/npcs/r3c2-seedless-representative-guard-b.png" id="7_guard_b"]
+[ext_resource type="Texture2D" uid="uid://b4ikn57m10lsq" path="res://assets/art/Day1 Scene 1/npcs/r3c1-seedless-campaign-representative.png" id="8_representative"]
+[ext_resource type="AudioStream" uid="uid://d2aath1mvhbe5" path="res://assets/audio/ambience/day1/angry-crowd-70647.mp3" id="10_crowd_audio"]
+[ext_resource type="Texture2D" uid="uid://ch6b7mxwpxipt" path="res://assets/art/Day1 Scene 1/npcs/r2c4-gossiping-gal-b.png" id="13_customer_c"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_campaign"]
+bg_color = Color(0.93, 0.97, 0.87, 0.96)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.08, 0.35, 0.48, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="RectangleShape2D" id="RectangleShape_rally_trigger"]
+size = Vector2(150, 359.5)
+
+[sub_resource type="Gradient" id="Gradient_podium"]
+offsets = PackedFloat32Array(0, 0.52, 1)
+colors = PackedColorArray(0.035, 0.12, 0.22, 1, 0.07, 0.23, 0.35, 1, 0.025, 0.09, 0.18, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_podium"]
+gradient = SubResource("Gradient_podium")
+width = 128
+height = 128
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[node name="Day1SeedlessRally" type="Node2D" unique_id=432229355]
+script = ExtResource("1_script")
+
+[node name="LeftProtesters" type="Node2D" parent="." unique_id=299673694]
+
+[node name="BackA" type="Sprite2D" parent="LeftProtesters" unique_id=877685024]
+modulate = Color(0.78, 0.86, 1, 0.92)
+z_index = 2
+position = Vector2(-577, -114.999985)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("2_protester_a")
+
+[node name="BackB" type="Sprite2D" parent="LeftProtesters" unique_id=839117874]
+modulate = Color(0.78, 0.86, 1, 0.92)
+z_index = 2
+position = Vector2(-453.99997, -122.999985)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("3_protester_b")
+
+[node name="BackD" type="Sprite2D" parent="LeftProtesters" unique_id=1364038391]
+modulate = Color(0.78, 0.86, 1, 0.92)
+z_index = 2
+position = Vector2(-329, -119.999985)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("5_protester_d")
+flip_h = true
+
+[node name="FrontB" type="Sprite2D" parent="LeftProtesters" unique_id=1757239003]
+z_index = 3
+position = Vector2(-520, -113)
+scale = Vector2(0.63, 0.63)
+texture = ExtResource("3_protester_b")
+
+[node name="FrontA" type="Sprite2D" parent="LeftProtesters" unique_id=1983378302]
+z_index = 3
+position = Vector2(-395, -113)
+scale = Vector2(0.63, 0.63)
+texture = ExtResource("2_protester_a")
+
+[node name="FrontD" type="Sprite2D" parent="LeftProtesters" unique_id=642720783]
+z_index = 3
+position = Vector2(-270, -113)
+scale = Vector2(0.63, 0.63)
+texture = ExtResource("5_protester_d")
+flip_h = true
+
+[node name="RightProtesters" type="Node2D" parent="." unique_id=714234604]
+
+[node name="BackC" type="Sprite2D" parent="RightProtesters" unique_id=1121877704]
+modulate = Color(0.78, 0.86, 1, 0.92)
+z_index = 2
+position = Vector2(338, -123.999985)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("4_protester_c")
+
+[node name="BackA" type="Sprite2D" parent="RightProtesters" unique_id=1419286165]
+modulate = Color(0.78, 0.86, 1, 0.92)
+z_index = 2
+position = Vector2(449.99997, -122.999985)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("2_protester_a")
+flip_h = true
+
+[node name="BackD" type="Sprite2D" parent="RightProtesters" unique_id=91746691]
+modulate = Color(0.78, 0.86, 1, 0.92)
+z_index = 2
+position = Vector2(564, -118)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("5_protester_d")
+
+[node name="FrontD" type="Sprite2D" parent="RightProtesters" unique_id=473424370]
+z_index = 3
+position = Vector2(270, -113)
+scale = Vector2(0.63, 0.63)
+texture = ExtResource("5_protester_d")
+
+[node name="FrontA" type="Sprite2D" parent="RightProtesters" unique_id=388644248]
+z_index = 3
+position = Vector2(395, -113)
+scale = Vector2(0.63, 0.63)
+texture = ExtResource("2_protester_a")
+flip_h = true
+
+[node name="FrontC" type="Sprite2D" parent="RightProtesters" unique_id=1509758062]
+z_index = 3
+position = Vector2(520, -113)
+scale = Vector2(0.63, 0.63)
+texture = ExtResource("4_protester_c")
+
+[node name="CustomerQueue" type="Node2D" parent="." unique_id=2004404380]
+
+[node name="CustomerB" type="Sprite2D" parent="CustomerQueue" unique_id=1375752229]
+modulate = Color(0.9, 0.95, 1, 1)
+z_index = 3
+position = Vector2(790.66254, -78.57749)
+scale = Vector2(0.41640356, 0.41640362)
+texture = ExtResource("6_0drei")
+flip_h = true
+
+[node name="CustomerC" type="Sprite2D" parent="CustomerQueue" unique_id=1543009458]
+modulate = Color(0.86, 0.92, 1, 1)
+z_index = 2
+position = Vector2(648, -113)
+scale = Vector2(0.58, 0.58)
+texture = ExtResource("13_customer_c")
+
+[node name="Stage" type="Node2D" parent="." unique_id=950867203]
+
+[node name="LeftGuard" type="Sprite2D" parent="Stage" unique_id=510784104]
+z_index = 3
+position = Vector2(-115, -294.00003)
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("6_guard_a")
+
+[node name="Representative" type="Sprite2D" parent="Stage" unique_id=1555211984]
+z_index = 3
+position = Vector2(-1.0000002, -305)
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("8_representative")
+
+[node name="RightGuard" type="Sprite2D" parent="Stage" unique_id=996963548]
+z_index = 3
+position = Vector2(99, -287)
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("7_guard_b")
+flip_h = true
+
+[node name="PodiumForeground" type="Polygon2D" parent="Stage"]
+z_index = 4
+texture = SubResource("GradientTexture2D_podium")
+polygon = PackedVector2Array(-58, -250, 58, -250, 68, -88, -68, -88)
+uv = PackedVector2Array(0, 0, 128, 0, 128, 128, 0, 128)
+
+[node name="CampaignPlacard" type="PanelContainer" parent="." unique_id=726273890]
+z_index = 5
+offset_left = -250.0
+offset_top = -570.0
+offset_right = 250.0
+offset_bottom = -490.0
+theme_override_styles/panel = SubResource("StyleBox_campaign")
+
+[node name="Text" type="Label" parent="CampaignPlacard" unique_id=1206213548]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.03, 0.18, 0.28, 1)
+theme_override_font_sizes/font_size = 26
+text = "TO A SEEDLESS,
+CONVENIENT FUTURE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DialogueAnchors" type="Node2D" parent="." unique_id=302834284]
+
+[node name="Representative" type="Node2D" parent="DialogueAnchors" unique_id=587282584]
+position = Vector2(2, -474)
+
+[node name="Customer" type="Node2D" parent="DialogueAnchors" unique_id=1976444666]
+position = Vector2(792, -205)
+
+[node name="Farmers" type="Node2D" parent="DialogueAnchors" unique_id=727753289]
+position = Vector2(-519, -220)
+
+[node name="Opposition" type="Node2D" parent="DialogueAnchors" unique_id=1030654351]
+position = Vector2(-344, -220)
+
+[node name="MC" type="Node2D" parent="DialogueAnchors" unique_id=1573165642]
+
+[node name="CameraFocus" type="Node2D" parent="." unique_id=1452200787]
+
+[node name="Stage" type="Node2D" parent="CameraFocus" unique_id=279568217]
+
+[node name="Customers" type="Node2D" parent="CameraFocus" unique_id=253316086]
+position = Vector2(690, 0)
+
+[node name="Farmers" type="Node2D" parent="CameraFocus" unique_id=448554871]
+position = Vector2(-450, 0)
+
+[node name="Trigger" type="Area2D" parent="." unique_id=1278274824]
+position = Vector2(-760, -120)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Trigger" unique_id=1612320233]
+position = Vector2(77, -55)
+shape = SubResource("RectangleShape_rally_trigger")
+
+[node name="CrowdAmbience" type="AudioStreamPlayer2D" parent="." unique_id=103585497]
+stream = ExtResource("10_crowd_audio")
+volume_db = -11.0
+max_distance = 1400.0
+attenuation = 1.2
+bus = &"Ambience"

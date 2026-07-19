@@ -1,0 +1,122 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/narrative/day2_breakdown.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/Day 2 Side Scroll/cg/mc-breakdown.png" id="2_cg"]
+[ext_resource type="Texture2D" path="res://assets/art/Day1 Scene 1/particles/dust-mote.svg" id="3_particle"]
+[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="4_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/tense-ambience.wav" id="5_ambience"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/mc-heavy-breathing.wav" id="6_breath"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="7_blip"]
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_red"]
+emission_shape = 3
+emission_box_extents = Vector3(620, 330, 1)
+direction = Vector3(0.15, -1, 0)
+spread = 65.0
+initial_velocity_min = 7.0
+initial_velocity_max = 22.0
+gravity = Vector3(-2, -3, 0)
+scale_min = 0.2
+scale_max = 0.65
+color = Color(1, 0.05, 0.25, 0.56)
+
+[sub_resource type="StyleBoxFlat" id="Caption_style"]
+bg_color = Color(0.006, 0.008, 0.024, 0.9)
+border_width_top = 2
+border_color = Color(0.92, 0.08, 0.26, 0.9)
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_size = 8
+
+[node name="Day2Breakdown" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.002, 0.003, 0.012, 1)
+
+[node name="CG" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(640, 360)
+texture = ExtResource("2_cg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BreakdownParticles" type="GPUParticles2D" parent="."]
+position = Vector2(640, 360)
+amount = 48
+lifetime = 6.0
+preprocess = 2.0
+process_material = SubResource("Particles_red")
+texture = ExtResource("3_particle")
+
+[node name="Darkness" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CaptionPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -156.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("Caption_style")
+
+[node name="Margin" type="MarginContainer" parent="CaptionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 110
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 110
+theme_override_constants/margin_bottom = 25
+
+[node name="Caption" type="Label" parent="CaptionPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 27
+text = "Narration"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_ambience")
+volume_db = -16.0
+bus = &"Ambience"
+
+[node name="Breathing" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_breath")
+volume_db = -9.0
+bus = &"SFX"
+
+[node name="Blip" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_blip")
+volume_db = -12.0
+bus = &"UI"

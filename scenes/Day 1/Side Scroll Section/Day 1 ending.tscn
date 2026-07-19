@@ -1,0 +1,219 @@
+[gd_scene format=3 uid="uid://s8cb6dy27b6r"]
+
+[ext_resource type="Script" uid="uid://cfkj5luwqrymy" path="res://scripts/world/day1_ending_controller.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://bj86cegf43hsk" path="res://assets/art/Day1 Scene 1/4.png" id="2_depot"]
+[ext_resource type="Texture2D" uid="uid://dxgwid4pipjqv" path="res://assets/art/Day1 Scene 1/2.png" id="3_street"]
+[ext_resource type="Texture2D" uid="uid://dqbcj2g5224tx" path="res://assets/art/Day1 Scene 1/Day 1 ending/Day 1 ending Propaganda.png" id="4_propaganda"]
+[ext_resource type="Texture2D" uid="uid://dj4fwehjojhcs" path="res://assets/art/Day1 Scene 1/Day 1 ending/day 1 ending Truth.png" id="5_truth"]
+[ext_resource type="Texture2D" uid="uid://d04gvf07ibnqd" path="res://assets/art/Day1 Scene 1/1.png" id="6_home"]
+[ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="7_player"]
+[ext_resource type="AudioStream" uid="uid://vgmbcsakudpx" path="res://assets/audio/foley/day1-pavement/pavement-step-a.ogg" id="8_step_a"]
+[ext_resource type="AudioStream" uid="uid://biyre7yrx5n2j" path="res://assets/audio/foley/day1-pavement/pavement-step-b.ogg" id="9_step_b"]
+[ext_resource type="AudioStream" uid="uid://b72qovuu17yt6" path="res://assets/audio/foley/day1-pavement/pavement-step-c.ogg" id="10_step_c"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="11_dialogue"]
+[ext_resource type="Script" uid="uid://c25tbf4uysgff" path="res://scripts/world/day1_horizontal_camera.gd" id="12_camera"]
+[ext_resource type="FontFile" uid="uid://24x7g0emsjib" path="res://assets/fonts/Newsreader.ttf" id="13_font"]
+[ext_resource type="Texture2D" uid="uid://dbahr6xw8obhx" path="res://assets/art/Day1 Scene 1/particles/dust-mote.svg" id="14_mote"]
+
+[sub_resource type="RectangleShape2D" id="GroundShape"]
+size = Vector2(5600, 120)
+
+[sub_resource type="Gradient" id="RedGradient"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(0.95, 0.08, 0.18, 0, 1, 0.12, 0.3, 0.54, 0.38, 0.02, 0.08, 0)
+
+[node name="Day1Ending" type="Node2D" unique_id=1862560579]
+script = ExtResource("1_controller")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=1690921341]
+z_index = -10
+offset_left = -500.0
+offset_top = -300.0
+offset_right = 5700.0
+offset_bottom = 1050.0
+mouse_filter = 2
+color = Color(0.018, 0.027, 0.065, 1)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=245537069]
+color = Color(0.56, 0.6, 0.74, 1)
+
+[node name="HomeStreet" type="Sprite2D" parent="." unique_id=1910762201]
+z_index = -4
+position = Vector2(687, 385)
+scale = Vector2(0.820404, 0.820404)
+texture = ExtResource("6_home")
+
+[node name="MiddleStreet" type="Sprite2D" parent="." unique_id=1568629056]
+z_index = -4
+position = Vector2(2054, 386)
+scale = Vector2(0.818146, 0.818146)
+texture = ExtResource("3_street")
+
+[node name="Day1EndingPropaganda" type="Sprite2D" parent="." unique_id=1605237532]
+z_index = -4
+position = Vector2(3418, 420)
+scale = Vector2(0.815979, 0.707492)
+texture = ExtResource("4_propaganda")
+
+[node name="Day1EndingTruth" type="Sprite2D" parent="." unique_id=452605443]
+z_index = -4
+position = Vector2(3423.25, 424.5)
+scale = Vector2(0.817175, 0.706695)
+texture = ExtResource("5_truth")
+
+[node name="DepotStreet" type="Sprite2D" parent="." unique_id=1738998387]
+z_index = -4
+position = Vector2(4769, 375)
+scale = Vector2(0.813397, 0.860786)
+texture = ExtResource("2_depot")
+
+[node name="GroundCollision" type="StaticBody2D" parent="." unique_id=1137928104]
+collision_layer = 2
+
+[node name="GroundShape" type="CollisionShape2D" parent="GroundCollision" unique_id=1899721756]
+position = Vector2(2700, 690)
+shape = SubResource("GroundShape")
+
+[node name="Player" parent="." unique_id=647046154 instance=ExtResource("7_player")]
+z_index = 8
+position = Vector2(3878, 613)
+footstep_stream = ExtResource("8_step_a")
+footstep_stream_alt_a = ExtResource("9_step_b")
+footstep_stream_alt_b = ExtResource("10_step_c")
+
+[node name="HorizontalCamera" type="Camera2D" parent="." unique_id=1283453973]
+position = Vector2(-626, 174)
+zoom = Vector2(1.5, 1.5)
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+script = ExtResource("12_camera")
+target_path = NodePath("../Player")
+framing_offset = Vector2(185, -210)
+
+[node name="CinematicDialogue" parent="." unique_id=1701180342 instance=ExtResource("11_dialogue")]
+characters_per_second = 27.0
+punctuation_pause = 0.16
+
+[node name="Audio" type="Node" parent="." unique_id=144195839]
+
+[node name="Night" type="AudioStreamPlayer" parent="Audio" unique_id=1217738028]
+volume_db = -12.0
+bus = &"Ambience"
+
+[node name="Route" type="AudioStreamPlayer2D" parent="Audio" unique_id=1121675377]
+position = Vector2(3320, 540)
+volume_db = -15.0
+max_distance = 1900.0
+attenuation = 0.45
+bus = &"Ambience"
+
+[node name="Room" type="AudioStreamPlayer" parent="Audio" unique_id=1180701540]
+volume_db = -12.0
+bus = &"Ambience"
+
+[node name="Door" type="AudioStreamPlayer" parent="Audio" unique_id=1339307915]
+volume_db = -4.0
+bus = &"SFX"
+
+[node name="TextBlip" type="AudioStreamPlayer" parent="Audio" unique_id=246962747]
+volume_db = -10.0
+bus = &"UI"
+
+[node name="EndingUI" type="CanvasLayer" parent="." unique_id=1544670804]
+layer = 95
+
+[node name="Prompt" type="Label" parent="EndingUI" unique_id=1278018685]
+visible = false
+offset_left = 522.0
+offset_top = 642.0
+offset_right = 758.0
+offset_bottom = 692.0
+theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("13_font")
+theme_override_font_sizes/font_size = 24
+text = "E  TALK"
+horizontal_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="EndingUI" unique_id=1994902243]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.003, 0.004, 0.012, 1)
+
+[node name="FinalImage" type="TextureRect" parent="EndingUI" unique_id=297329776]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="ColorRect" parent="EndingUI" unique_id=2140221685]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.003, 0.035, 0.28)
+
+[node name="RedDrift" type="CPUParticles2D" parent="EndingUI" unique_id=676357173]
+position = Vector2(640, 750)
+emitting = false
+amount = 28
+texture = ExtResource("14_mote")
+lifetime = 6.0
+preprocess = 5.0
+randomness = 0.9
+emission_shape = 3
+emission_rect_extents = Vector2(650, 35)
+direction = Vector2(0.1, -1)
+spread = 35.0
+gravity = Vector2(3, -7)
+initial_velocity_min = 12.0
+initial_velocity_max = 34.0
+scale_amount_min = 0.4
+scale_amount_max = 1.3
+color_ramp = SubResource("RedGradient")
+
+[node name="Narration" type="Label" parent="EndingUI" unique_id=1721812488]
+visible = false
+offset_left = 160.0
+offset_top = 205.0
+offset_right = 1120.0
+offset_bottom = 515.0
+theme_override_colors/font_color = Color(0.94, 0.94, 0.98, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("13_font")
+theme_override_font_sizes/font_size = 31
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1903514651]
+position = Vector2(4018.0002, 461.00003)
+rotation = 0.0024509754
+collision_layer = 3
+collision_mask = 3
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=935624561]
+rotation = -0.18052092
+polygon = PackedVector2Array(12.7265625, -386.86304, 144.60767, -363.12756, 32.325684, 221.22412, -92.03613, 200.87402)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D/CollisionPolygon2D" unique_id=153912474]
+position = Vector2(-3278.0137, -614.35016)
+rotation = -0.0037517399
+polygon = PackedVector2Array(12.7265625, -386.86304, 144.60767, -363.12756, 32.325684, 221.22412, -92.03613, 200.87402)

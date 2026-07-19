@@ -1,0 +1,414 @@
+[gd_scene format=3 uid="uid://dx3a66w8cijft"]
+
+[ext_resource type="Script" uid="uid://cdv5y1pbmv85e" path="res://scripts/world/day3_briefing_room.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dow7mqdqrd8d5" path="res://assets/art/Day3/briefing-room.png" id="2_room"]
+[ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="Texture2D" uid="uid://b4ikn57m10lsq" path="res://assets/art/Day1 Scene 1/npcs/r3c1-seedless-campaign-representative.png" id="4_suit"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="5_dialogue"]
+[ext_resource type="FontFile" uid="uid://24x7g0emsjib" path="res://assets/fonts/Newsreader.ttf" id="6_font"]
+[ext_resource type="AudioStream" uid="uid://ca2kcpuh7cdwj" path="res://assets/audio/day3/ambience/briefing-hvac.wav" id="7_hvac"]
+[ext_resource type="AudioStream" uid="uid://qemihe7b3a3q" path="res://assets/audio/day3/ambience/fluorescent-hum.wav" id="8_fluorescent"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/heartbeat-realistic.wav" id="9_heartbeat"]
+[ext_resource type="AudioStream" uid="uid://bky78icuns2d3" path="res://assets/audio/day3/sfx/heavy-breathing.wav" id="10_breathing"]
+[ext_resource type="AudioStream" uid="uid://bpmbxjemj81jp" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="11_briefcase"]
+[ext_resource type="AudioStream" uid="uid://cbnyk5t4bn6p1" path="res://assets/audio/day3/sfx/paper-handoff.wav" id="12_paper"]
+[ext_resource type="AudioStream" uid="uid://btuf350yae2ar" path="res://assets/audio/day3/sfx/table-contact.wav" id="13_table"]
+[ext_resource type="AudioStream" uid="uid://xei8otjyx3a4" path="res://assets/audio/day3/sfx/door-latch.wav" id="14_door"]
+[ext_resource type="Script" uid="uid://cx4xqtcohlqpt" path="res://scripts/world/spectrum_light_flicker.gd" id="15_flicker"]
+
+[sub_resource type="Gradient" id="DoorLightGradient"]
+colors = PackedColorArray(0.55, 0.86, 1, 0.8, 0.15, 0.45, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="DoorLightTexture"]
+gradient = SubResource("DoorLightGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="CeilingLightGradient"]
+colors = PackedColorArray(0.55, 0.82, 1, 0.72, 0.18, 0.45, 0.85, 0)
+
+[sub_resource type="GradientTexture2D" id="CeilingLightTexture"]
+gradient = SubResource("CeilingLightGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="OccluderPolygon2D" id="TableOccluder"]
+polygon = PackedVector2Array(-132, -8, 132, -8, 132, 18, -132, 18)
+
+[sub_resource type="OccluderPolygon2D" id="DoorOccluder"]
+polygon = PackedVector2Array(-42, -190, 42, -190, 42, 190, -42, 190)
+
+[sub_resource type="StyleBoxFlat" id="CGTopPanel"]
+bg_color = Color(0.055, 0.025, 0.07, 0.93)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.92, 0.18, 0.25, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="CGBottomPanel"]
+bg_color = Color(0.025, 0.075, 0.16, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.72, 1, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+
+[sub_resource type="RectangleShape2D" id="FloorShape"]
+size = Vector2(1280, 48)
+
+[sub_resource type="RectangleShape2D" id="WallShape"]
+size = Vector2(32, 720)
+
+[sub_resource type="RectangleShape2D" id="SuitAreaShape"]
+size = Vector2(310, 350)
+
+[sub_resource type="RectangleShape2D" id="ExitAreaShape"]
+size = Vector2(150, 330)
+
+[sub_resource type="Shader" id="VignetteShader"]
+code = "shader_type canvas_item;
+void fragment(){ vec2 p=UV-vec2(0.5); float v=smoothstep(0.25,0.72,length(p)); COLOR=vec4(0.01,0.0,0.055,v*0.76); }"
+
+[sub_resource type="ShaderMaterial" id="VignetteMaterial"]
+shader = SubResource("VignetteShader")
+
+[sub_resource type="Shader" id="StressShader"]
+code = "shader_type canvas_item;
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
+void fragment(){ vec2 p=UV-vec2(0.5); float edge=smoothstep(0.12,0.72,length(p)); vec2 split=vec2(0.0035*edge,0.0); vec3 c; c.r=texture(screen_texture,SCREEN_UV+split).r; c.g=texture(screen_texture,SCREEN_UV).g; c.b=texture(screen_texture,SCREEN_UV-split).b; c=mix(c,vec3(0.18,0.01,0.08),0.18*edge); COLOR=vec4(c,1.0); }"
+
+[sub_resource type="ShaderMaterial" id="StressMaterial"]
+shader = SubResource("StressShader")
+
+[node name="Day3BriefingRoom" type="Node2D" unique_id=236344734]
+script = ExtResource("1_script")
+
+[node name="Background" type="Sprite2D" parent="." unique_id=1687717960]
+z_index = -10
+position = Vector2(640, 360)
+scale = Vector2(0.7655, 0.7655)
+texture = ExtResource("2_room")
+
+[node name="Mood" type="CanvasModulate" parent="." unique_id=810814700]
+color = Color(0.74, 0.83, 1, 1)
+
+[node name="DoorSpill" type="PointLight2D" parent="." unique_id=33230907]
+position = Vector2(150, 370)
+color = Color(0.35, 0.75, 1, 1)
+energy = 1.35
+texture = SubResource("DoorLightTexture")
+texture_scale = 1.65
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 3.0
+
+[node name="DoorVolumetricBeam" type="Polygon2D" parent="."]
+z_index = -1
+color = Color(0.24, 0.66, 1, 0.095)
+polygon = PackedVector2Array(108, 218, 190, 218, 472, 686, 130, 686)
+
+[node name="CeilingPool" type="PointLight2D" parent="."]
+position = Vector2(650, 168)
+color = Color(0.42, 0.68, 1, 1)
+energy = 0.72
+texture = SubResource("CeilingLightTexture")
+texture_scale = 2.45
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 4.0
+
+[node name="TableLightOccluder" type="LightOccluder2D" parent="."]
+position = Vector2(832, 440)
+occluder = SubResource("TableOccluder")
+
+[node name="DoorLightOccluder" type="LightOccluder2D" parent="."]
+position = Vector2(103, 362)
+occluder = SubResource("DoorOccluder")
+
+[node name="FluorescentFlicker" type="Node" parent="." unique_id=1167664427]
+script = ExtResource("15_flicker")
+light_path = NodePath("../DoorSpill")
+base_energy = 1.35
+minimum_energy = 0.92
+response_speed = 11.0
+
+[node name="Dust" type="CPUParticles2D" parent="." unique_id=1221018755]
+z_index = 2
+position = Vector2(640, 350)
+amount = 52
+lifetime = 6.0
+preprocess = 6.0
+emission_shape = 3
+emission_rect_extents = Vector2(600, 300)
+direction = Vector2(0.15, -1)
+spread = 18.0
+gravity = Vector2(1.2, -1.5)
+initial_velocity_min = 2.0
+initial_velocity_max = 7.0
+scale_amount_min = 0.5
+scale_amount_max = 1.6
+color = Color(0.66, 0.88, 1, 0.22)
+
+[node name="DoorMotes" type="CPUParticles2D" parent="."]
+z_index = 2
+position = Vector2(260, 430)
+amount = 24
+lifetime = 4.5
+preprocess = 4.5
+emission_shape = 3
+emission_rect_extents = Vector2(135, 230)
+direction = Vector2(0.6, -1)
+spread = 26.0
+gravity = Vector2(3, -2)
+initial_velocity_min = 3.0
+initial_velocity_max = 11.0
+scale_amount_min = 0.45
+scale_amount_max = 1.35
+color = Color(0.7, 0.92, 1, 0.26)
+
+[node name="BriefingApproachTarget" type="Marker2D" parent="."]
+position = Vector2(632, 649)
+
+[node name="Player" parent="." unique_id=1755123406 instance=ExtResource("3_player")]
+z_index = 5
+position = Vector2(245, 649)
+scale = Vector2(1.496, 1.558)
+presentation_scale = 1.4
+
+[node name="DialogueAnchor" type="Node2D" parent="Player" unique_id=952962014]
+position = Vector2(-1.3368983, -293.96664)
+
+[node name="SuitShadow" type="Polygon2D" parent="." unique_id=1474911304]
+z_index = 3
+position = Vector2(1039, 650)
+scale = Vector2(2, 2)
+color = Color(0.01, 0.02, 0.05, 0.44)
+polygon = PackedVector2Array(-31, -4, 31, -4, 42, 2, 30, 8, -30, 8, -42, 2)
+
+[node name="Suit" type="Sprite2D" parent="." unique_id=2087455277]
+z_index = 4
+texture_filter = 1
+position = Vector2(1029, 382)
+scale = Vector2(-1.5222634, 1.5222634)
+texture = ExtResource("4_suit")
+
+[node name="DialogueAnchor" type="Node2D" parent="Suit" unique_id=1981025301]
+position = Vector2(0, -128)
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=1478267454]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=841751024]
+position = Vector2(640, 686)
+shape = SubResource("FloorShape")
+
+[node name="LeftWall" type="StaticBody2D" parent="." unique_id=53889652]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall" unique_id=1092461571]
+position = Vector2(-16, 360)
+shape = SubResource("WallShape")
+
+[node name="RightWall" type="StaticBody2D" parent="." unique_id=649675489]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall" unique_id=1081394265]
+position = Vector2(1296, 360)
+shape = SubResource("WallShape")
+
+[node name="SuitConversationArea" type="Area2D" parent="." unique_id=77900842]
+position = Vector2(932, 510)
+scale = Vector2(1.406031, 1.406031)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SuitConversationArea" unique_id=768763746]
+position = Vector2(-78.23441, -35.561096)
+shape = SubResource("SuitAreaShape")
+
+[node name="ExitArea" type="Area2D" parent="." unique_id=1305763570]
+position = Vector2(105, 525)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitArea" unique_id=1328470406]
+shape = SubResource("ExitAreaShape")
+
+[node name="CinematicDialogue" parent="." unique_id=738049797 instance=ExtResource("5_dialogue")]
+layer = 90
+characters_per_second = 27.0
+bark_speaker_offset = Vector2(0, -18)
+bark_parallax_strength = 0.9
+bark_width = 560.0
+bark_font_size = 24
+bark_long_font_size = 22
+bark_characters_per_line = 44.0
+bark_line_height = 28.0
+
+[node name="Audio" type="Node" parent="." unique_id=401936344]
+
+[node name="HVAC" type="AudioStreamPlayer" parent="Audio" unique_id=742478760]
+stream = ExtResource("7_hvac")
+volume_db = -17.0
+bus = &"Ambience"
+
+[node name="Fluorescent" type="AudioStreamPlayer2D" parent="Audio" unique_id=1376249927]
+position = Vector2(640, 72)
+stream = ExtResource("8_fluorescent")
+volume_db = -17.0
+max_distance = 1050.0
+bus = &"Electrical"
+
+[node name="Heartbeat" type="AudioStreamPlayer" parent="Audio" unique_id=1856196987]
+stream = ExtResource("9_heartbeat")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="Breathing" type="AudioStreamPlayer" parent="Audio" unique_id=1022887305]
+stream = ExtResource("10_breathing")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="Briefcase" type="AudioStreamPlayer" parent="Audio" unique_id=735851561]
+stream = ExtResource("11_briefcase")
+bus = &"SFX"
+
+[node name="Paper" type="AudioStreamPlayer" parent="Audio" unique_id=1890770781]
+stream = ExtResource("12_paper")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="TableContact" type="AudioStreamPlayer" parent="Audio" unique_id=1973975002]
+stream = ExtResource("13_table")
+volume_db = -4.0
+bus = &"SFX"
+
+[node name="DoorLatch" type="AudioStreamPlayer" parent="Audio" unique_id=1680832746]
+stream = ExtResource("14_door")
+bus = &"SFX"
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=482156582]
+layer = 40
+
+[node name="Prompt" type="Label" parent="HUD" unique_id=980667087]
+offset_left = 500.0
+offset_top = 613.0
+offset_right = 780.0
+offset_bottom = 659.0
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 22
+text = "E  CONTINUE"
+horizontal_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="HUD" unique_id=156362055]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.005, 0.008, 0.02, 1)
+
+[node name="Vignette" type="ColorRect" parent="HUD" unique_id=2048494811]
+material = SubResource("VignetteMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CGOverlay" type="CanvasLayer" parent="." unique_id=653870781]
+layer = 80
+visible = false
+
+[node name="CGImage" type="TextureRect" parent="CGOverlay" unique_id=2048489381]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(640, 360)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StressGrade" type="ColorRect" parent="CGOverlay" unique_id=1012383774]
+material = SubResource("StressMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.32, 0, 0.15, 0.7)
+
+[node name="Flash" type="ColorRect" parent="CGOverlay" unique_id=1597215368]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.65, 0.85, 1, 1)
+
+[node name="TopDialogue" type="PanelContainer" parent="CGOverlay"]
+visible = false
+offset_left = 690.0
+offset_top = 38.0
+offset_right = 1240.0
+offset_bottom = 210.0
+theme_override_styles/panel = SubResource("CGTopPanel")
+
+[node name="Text" type="RichTextLabel" parent="CGOverlay/TopDialogue"]
+layout_mode = 2
+theme_override_colors/default_color = Color(1, 0.32, 0.36, 1)
+theme_override_fonts/normal_font = ExtResource("6_font")
+theme_override_font_sizes/normal_font_size = 23
+text = "Government dialogue"
+fit_content = false
+scroll_active = false
+autowrap_mode = 2
+
+[node name="BottomDialogue" type="PanelContainer" parent="CGOverlay"]
+visible = false
+offset_left = 45.0
+offset_top = 500.0
+offset_right = 805.0
+offset_bottom = 690.0
+theme_override_styles/panel = SubResource("CGBottomPanel")
+
+[node name="Text" type="RichTextLabel" parent="CGOverlay/BottomDialogue"]
+layout_mode = 2
+theme_override_colors/default_color = Color(0.86, 0.94, 1, 1)
+theme_override_fonts/normal_font = ExtResource("6_font")
+theme_override_font_sizes/normal_font_size = 22
+text = "MC dialogue"
+fit_content = false
+scroll_active = false
+autowrap_mode = 2

@@ -1,0 +1,180 @@
+[ It’s the same building from day 0 (rooftop flight scene) . You try to enter a room (mid flight ) , but the soldier in front is stopping you. ] 
+
+SOLDIER
+Identification.
+
+MC:
+G-03S-93.
+
+Soldier: …
+Soldier: You may enter. 
+
+The main character enters the room. It’s an empty room with a person in black and a briefcase. 
+
+Suit: We have become more efficient, yet the leader is still alive. 
+MC: …I know, but what does that have to do with me. 
+
+The Suited person handed me a piece of paper, alongside the shiny briefcase.
+
+[ CG ]
+
+
+MC: …What is this?
+Suited: …It’s a call to action 
+MC: . . .No fucking way. You’re telling me to kill?!
+Suited. Now. Which side are you on?
+SUITED: If you're not with us, you're against us. The higher-ups  don't like the odds of which side you’re taking.
+
+
+The MC steps back, sweating. Heartbeat SFX 
+
+Normal mode.  (side scroll mode) 
+MC: Y-You want me to kill the leader?! 
+SUITED: With your expertise, it shouldn’t be so difficult.
+
+SUITED: Don’t fret. You will be safe. Getting out of the country afterwards will be easy money. Your contributions will be remembered, for good or for the worse. 
+
+MC stressing out. ‘
+
+
+MC: Why the Peace Leader? He rejected violence.
+
+Suited: That is not for you to be concerned about. Please take the gun, and do fulfil your final duty. 
+
+MC: (Calling me complicit, and pushing another murder on my hands… I shouldn’t have shot the first guy. Fuck fuck fuck, everything is leading upto this path… )
+
+MC: …Give me a minute Let me decide, it's my own life. 
+SUITED: You don’t have time. Go now, or we will decide for you. 
+
+Normal now. Side Scroller 
+The character must go out of the room. Black screen, and now the same day zero building. 
+
+Mc: …I can’t even remember the last time I felt autonomy of my own self.
+
+MC goes up. When he enters the rooftop:
+
+MC: I feel like I chased an impossible dream in the beginning. Now now it’s biting me, and the people of this country on its back.
+
+
+CHOICE - (same scenario as the rooftop shootout)
+
+SHOOT.
+NOT SHOOT.  [ NOT SHOOT happens when at least ⅔ of the reports are truthful route ]
+
+SHOOT - [ SHOOT happens when at least ⅔ of the reports are propaganda route ]
+
+
+NOT SHOOTING
+
+GOVERNMENT REPRESENTATIVE — EARPIECE:
+Fire
+[ BLACK SCREEN ]
+PEACE LEADER — DISTANT:
+We have spent too long turning frightened people into weapons.
+PEACE LEADER — DISTANT:
+Today, we put them down.
+[ CG again of the gun ] 
+GOVERNMENT REPRESENTATIVE — EARPIECE:
+Fire.
+MC:
+…
+MC:
+No.
+GOVERNMENT REPRESENTATIVE — EARPIECE:
+Repeat that.
+MC:
+Find another ending for your report. I’m done with your bullshit. I’m not killing a guy who wants the best for humanity. 
+Yes it was for the—- 
+SFX of him getting shot.
+SFX OF HIM falling down. 
+
+THE REPORTER BRADCAST.
+
+Reporter: And now, On Today’s News:
+
+But here, the frames are shown fullscreen rather than in the board.
+An armed Opposition extremist was discovered in a nearby building with a rifle aimed toward the gathering.
+CG OF THE MC SHOT DEAD WITH AN ARMBAND 
+
+Evidence recovered at the scene suggests that the attacker belonged to a radical faction opposed to the leader’s calls for negotiation.
+Authorities have identified the attacker as G-03S-93.
+However, the Leader has to say something different about it. 
+CG OF THE LEADER AT A PODIUM 
+I’ve heard reports of this man. Apparently, this man was the one who reported the truth behind the cases of these recent times. How he died remains a mystery. 
+However, it rings true that he must have attempted assination at that time.
+
+[ Black screen. ]
+MC — NARRATION:
+They argued over my name. Some called me a hero, Most called me a dirty, filthy murderer. 
+MC — NARRATION:
+Neither word was large enough to hold everything I had done.
+CG of the gun shot from day zero 
+MC — NARRATION:
+I fired the first shot.
+There was no lie in that.
+MC — NARRATION:
+Everything that followed began with a choice I could never take back.
+MC — NARRATION:
+I spent three days arranging the truth when my back was faced against lies.
+
+[ black screen ]
+MC — NARRATION:
+The government gave the people stories so they would never speak to one another.
+MC — NARRATION:
+In the end, the stories failed. The people stepped outside. They began searching for a sense of solidarity.
+MC: Holding each other close, and united, confiscating their destiny and future. 
+MC — NARRATION:
+And the city began speaking for itself.
+
+
+SHOOTING
+MC: Choices… choices…
+MC: These last few months have taught me one thing. I am just a pawn .
+MC: A meaningless replaceable cog. However, the person that I’m about to shoot isn’t.
+MC: …Why does the people in this country matter to me anyway? If none of my choices mattered, the country’s choices shouldn’t either.
+MC: At least… in this path, I get to live.
+GOVERNMENT REPRESENTATIVE — EARPIECE:
+Fire.
+[The Peace Leader raises a hand toward the crowd.]
+PEACE LEADER:
+Peace begins when we refuse to become—
+SFX: GUNSHOT.
+
+REPORTER:
+The Opposition Peace Leader was assassinated today by a radical member of their own movement.
+[Soldiers arrest Opposition supporters.]
+REPORTER:
+Authorities believe violent divisions within the Opposition led to the attack.
+REPORTER:
+The military has assumed emergency control to restore order.
+REPORTER:
+Citizens are instructed to remain indoors.
+
+AFTERWARD
+[FADE IN.]
+Like cowards, we fled to another country. 
+CG OF FALSE PASSPORTS. 
+All it took for the government was a helicopter and false passports. It’s honestly laughable how easy it all was. 
+I turn to the television. 
+
+
+REPORTER — TELEVISION:
+Necessary force was used against armed rioters.
+REPORTER — TELEVISION:
+Enemy sympathizers have attacked government supply routes.
+REPORTER — TELEVISION:
+Order will soon be restored.
+MC — NARRATION:
+They kept their promise, and my family survived.
+MC — NARRATION:
+The Opposition fractured, and the soldiers went to the streets. Hunger became riots, and riots became war.
+MC — NARRATION:
+Every report used words I had given them.
+MC — NARRATION:
+I saved the people inside this apartment, and I destroyed the only person who might have saved everyone outside it.
+BLACK SCREEN
+And Now, Today’s News.
+
+
+
+

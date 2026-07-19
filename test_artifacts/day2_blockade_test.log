@@ -1,0 +1,94 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+DAY2_STORY_TEST_START
+PASS: Day 2 rally scene loads
+ERROR: Node not found: "NPCs/ForegroundPodium" (relative to "/root/Day2PeaceRally").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/world/day2_peace_rally_controller.gd:58)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:56)
+       [2] _run (res://tests/day2_story_smoke_test.gd:19)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'null instance'.
+   at: Day2PeaceRallyController._ready (res://scripts/world/day2_peace_rally_controller.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://scripts/world/day2_peace_rally_controller.gd:80)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:56)
+       [2] _run (res://tests/day2_story_smoke_test.gd:19)
+PASS: playable MC is present
+PASS: Day 2 ground uses the shared player's physics layer
+PASS: player settles on the Day 2 pavement instead of falling through the world
+PASS: player remains above the fall boundary
+ERROR: FAIL: route-dependent opening dialogue becomes visible at scene start
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:63)
+ERROR: FAIL: world dialogue canvas and its presentation root are visible while a bark plays
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:64)
+PASS: CinematicDialogue canvas remains visible in-tree while its internal root is idle
+PASS: Day2CinematicOverlay canvas remains visible in-tree while its internal root is idle
+PASS: horizontal camera follows the player
+PASS: peaceful rally background starts visible
+PASS: aftermath is initially hidden
+ERROR: FAIL: left retreat blocker is inactive before the blast
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:70)
+PASS: explosion is routed through SFX
+PASS: rally crowd is routed through Ambience
+PASS: pre-blast leaves and motes are staged
+PASS: stage lighting has an authored occluder
+ERROR: FAIL: route-dependent fruit opening returns movement
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:79)
+ERROR: FAIL: camera rally, suspicion, and explosion reach playable escape
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:85)
+ERROR: FAIL: pre-blast CG frames play in authored order
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:86)
+PASS: CG image and dynamic caption controls are visible while frames play
+ERROR: FAIL: detonation hides the peaceful background
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:88)
+ERROR: FAIL: detonation reveals the supplied damaged background
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:89)
+PASS: blast starts smoke and ember layers
+PASS: blast blocks retreat to the left
+ERROR: FAIL: blast removes the leader and suspicious worker before aftermath
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day2_story_smoke_test.gd:167)
+       [1] _check_world_scene (res://tests/day2_story_smoke_test.gd:92)
+ERROR: Node not found: "NPCs/ForegroundPodium" (relative to "/root/Day2PeaceRally").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] _check_world_scene (res://tests/day2_story_smoke_test.gd:93)
+SCRIPT ERROR: Invalid access to property or key 'visible' on a base object of type 'null instance'.
+   at: _check_world_scene (res://tests/day2_story_smoke_test.gd:93)
+   GDScript backtrace (most recent call first):
+       [0] _check_world_scene (res://tests/day2_story_smoke_test.gd:93)
+PASS: animated presenter recognizes Day 2 context
+PASS: presenter reads the selected Day 2 propaganda report
+PASS: presenter metadata identifies the Day 2 report
+PASS: selected report drives all three televised frames
+PASS: Day 2 report route is saved for Continue and Day 3
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

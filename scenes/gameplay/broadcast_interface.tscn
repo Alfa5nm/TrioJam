@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://b1q23ldwja8ex" path="res://assets/art/ui/broadcast_v2/broadcast-console-base-v4.png" id="13"]
 [ext_resource type="Texture2D" uid="uid://bnbmlhcpemcei" path="res://assets/art/ui/broadcast_v2/interrogation-console-master-v3.png" id="14"]
 [ext_resource type="Texture2D" uid="uid://dv2dvpxsb62vb" path="res://assets/art/ui/broadcast_v2/broadcast-button-v4.png" id="15"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/broadcast/call-disconnect.wav" id="16_call_disconnect"]
 
 [sub_resource type="StyleBoxFlat" id="tv_shell"]
 bg_color = Color(0, 0, 0, 0)
@@ -586,4 +587,9 @@ bus = &"SFX"
 
 [node name="ButtonThunk" type="AudioStreamPlayer" parent="Audio" unique_id=1757974851]
 stream = ExtResource("12")
+bus = &"SFX"
+
+[node name="CallDisconnect" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("16_call_disconnect")
+volume_db = -3.0
 bus = &"SFX"
