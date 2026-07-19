@@ -306,8 +306,32 @@ func _run() -> void:
 	ui.conflict_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[1]))
 	ui.outcome_slot.place(ShotElement.new([rooftop_report.characters[0]], rooftop_report.available_actions[2]))
 	ui._on_broadcast_pressed()
-	_check(ui.dialogue_label.text == "...This doesn't make any sense.", "invalid reconstruction receives the authored response")
+	_check(ui.dialogue_label.text == rooftop_report.mistake_hints[0], "first invalid reconstruction receives the first progressive hint")
 	_check(not ui._playback_active, "invalid reconstruction does not start reporter playback")
+	ui.continue_button.pressed.emit()
+
+	# A second and third genuine mismatch should climb to the next hints, then
+	# hold on the last one — this is what progressively nudges the player
+	# toward the correct combination instead of repeating the same line.
+	ui.cause_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[0]))
+	ui.conflict_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[1]))
+	ui.outcome_slot.place(ShotElement.new([rooftop_report.characters[0]], rooftop_report.available_actions[2]))
+	ui._on_broadcast_pressed()
+	_check(ui.dialogue_label.text == rooftop_report.mistake_hints[1], "second mistake advances to the second hint")
+	ui.continue_button.pressed.emit()
+
+	ui.cause_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[0]))
+	ui.conflict_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[1]))
+	ui.outcome_slot.place(ShotElement.new([rooftop_report.characters[0]], rooftop_report.available_actions[2]))
+	ui._on_broadcast_pressed()
+	_check(ui.dialogue_label.text == rooftop_report.mistake_hints[2], "third mistake advances to the third hint")
+	ui.continue_button.pressed.emit()
+
+	ui.cause_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[0]))
+	ui.conflict_slot.place(ShotElement.new([rooftop_report.characters[2]], rooftop_report.available_actions[1]))
+	ui.outcome_slot.place(ShotElement.new([rooftop_report.characters[0]], rooftop_report.available_actions[2]))
+	ui._on_broadcast_pressed()
+	_check(ui.dialogue_label.text == rooftop_report.mistake_hints[2], "a fourth mistake holds on the last hint instead of repeating or running out")
 	ui.continue_button.pressed.emit()
 
 	var propaganda: BroadcastSequence = rooftop_report.propaganda_sequence

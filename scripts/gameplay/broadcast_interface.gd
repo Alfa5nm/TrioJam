@@ -10,7 +10,6 @@ enum Phase { FADE_IN, TV_BOOT, INTERROGATION, NAME_ENTRY, DESK_REVEAL, EDITING, 
 enum ResolutionResult { TRUTH_REJECTED, INVALID, PROPAGANDA_ACCEPTED }
 
 const TRUTH_RESPONSE: Array[String] = ["No. No no no. I can't broadcast this."]
-const INVALID_RESPONSE: Array[String] = ["...This doesn't make any sense."]
 const PROPAGANDA_RESPONSE: Array[String] = [
 	"They will believe this, even if it doesn't make sense.",
 	"This will cause a huge conflict...",
@@ -47,6 +46,12 @@ var _mission_response: Array[String] = []
 var _mission_response_index := 0
 var _pending_sequence: BroadcastSequence
 var _pending_result := ResolutionResult.INVALID
+## How many genuine mismatches (matches neither truthful nor propaganda) the
+## player has made on the currently loaded report. Selects which entry of
+## report.mistake_hints to show next; reset whenever a report (re)loads, but
+## NOT on a truth-rejected/accepted match, so it climbs across every attempt
+## at solving this specific report.
+var _mismatch_count := 0
 ## Generic, data-driven pipeline for any report other than day0_rooftop_killing.
 ## Kept fully separate from the _mission_response/_pending_* state above so the
 ## untouched Day 0 branch can never interact with it.
@@ -206,6 +211,7 @@ func _load_report_body(p_report: BroadcastReport) -> void:
 	_clear_transcript()
 	_mission_response.clear()
 	_pending_sequence = null
+	_mismatch_count = 0
 	_typing_response = false
 	_awaiting_name = false
 	_name_line_ready = false
@@ -234,6 +240,7 @@ func _load_next_chain_report() -> void:
 	_chain_index += 1
 	var next_report: BroadcastReport = _report_chain[_chain_index]
 	report = next_report
+	_mismatch_count = 0
 	for slot in _slots:
 		slot.clear()
 		slot.set_default_max_characters(next_report.max_characters_per_frame)
@@ -803,9 +810,19 @@ func _on_broadcast_pressed() -> void:
 			_start_mission_response(PROPAGANDA_RESPONSE, ResolutionResult.PROPAGANDA_ACCEPTED, sequence)
 		else:
 			for slot in _slots: slot.show_result(false)
-			_start_mission_response(INVALID_RESPONSE, ResolutionResult.INVALID, null)
+			_start_mission_response([_next_mistake_hint()], ResolutionResult.INVALID, null)
 		return
 	_on_chain_broadcast_pressed(sequence)
+
+
+## Picks the next progressive hint for a genuine mismatch (index 0 on the
+## first mistake, holding on the last entry thereafter) and advances the
+## counter. Falls back to report.mismatch_line if no hints are authored.
+func _next_mistake_hint() -> String:
+	var hints := report.mistake_hints
+	var line := hints[mini(_mismatch_count, hints.size() - 1)] if not hints.is_empty() else report.mismatch_line
+	_mismatch_count += 1
+	return line
 
 
 func _start_mission_response(lines: Array[String], result: ResolutionResult, sequence: BroadcastSequence) -> void:
@@ -886,7 +903,7 @@ func _start_chain_mismatch() -> void:
 	_chain_pending_sequence = null
 	_chain_pending_report = report
 	broadcast_resolved.emit(null, false)
-	_begin_chain_response([report.mismatch_line])
+	_begin_chain_response([_next_mistake_hint()])
 
 
 func _start_chain_mission_response(sequence: BroadcastSequence) -> void:

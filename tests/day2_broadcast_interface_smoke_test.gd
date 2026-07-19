@@ -126,8 +126,18 @@ func _check_solve_flow() -> void:
 	ui._on_broadcast_pressed()
 	_check(_resolved_count == 3, "broadcast_resolved fired for unrecognized combination")
 	_check(not _last_matched, "unrecognized combination does not match")
+	_check(ui.dialogue_label.text == report.mistake_hints[0], "first mismatch shows the first progressive hint")
 	_advance_through_response(ui)
 	_check(ui.phase == BroadcastInterface.Phase.EDITING and ui._editing_enabled, "a mismatch returns to editing instead of airing")
+
+	# A second mismatch on the same (still-loaded) report should advance to
+	# the next hint instead of repeating the first one.
+	ui.cause_slot.place(ShotElement.new([suspicious], stray_action))
+	ui.conflict_slot.place(ShotElement.new([suspicious], stray_action))
+	ui.outcome_slot.place(ShotElement.new([suspicious], report.available_actions[2]))
+	ui._on_broadcast_pressed()
+	_check(ui.dialogue_label.text == report.mistake_hints[1], "second mismatch on the same report advances to the second hint")
+	_advance_through_response(ui)
 
 	ui.queue_free()
 	await process_frame

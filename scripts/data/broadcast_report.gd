@@ -18,8 +18,15 @@ extends Resource
 @export var characters: Array[CharacterDef] = []
 @export var available_actions: Array[ActionDef] = []
 @export var max_characters_per_frame := 2
-## Shown when BROADCAST is pressed but no sequence matches.
+## Shown when BROADCAST is pressed but no sequence matches, and mistake_hints
+## is empty (kept as a simple fallback for reports that don't author hints).
 @export var mismatch_line := "The story doesn't hold together. Try a different arrangement."
+## Progressive hints shown on a genuine mismatch (matches neither truthful nor
+## propaganda) — index 0 on the player's first mistake, index 1 on the second,
+## and so on, holding on the last entry for every mistake after that. Does not
+## reset for the whole time this report is loaded (see BroadcastInterface's
+## _mismatch_count). Takes priority over mismatch_line when non-empty.
+@export var mistake_hints: Array[String] = []
 @export var truthful_sequence: BroadcastSequence
 @export var propaganda_sequence: BroadcastSequence
 
