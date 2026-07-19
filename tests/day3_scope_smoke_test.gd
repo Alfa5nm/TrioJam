@@ -20,14 +20,21 @@ func _run() -> void:
 	scope.cinematic_timing_scale = 0.01
 	root.add_child(scope)
 	await process_frame
+	scope.dialogue.instant_mode = true
+	scope.dialogue.timing_scale = 0.01
 	_check(scope.get_node("TargetImage").texture == load("res://assets/art/Day3/peace-leader-podium.png"), "scope targets the supplied Peace Leader podium scene")
 	_check(not scope.attempt_shot_at(Vector2(100, 100)), "off-target pistol shot is rejected")
+	var resolution_finished := [false]
+	scope.resolution_sequence_finished.connect(func(): resolution_finished[0] = true)
 	_check(scope.attempt_shot_at(Vector2(640, 340)), "Peace Leader target accepts the determined shot")
 	var frames := 0
-	while not scope.resolved and frames < 60:
+	while not resolution_finished[0] and frames < 120:
 		await process_frame
 		frames += 1
 	_check(scope.resolved, "scope resolves after the target is confirmed")
+	_check(resolution_finished[0], "Peace Leader line, pistol shot, red flash, and blackout finish after target confirmation")
+	_check(session.get_day3_route_music_player().playing, "final-boss credits track starts on the assassination gunshot")
+	session.stop_day3_route_music()
 	scope.queue_free()
 	await process_frame
 	session.profile_path = old_profile

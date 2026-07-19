@@ -48,6 +48,8 @@ var day1_seedless_route: StringName = &""
 var day3_briefing_complete := false
 var day3_resolution: StringName = &""
 var day3_debug_route_override: StringName = &""
+var _day3_route_music_player: AudioStreamPlayer
+var _day3_route_music_route: StringName = &""
 
 
 func set_pending_broadcast(report_id: StringName, sequence: BroadcastSequence) -> void:
@@ -141,11 +143,13 @@ func resolve_day3_route() -> StringName:
 		return day3_debug_route_override
 	if not has_complete_day3_report_history():
 		return &""
-	# The only accepted Day 0 broadcast is propaganda. Day 3 therefore reaches
-	# the two-of-three truthful majority only when both independent Day 1
-	# reports were aired truthfully.
-	return DAY3_NOT_SHOOT if day1_checkpoint_route == ROUTE_TRUTHFUL \
-		and day1_seedless_route == ROUTE_TRUTHFUL else DAY3_SHOOT
+	var truthful_reports := 0
+	for report_route in [_effective_day0_route(), day1_checkpoint_route, day1_seedless_route]:
+		if report_route == ROUTE_TRUTHFUL:
+			truthful_reports += 1
+	# The finale is a strict report majority: two truthful broadcasts refuse the
+	# order, while two propaganda broadcasts carry it out.
+	return DAY3_NOT_SHOOT if truthful_reports >= 2 else DAY3_SHOOT
 
 
 func set_day3_resolution(route: StringName) -> void:
@@ -160,6 +164,53 @@ func complete_day3() -> void:
 	broadcast_context = &"day3_complete"
 	checkpoint = ""
 	save_profile()
+
+
+func start_day3_route_music(route: StringName) -> AudioStreamPlayer:
+	_ensure_day3_route_music_player()
+	if _day3_route_music_player.playing and _day3_route_music_route == route:
+		return _day3_route_music_player
+	_day3_route_music_route = route
+	_day3_route_music_player.stop()
+	if route == DAY3_NOT_SHOOT:
+		_day3_route_music_player.stream = load("res://assets/audio/day3/music/credits-song-for-my-death.mp3")
+		_day3_route_music_player.volume_db = -36.0
+		create_tween().tween_property(_day3_route_music_player, "volume_db", -10.5, 3.5)
+	else:
+		_day3_route_music_player.stream = load("res://assets/audio/day3/music/credits-song-final-boss.mp3")
+		_day3_route_music_player.volume_db = -36.0
+		create_tween().tween_property(_day3_route_music_player, "volume_db", -16.0, 3.5)
+	_day3_route_music_player.play()
+	return _day3_route_music_player
+
+
+func stop_day3_route_music(fade_seconds := 0.0) -> void:
+	if not is_instance_valid(_day3_route_music_player) or not _day3_route_music_player.playing:
+		return
+	if fade_seconds <= 0.0:
+		_day3_route_music_player.stop()
+		_day3_route_music_route = &""
+		return
+	var fade_music := create_tween().tween_property(_day3_route_music_player, "volume_db", -40.0, fade_seconds)
+	fade_music.finished.connect(func():
+		if is_instance_valid(_day3_route_music_player):
+			_day3_route_music_player.stop()
+		_day3_route_music_route = &""
+	)
+
+
+func get_day3_route_music_player() -> AudioStreamPlayer:
+	_ensure_day3_route_music_player()
+	return _day3_route_music_player
+
+
+func _ensure_day3_route_music_player() -> void:
+	if is_instance_valid(_day3_route_music_player):
+		return
+	_day3_route_music_player = AudioStreamPlayer.new()
+	_day3_route_music_player.name = "Day3RouteMusic"
+	_day3_route_music_player.bus = &"Ambience"
+	add_child(_day3_route_music_player)
 
 
 func _effective_day0_route() -> StringName:

@@ -1,10 +1,10 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://tkqy8w8075ob"]
 
-[ext_resource type="PackedScene" path="res://scenes/rooftop/rooftop.tscn" id="1_base"]
-[ext_resource type="Script" path="res://scripts/world/day3_rooftop.gd" id="2_script"]
-[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/radio-click.wav" id="3_radio"]
-[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/heartbeat.wav" id="4_heartbeat"]
-[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="5_pistol_draw"]
+[ext_resource type="PackedScene" uid="uid://ctlgvj2dptr62" path="res://scenes/rooftop/rooftop.tscn" id="1_base"]
+[ext_resource type="Script" uid="uid://88pytykyfnrd" path="res://scripts/world/day3_rooftop.gd" id="2_script"]
+[ext_resource type="AudioStream" uid="uid://c6n2mffvffyn" path="res://assets/audio/day3/sfx/radio-click.wav" id="3_radio"]
+[ext_resource type="AudioStream" uid="uid://doqjb805tqrrp" path="res://assets/audio/day3/sfx/heartbeat.wav" id="4_heartbeat"]
+[ext_resource type="AudioStream" uid="uid://bpmbxjemj81jp" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="5_pistol_draw"]
 
 [sub_resource type="StyleBoxFlat" id="VerdictPanel"]
 bg_color = Color(0.015, 0.02, 0.04, 0.94)
@@ -30,31 +30,14 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="Day3Rooftop" instance=ExtResource("1_base")]
+[node name="Day3Rooftop" unique_id=1524992842 instance=ExtResource("1_base")]
 script = ExtResource("2_script")
+verdict_hold_seconds = 2.2
 
-[node name="Player" parent="." index="3"]
+[node name="Player" parent="." index="4" unique_id=1591779290]
 rifle_assembly_stream = ExtResource("5_pistol_draw")
 
-[node name="CinematicDialogue" parent="." index="9"]
-speaker_offset = Vector2(0, -235)
-standard_width = 520.0
-standard_font_size = 23
-standard_characters_per_line = 44.0
-standard_line_height = 29.0
-
-[node name="Day3Audio" type="Node" parent="." index="11"]
-
-[node name="RadioClick" type="AudioStreamPlayer" parent="Day3Audio"]
-stream = ExtResource("3_radio")
-bus = &"UI"
-
-[node name="Heartbeat" type="AudioStreamPlayer" parent="Day3Audio"]
-stream = ExtResource("4_heartbeat")
-volume_db = -7.0
-bus = &"SFX"
-
-[node name="RouteVerdict" type="Control" parent="HUD" index="3"]
+[node name="RouteVerdict" type="Control" parent="HUD" parent_id_path=PackedInt32Array(1882003262) index="3" unique_id=194303177]
 visible = false
 z_index = 80
 layout_mode = 3
@@ -65,7 +48,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Dim" type="ColorRect" parent="HUD/RouteVerdict"]
+[node name="Dim" type="ColorRect" parent="HUD/RouteVerdict" index="0" unique_id=1420773123]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -74,7 +57,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.005, 0.008, 0.02, 0.68)
 
-[node name="Layout" type="PanelContainer" parent="HUD/RouteVerdict"]
+[node name="Layout" type="PanelContainer" parent="HUD/RouteVerdict" index="1" unique_id=1788529297]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -89,51 +72,69 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("VerdictPanel")
 
-[node name="VBox" type="VBoxContainer" parent="HUD/RouteVerdict/Layout"]
+[node name="VBox" type="VBoxContainer" parent="HUD/RouteVerdict/Layout" index="0" unique_id=1410301793]
 layout_mode = 2
 theme_override_constants/separation = 22
 
-[node name="Caption" type="Label" parent="HUD/RouteVerdict/Layout/VBox"]
+[node name="Caption" type="Label" parent="HUD/RouteVerdict/Layout/VBox" index="0" unique_id=745221701]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.88, 0.96, 1)
 theme_override_font_sizes/font_size = 20
 text = "THE REPORTS HAVE ALREADY DECIDED"
 horizontal_alignment = 1
 
-[node name="Choices" type="HBoxContainer" parent="HUD/RouteVerdict/Layout/VBox"]
+[node name="Choices" type="HBoxContainer" parent="HUD/RouteVerdict/Layout/VBox" index="1" unique_id=153898428]
 layout_mode = 2
 theme_override_constants/separation = 28
 alignment = 1
 
-[node name="NotShoot" type="PanelContainer" parent="HUD/RouteVerdict/Layout/VBox/Choices"]
+[node name="NotShoot" type="PanelContainer" parent="HUD/RouteVerdict/Layout/VBox/Choices" index="0" unique_id=37398810]
 custom_minimum_size = Vector2(340, 100)
 layout_mode = 2
 theme_override_styles/panel = SubResource("ChoicePanel")
 
-[node name="Label" type="Label" parent="HUD/RouteVerdict/Layout/VBox/Choices/NotShoot"]
+[node name="Label" type="Label" parent="HUD/RouteVerdict/Layout/VBox/Choices/NotShoot" index="0" unique_id=1867174562]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 28
-text = "NOT SHOOT"
+text = "NOT SHOOT."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Shoot" type="PanelContainer" parent="HUD/RouteVerdict/Layout/VBox/Choices"]
+[node name="Shoot" type="PanelContainer" parent="HUD/RouteVerdict/Layout/VBox/Choices" index="1" unique_id=1524528912]
 custom_minimum_size = Vector2(340, 100)
 layout_mode = 2
 theme_override_styles/panel = SubResource("ChoicePanel")
 
-[node name="Label" type="Label" parent="HUD/RouteVerdict/Layout/VBox/Choices/Shoot"]
+[node name="Label" type="Label" parent="HUD/RouteVerdict/Layout/VBox/Choices/Shoot" index="0" unique_id=1216816094]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.3, 0.35, 1)
 theme_override_font_sizes/font_size = 28
-text = "SHOOT"
+text = "SHOOT."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DebugHelp" type="Label" parent="HUD/RouteVerdict/Layout/VBox"]
+[node name="DebugHelp" type="Label" parent="HUD/RouteVerdict/Layout/VBox" index="2" unique_id=1159862255]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.78, 0.48, 1)
 theme_override_font_sizes/font_size = 16
 text = "1 / LEFT: NOT SHOOT     2 / RIGHT: SHOOT"
 horizontal_alignment = 1
+
+[node name="CinematicDialogue" parent="." index="9" unique_id=378317120]
+speaker_offset = Vector2(0, -235)
+standard_width = 520.0
+standard_font_size = 23
+standard_characters_per_line = 44.0
+standard_line_height = 29.0
+
+[node name="Day3Audio" type="Node" parent="." index="10" unique_id=1172241758]
+
+[node name="RadioClick" type="AudioStreamPlayer" parent="Day3Audio" index="0" unique_id=1521701043]
+stream = ExtResource("3_radio")
+bus = &"UI"
+
+[node name="Heartbeat" type="AudioStreamPlayer" parent="Day3Audio" index="1" unique_id=1171152895]
+stream = ExtResource("4_heartbeat")
+volume_db = -7.0
+bus = &"SFX"

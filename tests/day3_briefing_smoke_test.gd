@@ -2,6 +2,9 @@ extends SceneTree
 
 var failures := 0
 var observed_lines: Array[String] = []
+var cg_visible_by_line := {}
+var cg_texture_by_line := {}
+var bubble_x_by_line := {}
 
 
 func _init() -> void:
@@ -16,10 +19,16 @@ func _run() -> void:
 	var packed := load("res://scenes/Day 3/day3_briefing_room.tscn") as PackedScene
 	var room := packed.instantiate() as Day3BriefingRoom
 	room.timing_scale = 0.01
+	var opening_player_x: float = room.get_node("Player").position.x
 	var dialogue := room.get_node("CinematicDialogue") as CinematicDialogue
 	dialogue.instant_mode = true
 	dialogue.timing_scale = 0.01
-	dialogue.line_started.connect(func(text: String): observed_lines.append(text))
+	dialogue.line_started.connect(func(text: String):
+		observed_lines.append(text)
+		cg_visible_by_line[text] = room.cg_overlay.visible
+		cg_texture_by_line[text] = room.cg_image.texture
+		bubble_x_by_line[text] = dialogue.bubble.position.x
+	)
 	root.add_child(room)
 	var frames := 0
 	while not room._second_conversation_ready and frames < 300:
@@ -27,7 +36,18 @@ func _run() -> void:
 		frames += 1
 	_check(room._second_conversation_ready, "opening briefing reaches the first Normal mode section")
 	_check(room.player.controls_enabled, "side-scrolling control returns after the briefcase panic beat")
-	_check(room.cg_image.texture == load("res://assets/art/Day3/mc-stressing.png"), "supplied stressed-MC CG closes the first exchange")
+	_check(not room.cg_overlay.visible, "gun-case CG closes before the physical retreat")
+	_check(room.player.position.x <= opening_player_x - 48.0, "MC physically steps back during the heartbeat beat")
+	var gun_case := load("res://assets/art/Day3/briefcase-gun.png")
+	for cg_line in [
+		"…What is this?",
+		"…It’s a call to action",
+		". . .No fucking way. You’re telling me to kill?!",
+		"Now. Which side are you on?",
+		"If you're not with us, you're against us. The higher-ups  don't like the odds of which side you’re taking.",
+	]:
+		_check(cg_visible_by_line.get(cg_line, false), "gun-case CG remains visible for: " + cg_line)
+		_check(cg_texture_by_line.get(cg_line) == gun_case, "gun-case art remains active for: " + cg_line)
 	room._play_second_exchange()
 	frames = 0
 	while not room._exit_armed and frames < 300:
@@ -35,6 +55,20 @@ func _run() -> void:
 		frames += 1
 	_check(room._exit_armed, "second exchange arms the required room exit")
 	_check(room.player.controls_enabled, "Normal mode returns before leaving the room")
+	_check(not cg_visible_by_line.get("Y-You want me to kill the leader?!", true), "the follow-up exchange begins in normal side-scroll mode")
+	_check(not cg_visible_by_line.get("With your expertise, it shouldn’t be so difficult.", true), "the expertise line remains in normal side-scroll mode")
+	_check(not cg_visible_by_line.get("Don’t fret. You will be safe. Getting out of the country afterwards will be easy money. Your contributions will be remembered, for good or for the worse.", true), "the escape offer remains in normal side-scroll mode")
+	var stressed_cg := load("res://assets/art/Day3/mc-stressing.png")
+	for stress_line in [
+		"Why the Peace Leader? He rejected violence.",
+		"That is not for you to be concerned about. Please take the gun, and do fulfil your final duty.",
+		"(Calling me complicit, and pushing another murder on my hands… I shouldn’t have shot the first guy. Fuck fuck fuck, everything is leading upto this path… )",
+		"…Give me a minute Let me decide, it's my own life.",
+		"You don’t have time. Go now, or we will decide for you.",
+	]:
+		_check(cg_visible_by_line.get(stress_line, false), "stressed-MC CG remains visible for: " + stress_line)
+		_check(cg_texture_by_line.get(stress_line) == stressed_cg, "stressed-MC art remains active for: " + stress_line)
+	_check(bubble_x_by_line.get("Why the Peace Leader? He rejected violence.", 10000.0) < bubble_x_by_line.get("That is not for you to be concerned about. Please take the gun, and do fulfil your final duty.", -10000.0), "CG dialogue alternates from MC on the left to Suited on the right")
 	_check(observed_lines.has("We have become more efficient, yet the leader is still alive."), "briefing preserves the Suit opening line")
 	_check(observed_lines.has(". . .No fucking way. You’re telling me to kill?!"), "briefing preserves the authored panic line")
 	_check(observed_lines.has("You don’t have time. Go now, or we will decide for you."), "briefing preserves the final ultimatum")

@@ -3,6 +3,9 @@ extends Control
 
 signal ending_started(route: StringName)
 signal ending_completed(route: StringName)
+signal line_started(speaker: String, text: String)
+signal image_shown(key: String)
+signal center_card_shown(text: String)
 
 const NOT_SHOOT := &"not_shoot"
 const SHOOT := &"shoot"
@@ -62,6 +65,8 @@ var _resume_at_credits := false
 @onready var placeholder_label: Label = $Placeholder/Label
 @onready var caption_panel: PanelContainer = $CaptionPanel
 @onready var caption: RichTextLabel = $CaptionPanel/Caption
+@onready var center_card: Control = $CenterCard
+@onready var center_title: Label = $CenterCard/Title
 @onready var credits: Control = $Credits
 @onready var credits_text: Label = $Credits/CreditsText
 @onready var credits_hint: Label = $Credits/SkipHint
@@ -79,6 +84,7 @@ var _resume_at_credits := false
 
 func _ready() -> void:
 	caption_panel.visible = false
+	center_card.visible = false
 	placeholder.visible = false
 	credits.visible = false
 	flash.modulate.a = 0.0
@@ -167,39 +173,37 @@ func _play_not_shoot() -> void:
 
 
 func _play_shoot() -> void:
+	_start_route_music(SHOOT)
 	shoot_stinger.play()
-	await _show_image("assassination")
+	_black_screen()
 	await _line("REPORTER", "The Opposition Peace Leader was assassinated today by a radical member of their own movement.", Color.WHITE)
-	await _show_image("arrests")
 	await _line("REPORTER", "Authorities believe violent divisions within the Opposition led to the attack.", Color.WHITE)
 	await _line("REPORTER", "The military has assumed emergency control to restore order.", Color.WHITE)
 	await _line("REPORTER", "Citizens are instructed to remain indoors.", Color.WHITE)
 	_black_screen()
+	await _hold(2.0)
 	await _line("MC — NARRATION", "Like cowards, we fled to another country.", Color(0.7, 0.86, 1.0))
 	await _show_image("passports")
 	await _line("MC — NARRATION", "All it took for the government was a helicopter and false passports. It’s honestly laughable how easy it all was.", Color(0.7, 0.86, 1.0), 1.4)
-	await _show_image("helicopter")
-	helicopter.play()
-	await _hold(1.1)
-	helicopter.stop()
-	await _show_image("television")
-	await _hold(0.7)
+	await _line("MC — NARRATION", "I turn to the television.", Color(0.7, 0.86, 1.0))
 	await _show_tv_scene()
 	television_static.play()
 	await _line("REPORTER — TELEVISION", "Necessary force was used against armed rioters.", Color.WHITE)
 	await _line("REPORTER — TELEVISION", "Enemy sympathizers have attacked government supply routes.", Color.WHITE)
 	await _line("REPORTER — TELEVISION", "Order will soon be restored.", Color.WHITE)
 	television_static.stop()
-	_start_route_music(SHOOT)
+	await _show_image("television")
 	await _line("MC — NARRATION", "They kept their promise, and my family survived.", Color(0.7, 0.86, 1.0))
 	await _line("MC — NARRATION", "The Opposition fractured, and the soldiers went to the streets. Hunger became riots, and riots became war.", Color(0.7, 0.86, 1.0), 1.45)
 	await _line("MC — NARRATION", "Every report used words I had given them.", Color(0.7, 0.86, 1.0))
 	await _line("MC — NARRATION", "I saved the people inside this apartment, and I destroyed the only person who might have saved everyone outside it.", Color(0.7, 0.86, 1.0), 1.6)
 	_black_screen()
-	await _line("", "And Now, Today’s News.", Color.WHITE, 1.8)
+	await _centered_card("And Now, Today’s News.", 1.8)
+	await _centered_card("Running away from Consequences Route", 1.8)
 
 
 func _line(speaker: String, text: String, color: Color, hold_multiplier := 1.0) -> void:
+	line_started.emit(speaker, text)
 	var television_line := tv_broadcast.visible and "TELEVISION" in speaker
 	if television_line:
 		tv_broadcast.set_talking(true)
@@ -225,6 +229,8 @@ func _line(speaker: String, text: String, color: Color, hold_multiplier := 1.0) 
 
 
 func _show_image(key: String) -> void:
+	image_shown.emit(key)
+	center_card.visible = false
 	placeholder.visible = false
 	tv_broadcast.visible = false
 	image.texture = load(CG[key])
@@ -234,6 +240,8 @@ func _show_image(key: String) -> void:
 
 
 func _show_tv_scene() -> void:
+	image_shown.emit("tv_broadcast")
+	center_card.visible = false
 	placeholder.visible = false
 	image.texture = load(CG["tv_backdrop"])
 	image.modulate.a = 0.0
@@ -258,6 +266,21 @@ func _black_screen() -> void:
 	tv_broadcast.visible = false
 	placeholder.visible = false
 	caption_panel.visible = false
+	center_card.visible = false
+
+
+func _centered_card(text: String, seconds := 1.8) -> void:
+	center_card_shown.emit(text)
+	_black_screen()
+	center_title.text = text
+	center_card.modulate.a = 0.0
+	center_card.visible = true
+	create_tween().tween_property(center_card, "modulate:a", 1.0, 0.35 * timing_scale)
+	await _hold(seconds)
+	if center_card.visible:
+		var fade_card := create_tween().tween_property(center_card, "modulate:a", 0.0, 0.3 * timing_scale)
+		await fade_card.finished
+	center_card.visible = false
 
 
 func _offscreen_shot() -> void:
@@ -295,6 +318,10 @@ func _hold(seconds: float) -> void:
 
 
 func _start_route_music(which_route: StringName) -> void:
+	var session := get_node_or_null("/root/GameSession")
+	if session != null and session.has_method(&"start_day3_route_music"):
+		route_music = session.start_day3_route_music(which_route)
+		return
 	if route_music.playing:
 		return
 	if which_route == NOT_SHOOT:
@@ -313,6 +340,7 @@ func _play_credits() -> void:
 	if session != null:
 		session.save_checkpoint("day3_credits")
 	caption_panel.visible = false
+	center_card.visible = false
 	placeholder.visible = false
 	image.modulate.a = 0.0
 	tv_broadcast.visible = false
@@ -348,6 +376,8 @@ func _finish_to_menu() -> void:
 	ending_completed.emit(route)
 	if not auto_return_to_menu:
 		return
+	if session != null and session.has_method(&"stop_day3_route_music"):
+		session.stop_day3_route_music(1.2)
 	var transition := get_node_or_null("/root/SceneTransition")
 	if transition != null and not transition.busy:
 		transition.transition_to(MAIN_MENU, false)

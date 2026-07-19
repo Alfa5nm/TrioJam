@@ -21,11 +21,15 @@ var _elapsed := 0.0
 @onready var scope_mask: ColorRect = $ScopeUI/ScopeMask
 @onready var reticle: ScopeReticle = $ScopeUI/Reticle
 @onready var fade: ColorRect = $ScopeUI/Fade
+@onready var red_flash: ColorRect = $ScopeUI/RedFlash
 @onready var wind: AudioStreamPlayer = $Wind
 @onready var tension: AudioStreamPlayer = $Tension
 @onready var pistol_shot: AudioStreamPlayer = $SniperShot
 @onready var off_target_error: AudioStreamPlayer = $OffTargetError
 @onready var dialogue: CinematicDialogue = $CinematicDialogue
+@onready var pre_scope: CanvasLayer = $PreScope
+@onready var gun_cg: TextureRect = $PreScope/GunCG
+@onready var pre_scope_black: ColorRect = $PreScope/Black
 
 
 func _ready() -> void:
@@ -42,6 +46,7 @@ func _ready() -> void:
 	if play_intro_on_ready:
 		_play_scope_intro()
 	else:
+		pre_scope.visible = false
 		aim_enabled = true
 
 
@@ -91,14 +96,19 @@ func _resolve_target() -> void:
 
 
 func _play_scope_intro() -> void:
+	pre_scope.visible = true
+	gun_cg.visible = true
+	pre_scope_black.visible = false
 	await dialogue.show_line_at("Choices… choices…", Vector2(640, 650), 0.7, true)
 	await dialogue.show_line_at("These last few months have taught me one thing. I am just a pawn .", Vector2(640, 650), 0.9, true)
 	await dialogue.show_line_at("A meaningless replaceable cog. However, the person that I’m about to shoot isn’t.", Vector2(640, 650), 1.0, true)
 	await dialogue.show_line_at("…Why does the people in this country matter to me anyway? If none of my choices mattered, the country’s choices shouldn’t either.", Vector2(640, 650), 1.15, true)
 	await dialogue.show_line_at("At least… in this path, I get to live.", Vector2(640, 650), 0.85, true)
+	gun_cg.visible = false
+	pre_scope_black.visible = true
 	await dialogue.show_line_at("Fire.", Vector2(640, 650), 0.75, true)
-	await dialogue.show_line_at("Peace begins when we refuse to become—", Vector2(640, 650), 0.95, true)
 	if is_inside_tree():
+		pre_scope.visible = false
 		aim_enabled = true
 
 
@@ -111,10 +121,16 @@ func _show_scope_dialogue(response: String) -> void:
 func _play_resolution_sequence() -> void:
 	if dialogue.is_presenting:
 		dialogue.hide_immediately()
+	await dialogue.show_line_at("Peace begins when we refuse to become—", Vector2(640, 650), 0.95)
 	var ambience_fade := create_tween().set_parallel(true)
 	ambience_fade.tween_property(tension, "volume_db", -40.0, _duration(0.24))
 	ambience_fade.tween_property(wind, "volume_db", -28.0, _duration(0.24))
 	pistol_shot.play()
+	var session := get_node_or_null("/root/GameSession")
+	if session != null and session.has_method(&"start_day3_route_music"):
+		session.start_day3_route_music(&"shoot")
+	red_flash.color.a = 0.92
+	create_tween().tween_property(red_flash, "color:a", 0.0, _duration(0.28))
 	Engine.time_scale = 0.08
 	await get_tree().create_timer(0.045, true, false, true).timeout
 	Engine.time_scale = 1.0

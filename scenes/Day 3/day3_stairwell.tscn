@@ -6,9 +6,20 @@
 
 [node name="Day3Stairwell" unique_id=432478276 instance=ExtResource("1_base")]
 script = ExtResource("2_script")
+returning_from_briefing = false
+
+[node name="Day3DialogueAnchor" type="Node2D" parent="Player" parent_id_path=PackedInt32Array(1107255841) index="9" unique_id=1377696262]
+position = Vector2(0, -205)
 
 [node name="Edge" parent="StairHighlights/UpperRoute" parent_id_path=PackedInt32Array(1553434837) index="1" unique_id=1821149970]
 points = PackedVector2Array(1153, 365, 1039.1362, 366.87894, 850, 370, 526, 193, 8, 196)
+
+[node name="CinematicDialogue" parent="." index="22" unique_id=883177381]
+bark_width = 520.0
+bark_font_size = 24
+bark_long_font_size = 22
+bark_characters_per_line = 42.0
+bark_line_height = 28.0
 
 [node name="GuardShadow" type="Polygon2D" parent="." index="25" unique_id=2073798283]
 z_index = 8
@@ -23,15 +34,5 @@ position = Vector2(1080, 253)
 scale = Vector2(-0.92, 0.92)
 texture = ExtResource("3_guard")
 
-[node name="DialogueAnchor" type="Node2D" parent="Guard"]
-position = Vector2(0, -75)
-
-[node name="Day3DialogueAnchor" type="Node2D" parent="Player"]
-position = Vector2(0, -205)
-
-[node name="CinematicDialogue" parent="." index="20"]
-bark_width = 520.0
-bark_font_size = 24
-bark_long_font_size = 22
-bark_characters_per_line = 42.0
-bark_line_height = 28.0
+[node name="DialogueAnchor" type="Node2D" parent="Guard" index="0" unique_id=2070703867]
+position = Vector2(-22.826086, -78.26087)

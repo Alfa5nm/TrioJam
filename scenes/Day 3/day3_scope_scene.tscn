@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/gameplay/scoped_target_scene.tscn" id="1_base"]
 [ext_resource type="Script" path="res://scripts/gameplay/day3_scope_scene.gd" id="2_script"]
 [ext_resource type="Texture2D" path="res://assets/art/Day3/peace-leader-podium.png" id="3_target"]
 [ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/gunshot.wav" id="4_shot"]
+[ext_resource type="Texture2D" path="res://assets/art/Day3/gun-command-a.png" id="5_gun"]
 
 [node name="Day3ScopeScene" instance=ExtResource("1_base")]
 script = ExtResource("2_script")
@@ -35,6 +36,15 @@ mouse_filter = 2
 [node name="Brief" parent="ScopeUI" index="3"]
 text = "TARGET  //  OPPOSITION PEACE LEADER  //  PODIUM"
 
+[node name="RedFlash" type="ColorRect" parent="ScopeUI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.96, 0.015, 0.07, 0)
+
 [node name="Instructions" parent="ScopeUI" index="4"]
 text = "MOVE MOUSE TO AIM   •   LEFT CLICK TO FIRE"
 
@@ -43,5 +53,29 @@ standard_width = 820.0
 standard_font_size = 23
 standard_characters_per_line = 68.0
 standard_line_height = 28.0
+
+[node name="PreScope" type="CanvasLayer" parent="." index="11"]
+layer = 60
+
+[node name="GunCG" type="TextureRect" parent="PreScope"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_gun")
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
+[node name="Black" type="ColorRect" parent="PreScope"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.002, 0.003, 0.009, 1)
 
 [editable path="ScopeUI"]
