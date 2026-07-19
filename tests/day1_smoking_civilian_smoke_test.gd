@@ -45,7 +45,13 @@ func _run() -> void:
 	_check(player.controls_enabled, "ambient bark does not interrupt player movement")
 	_check(not dialogue.speaker_label.visible and dialogue.speaker_label.text.is_empty(), "ambient dialogue omits the speaker name")
 	_check(dialogue.line.text == "This country is doomed from the start", "bubble displays the requested sentence")
-	_check(dialogue.line.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART and dialogue.bubble.size.x == 460.0 and dialogue.bubble.size.y >= 90.0, "ambient bubble stays compact and wraps the sentence")
+	_check(
+		dialogue.line.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART
+		and dialogue.bubble.size.x >= 210.0
+		and dialogue.bubble.size.x <= dialogue.bark_width
+		and dialogue.bubble.size.y <= 110.0,
+		"ambient bubble measures a compact box around the sentence"
+	)
 	var bubble_bottom_center := dialogue.bubble.position + Vector2(dialogue.bubble.size.x * 0.5, dialogue.bubble.size.y)
 	_check(bubble_bottom_center.distance_to(dialogue._parallax_anchor_origin) < 4.0, "dialogue initially appears directly above the civilian")
 	var bubble_start := dialogue.bubble.position
@@ -71,7 +77,7 @@ func _run() -> void:
 	for _frame in 90:
 		await process_frame
 	_check(not dialogue.dialogue.visible and not dialogue.is_presenting, "ambient bark dismisses automatically")
-	_check(dialogue.bubble.size == Vector2(430.0, 86.0) and not dialogue.speaker_label.visible, "shared dialogue returns to its standard layout")
+	_check(dialogue.bubble.size.x <= dialogue.standard_width and dialogue.bubble.size.y <= 90.0 and not dialogue.speaker_label.visible, "shared dialogue returns to its compact standard layout")
 
 	level.queue_free()
 	for _frame in 3:

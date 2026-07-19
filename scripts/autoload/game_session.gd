@@ -12,7 +12,9 @@ const CHECKPOINT_SCENES := {
 	"broadcast": "res://scenes/gameplay/broadcast_interface.tscn",
 	"day1_scene1": "res://scenes/Day 1/Side Scroll Section/Side_Scroll Day 1.tscn",
 	"day1_ending": "res://scenes/Day 1/Side Scroll Section/Day 1 ending.tscn",
-	"day2": "res://scenes/narrative/day2_placeholder.tscn",
+	"day2": "res://scenes/Day 2/day2_peace_rally.tscn",
+	"day2_rally": "res://scenes/Day 2/day2_peace_rally.tscn",
+	"day2_breakdown": "res://scenes/Day 2/day2_breakdown.tscn",
 	"day3_stairwell": "res://scenes/Day 3/day3_stairwell.tscn",
 	"day3_stairwell_return": "res://scenes/Day 3/day3_stairwell_return.tscn",
 	"day3_briefing": "res://scenes/Day 3/day3_briefing_room.tscn",
@@ -25,6 +27,7 @@ const CHECKPOINT_SCENES := {
 const DAY0_REPORT_ROOFTOP := &"day0_rooftop_killing"
 const DAY1_REPORT_CHECKPOINT := &"day1_checkpoint_killing"
 const DAY1_REPORT_SEEDLESS := &"day1_seedless_fruit"
+const DAY2_REPORT_BOMBING := &"day2_bombing"
 const ROUTE_TRUTHFUL := &"truthful"
 const ROUTE_PROPAGANDA := &"propaganda"
 const DAY3_NOT_SHOOT := &"not_shoot"
@@ -45,8 +48,10 @@ var broadcast_context: StringName = &"day0"
 var day0_rooftop_route: StringName = &""
 var day1_checkpoint_route: StringName = &""
 var day1_seedless_route: StringName = &""
+var day2_bombing_route: StringName = &""
 var day3_briefing_complete := false
 var day3_resolution: StringName = &""
+var last_completed_day3_route: StringName = &""
 var day3_debug_route_override: StringName = &""
 var _day3_route_music_player: AudioStreamPlayer
 var _day3_route_music_route: StringName = &""
@@ -112,6 +117,36 @@ func complete_day1() -> void:
 	save_profile()
 
 
+func begin_day2() -> void:
+	broadcast_context = &"day2_story"
+	day2_bombing_route = &""
+	checkpoint = "day2_rally"
+	save_profile()
+
+
+func begin_day2_broadcast() -> void:
+	broadcast_context = &"day2"
+	checkpoint = "broadcast"
+	save_profile()
+
+
+func set_day2_report_route(route: StringName) -> void:
+	if route not in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]:
+		return
+	day2_bombing_route = route
+	save_profile()
+
+
+func get_day2_report_route() -> StringName:
+	return day2_bombing_route
+
+
+func complete_day2() -> void:
+	broadcast_context = &"day2_complete"
+	checkpoint = "day3_stairwell"
+	save_profile()
+
+
 func begin_day3() -> void:
 	broadcast_context = &"day3"
 	day3_briefing_complete = false
@@ -130,7 +165,8 @@ func mark_day3_briefing_complete() -> void:
 func has_complete_day3_report_history() -> bool:
 	return _effective_day0_route() != &"" \
 		and day1_checkpoint_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
-		and day1_seedless_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]
+		and day1_seedless_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
+		and day2_bombing_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]
 
 
 func set_day3_debug_route_override(route: StringName) -> void:
@@ -144,12 +180,12 @@ func resolve_day3_route() -> StringName:
 	if not has_complete_day3_report_history():
 		return &""
 	var truthful_reports := 0
-	for report_route in [_effective_day0_route(), day1_checkpoint_route, day1_seedless_route]:
+	for report_route in [_effective_day0_route(), day1_checkpoint_route, day1_seedless_route, day2_bombing_route]:
 		if report_route == ROUTE_TRUTHFUL:
 			truthful_reports += 1
-	# The finale is a strict report majority: two truthful broadcasts refuse the
-	# order, while two propaganda broadcasts carry it out.
-	return DAY3_NOT_SHOOT if truthful_reports >= 2 else DAY3_SHOOT
+	# Four reports now determine the finale. A strict truthful majority refuses
+	# the order; a two-two tie resolves to SHOOT under government pressure.
+	return DAY3_NOT_SHOOT if truthful_reports >= 3 else DAY3_SHOOT
 
 
 func set_day3_resolution(route: StringName) -> void:
@@ -161,9 +197,15 @@ func set_day3_resolution(route: StringName) -> void:
 
 
 func complete_day3() -> void:
+	if day3_resolution in [DAY3_NOT_SHOOT, DAY3_SHOOT]:
+		last_completed_day3_route = day3_resolution
 	broadcast_context = &"day3_complete"
 	checkpoint = ""
 	save_profile()
+
+
+func has_completed_day3_route(route: StringName) -> bool:
+	return last_completed_day3_route == route
 
 
 func start_day3_route_music(route: StringName) -> AudioStreamPlayer:
@@ -256,6 +298,7 @@ func start_new_game(raw_name: String) -> bool:
 	day0_rooftop_route = &""
 	day1_checkpoint_route = &""
 	day1_seedless_route = &""
+	day2_bombing_route = &""
 	day3_briefing_complete = false
 	day3_resolution = &""
 	day3_debug_route_override = &""
@@ -270,6 +313,7 @@ func begin_day_zero() -> void:
 	day0_rooftop_route = &""
 	day1_checkpoint_route = &""
 	day1_seedless_route = &""
+	day2_bombing_route = &""
 	day3_briefing_complete = false
 	day3_resolution = &""
 	day3_debug_route_override = &""
@@ -307,8 +351,10 @@ func save_profile() -> void:
 	config.set_value("story", "day0_rooftop_route", String(day0_rooftop_route))
 	config.set_value("story", "day1_checkpoint_route", String(day1_checkpoint_route))
 	config.set_value("story", "day1_seedless_route", String(day1_seedless_route))
+	config.set_value("story", "day2_bombing_route", String(day2_bombing_route))
 	config.set_value("story", "day3_briefing_complete", day3_briefing_complete)
 	config.set_value("story", "day3_resolution", String(day3_resolution))
+	config.set_value("story", "last_completed_day3_route", String(last_completed_day3_route))
 	config.save(profile_path)
 
 
@@ -322,8 +368,15 @@ func load_profile() -> void:
 	day0_rooftop_route = StringName(config.get_value("story", "day0_rooftop_route", ""))
 	day1_checkpoint_route = StringName(config.get_value("story", "day1_checkpoint_route", ""))
 	day1_seedless_route = StringName(config.get_value("story", "day1_seedless_route", ""))
+	day2_bombing_route = StringName(config.get_value("story", "day2_bombing_route", ""))
 	day3_briefing_complete = bool(config.get_value("story", "day3_briefing_complete", false))
 	day3_resolution = StringName(config.get_value("story", "day3_resolution", ""))
+	last_completed_day3_route = StringName(config.get_value("story", "last_completed_day3_route", ""))
+	# Migrate completed saves written before the title-screen ending variant was added.
+	if last_completed_day3_route not in [DAY3_NOT_SHOOT, DAY3_SHOOT] \
+			and broadcast_context == &"day3_complete" \
+			and day3_resolution in [DAY3_NOT_SHOOT, DAY3_SHOOT]:
+		last_completed_day3_route = day3_resolution
 	day3_debug_route_override = &""
 
 

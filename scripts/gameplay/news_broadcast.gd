@@ -32,6 +32,7 @@ var _skip_requested := false
 var _ended := false
 var _scroll_tween: Tween
 var _is_day1_context := false
+var _is_day2_context := false
 var _active_package_key := ""
 
 @onready var presenter: AnimatedSprite2D = $Presenter
@@ -59,8 +60,11 @@ func _ready() -> void:
 	_setup_presenter_frames()
 	var session := get_node_or_null("/root/GameSession")
 	_is_day1_context = session != null and session.broadcast_context == &"day1"
+	_is_day2_context = session != null and session.broadcast_context == &"day2"
 	if _is_day1_context:
 		_configure_day1_broadcast(session)
+	elif _is_day2_context:
+		_configure_day2_broadcast(session)
 	else:
 		_configure_day0_broadcast(session)
 	_set_news_bed_loop(true)
@@ -129,6 +133,23 @@ func _configure_day1_broadcast(session: Node) -> void:
 		_append_line(MEDICAL_REACTION, -1, null, DAY1_REPORT_CHECKPOINT, checkpoint_route, LineKind.PHONE_MC)
 	_append_line(DAY1_BRIDGE, -1, null, &"", &"", LineKind.REPORTER)
 	_append_sequence(seedless_report, seedless_sequence, seedless_route)
+
+
+func _configure_day2_broadcast(session: Node) -> void:
+	_lines.clear()
+	_line_frames.clear()
+	_line_report_ids.clear()
+	_line_routes.clear()
+	_line_kinds.clear()
+	_line_sequences.clear()
+	_line_reports.clear()
+	var report := BroadcastDemoData.bombing_report()
+	var route: StringName = session.get_day2_report_route() if session != null and session.has_method(&"get_day2_report_route") else TRUTHFUL
+	if route not in [TRUTHFUL, PROPAGANDA]:
+		route = TRUTHFUL
+	var sequence := _sequence_for_route(report, route)
+	_append_line("And now, Today’s News.", -1, null, &"", &"", LineKind.REPORTER)
+	_append_sequence(report, sequence, route)
 
 
 func _append_sequence(report: BroadcastReport, sequence: BroadcastSequence, route: StringName) -> void:
@@ -278,11 +299,19 @@ func _finish_broadcast() -> void:
 		await get_tree().create_timer(1.35).timeout
 		var transition_service := get_node_or_null("/root/SceneTransition")
 		if transition_service != null and not transition_service.busy:
-			var destination := "res://scenes/Day 1/Side Scroll Section/Day 1 ending.tscn" if _is_day1_context else "res://scenes/narrative/day0_epilogue.tscn"
+			var destination := "res://scenes/narrative/day0_epilogue.tscn"
+			if _is_day1_context:
+				destination = "res://scenes/Day 1/Side Scroll Section/Day 1 ending.tscn"
+			elif _is_day2_context:
+				destination = "res://scenes/Day 2/day2_breakdown.tscn"
 			if _is_day1_context:
 				var session := get_node_or_null("/root/GameSession")
 				if session != null:
 					session.save_checkpoint("day1_ending")
+			elif _is_day2_context:
+				var session := get_node_or_null("/root/GameSession")
+				if session != null:
+					session.save_checkpoint("day2_breakdown")
 			transition_service.transition_to(destination, false)
 
 

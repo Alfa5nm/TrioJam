@@ -21,7 +21,7 @@ position = Vector2(0, -90)
 shape = SubResource("RectangleShape_trigger")
 
 [node name="DialogueAnchor" type="Node2D" parent="." unique_id=1731715911]
-position = Vector2(0, -204)
+position = Vector2(-10, -211)
 
 [node name="PlaceholderVisual" type="Sprite2D" parent="." unique_id=1220051706]
 z_index = -1

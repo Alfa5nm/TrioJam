@@ -1,0 +1,20 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+PASS: Day 1 loads with the occupation standoff
+ERROR: FAIL: standoff occupies the marked street segment
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/day1_protest_smoke_test.gd:57)
+       [1] _run (res://tests/day1_protest_smoke_test.gd:24)
+PASS: nine occupation protesters form a crowd
+PASS: every protester uses the supplied occupation sprites and faces right
+PASS: part of the crowd stands forward on the street
+PASS: part of the crowd remains on the pavement
+PASS: two soldiers guard the right side of the standoff
+PASS: both supplied soldiers face left toward the crowd
+PASS: angry mob ambience loops at the standoff
+PASS: mob sound uses the Ambience bus
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

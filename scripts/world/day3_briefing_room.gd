@@ -274,17 +274,42 @@ func _show_cg_dialogue(speaker: String, text: String, placement: StringName, hol
 	var label := cg_top_text if placement == &"top" else cg_bottom_text
 	cg_top_panel.visible = false
 	cg_bottom_panel.visible = false
-	panel.visible = true
 	label.text = text
 	label.add_theme_color_override("default_color", Color(1.0, 0.32, 0.36) if government else Color(0.86, 0.94, 1.0))
+	_layout_cg_panel(panel, label, text, placement)
+	panel.visible = true
 	label.visible_characters = -1 if dialogue.instant_mode else 0
 	cg_line_started.emit(speaker, text, placement)
 	if not dialogue.instant_mode:
-		for index in range(label.get_total_character_count() + 1):
-			label.visible_characters = index
+		for index in range(label.get_total_character_count()):
+			label.visible_characters = index + 1
+			var character := text.substr(index, 1)
+			if index % 3 == 0 and not character.strip_edges().is_empty() and character not in ".,!?-":
+				dialogue.blip.pitch_scale = randf_range(0.92, 1.03)
+				dialogue.blip.play()
 			await get_tree().create_timer(_duration(0.026)).timeout
 		label.visible_characters = -1
 	await get_tree().create_timer(_duration(hold)).timeout
+	panel.visible = false
+
+
+func _layout_cg_panel(panel: PanelContainer, label: RichTextLabel, text: String, placement: StringName) -> void:
+	var viewport_size := get_viewport().get_visible_rect().size
+	var font_size := 23.0 if placement == &"top" else 22.0
+	var maximum_width := minf(620.0, viewport_size.x - 96.0)
+	var minimum_width := minf(330.0, maximum_width)
+	var estimated_single_line_width := 52.0 + float(text.length()) * font_size * 0.52
+	var width := clampf(estimated_single_line_width, minimum_width, maximum_width)
+	var characters_per_line := maxf(20.0, (width - 48.0) / (font_size * 0.52))
+	var lines := maxi(1, ceili(float(text.length()) / characters_per_line))
+	var height := clampf(38.0 + float(lines) * 29.0, 78.0, 178.0)
+	label.custom_minimum_size = Vector2(width - 48.0, height - 32.0)
+	panel.custom_minimum_size = Vector2(width, height)
+	panel.size = Vector2(width, height)
+	if placement == &"top":
+		panel.position = Vector2(viewport_size.x - width - 38.0, 34.0)
+	else:
+		panel.position = Vector2(48.0, viewport_size.y - height - 30.0)
 
 
 func _fade_audio(stream_player: Node, target_db: float, seconds: float) -> void:

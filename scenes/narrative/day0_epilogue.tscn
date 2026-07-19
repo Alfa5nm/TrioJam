@@ -1,7 +1,6 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/narrative/day0_epilogue.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/art/Epilogue/bedroom-window-master-v1.png" id="2_bedroom"]
 [ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="3_font"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
 [ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-rustle.ogg" id="5_curtain"]
@@ -50,52 +49,33 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Plate" type="TextureRect" parent="Bedroom"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("2_bedroom")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="ReflectionLayer" type="Control" parent="Bedroom"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="ProtestGlow" type="ColorRect" parent="Bedroom/ReflectionLayer"]
-unique_name_in_owner = true
-offset_left = 195.0
-offset_top = 368.0
-offset_right = 674.0
-offset_bottom = 614.0
-mouse_filter = 2
-color = Color(0.66, 0.06, 0.025, 0.2)
-modulate = Color(1, 1, 1, 0.12)
-
-[node name="FireGlow" type="Polygon2D" parent="Bedroom/ReflectionLayer"]
-unique_name_in_owner = true
-polygon = PackedVector2Array(276, 603, 329, 465, 374, 595, 425, 430, 475, 604, 530, 492, 574, 612)
-color = Color(1, 0.26, 0.035, 0.32)
-modulate = Color(1, 1, 1, 0.13)
-
-[node name="GunFlash" type="Polygon2D" parent="Bedroom/ReflectionLayer"]
-unique_name_in_owner = true
-polygon = PackedVector2Array(367, 474, 372, 483, 381, 488, 372, 493, 367, 502, 362, 493, 353, 488, 362, 483)
-color = Color(0.93, 0.97, 1, 0.9)
-modulate = Color(1, 1, 1, 0)
-
 [node name="Curtains" type="AnimatedSprite2D" parent="Bedroom"]
 unique_name_in_owner = true
 visible = false
 position = Vector2(640, 360)
 scale = Vector2(0.666667, 0.666667)
 texture_filter = 1
+
+[node name="CurtainParticles" type="CPUParticles2D" parent="Bedroom"]
+unique_name_in_owner = true
+position = Vector2(640, 360)
+emitting = false
+amount = 38
+lifetime = 6.5
+preprocess = 3.0
+randomness = 0.45
+emission_shape = 3
+emission_rect_extents = Vector2(620, 350)
+direction = Vector2(-0.12, -1)
+spread = 28.0
+gravity = Vector2(3, -2)
+initial_velocity_min = 5.0
+initial_velocity_max = 17.0
+angular_velocity_min = -22.0
+angular_velocity_max = 22.0
+scale_amount_min = 1.2
+scale_amount_max = 3.4
+color = Color(0.96, 0.035, 0.15, 0.42)
 
 [node name="BedroomFade" type="ColorRect" parent="Bedroom"]
 unique_name_in_owner = true

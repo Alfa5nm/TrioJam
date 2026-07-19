@@ -1,0 +1,114 @@
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:31)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:31)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:39)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:39)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:44)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:44)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:54)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:54)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:57)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:57)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:60)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:60)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:78)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:78)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:81)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:81)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:85)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:85)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:88)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:88)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:99)
+       [1] _capture (res://tests/day2_visual_preview.gd:91)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: _save (res://tests/day2_visual_preview.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] _save (res://tests/day2_visual_preview.gd:100)
+       [1] _capture (res://tests/day2_visual_preview.gd:91)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

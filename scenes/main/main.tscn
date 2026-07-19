@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://bcqv7ohsbm8oi"]
 
 [ext_resource type="Texture2D" uid="uid://ds4hfctt1wpa2" path="res://assets/Scene01 Assets/Rooftop Flight Scene.png" id="2_ouso4"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="2_shell_diffuse"]
+[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell-normal.png" id="2_shell_normal"]
+[ext_resource type="Script" path="res://scripts/world/parallax_plane.gd" id="2_shell_parallax"]
 [ext_resource type="Texture2D" uid="uid://kqvsal0c6mtl" path="res://assets/art/environment/1.png" id="3_raeie"]
 [ext_resource type="Texture2D" uid="uid://bnko0rgw3yyd3" path="res://assets/art/environment/3.png" id="4_hxu8e"]
 [ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="4_player"]
@@ -30,6 +33,10 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_volumetric_beam"]
 shader = SubResource("Shader_volumetric_beam")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_background_shell"]
+diffuse_texture = ExtResource("2_shell_diffuse")
+normal_texture = ExtResource("2_shell_normal")
 
 [sub_resource type="Gradient" id="Gradient_warm_light"]
 offsets = PackedFloat32Array(0, 0.62, 1)
@@ -81,6 +88,15 @@ script = ExtResource("5_world")
 position = Vector2(638.5, 364.25)
 scale = Vector2(0.7661483, 0.77630186)
 texture = ExtResource("2_ouso4")
+
+[node name="Layer01BackgroundShell" type="Sprite2D" parent="."]
+visible = false
+z_index = -30
+position = Vector2(642, 360.75)
+scale = Vector2(0.76913875, 0.7667375)
+texture = SubResource("CanvasTexture_background_shell")
+script = ExtResource("2_shell_parallax")
+camera_path = NodePath("../CinematicCamera")
 
 [node name="MoodGrade" type="CanvasModulate" parent="." unique_id=1209956644]
 color = Color(0.73, 0.76, 0.82, 1)
@@ -159,6 +175,22 @@ light_path = NodePath("../WarmLandingLight")
 beam_paths = Array[NodePath]([NodePath("../LandingLightBeam")])
 base_energy = 0.62
 minimum_energy = 0.18
+
+[node name="railing" type="Sprite2D" parent="."]
+visible = false
+z_index = 20
+
+[node name="UpperLandingFrontRail" type="Sprite2D" parent="."]
+visible = false
+z_index = 20
+
+[node name="UpperFlightForegroundRail" type="Sprite2D" parent="."]
+visible = false
+z_index = 20
+
+[node name="UpperFlightFascia" type="Sprite2D" parent="."]
+visible = false
+z_index = 0
 
 [node name="Player" parent="." unique_id=1107255841 instance=ExtResource("4_player")]
 z_index = 10

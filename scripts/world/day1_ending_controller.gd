@@ -297,7 +297,7 @@ func _show_final_art() -> void:
 	if auto_transition_to_day2:
 		var transition_service := get_node_or_null("/root/SceneTransition")
 		if transition_service != null and not transition_service.busy:
-			transition_service.transition_to("res://scenes/narrative/day2_placeholder.tscn", false)
+			transition_service.transition_to("res://scenes/Day 2/day2_peace_rally.tscn", false)
 
 
 func _type_text(text: String, speed: float) -> void:

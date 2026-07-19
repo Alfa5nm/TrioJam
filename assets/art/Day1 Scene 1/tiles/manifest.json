@@ -1,0 +1,236 @@
+{
+  "notice_board": {
+    "file": "assets/art/Day1 Scene 1/tiles/notice_board.png",
+    "source_rect": [
+      9,
+      51,
+      334,
+      349
+    ],
+    "size": [
+      334,
+      349
+    ]
+  },
+  "authority_entrance": {
+    "file": "assets/art/Day1 Scene 1/tiles/authority_entrance.png",
+    "source_rect": [
+      393,
+      45,
+      389,
+      369
+    ],
+    "size": [
+      389,
+      369
+    ]
+  },
+  "authority_sign": {
+    "file": "assets/art/Day1 Scene 1/tiles/authority_sign.png",
+    "source_rect": [
+      832,
+      59,
+      328,
+      81
+    ],
+    "size": [
+      328,
+      81
+    ]
+  },
+  "iron_gate": {
+    "file": "assets/art/Day1 Scene 1/tiles/iron_gate.png",
+    "source_rect": [
+      824,
+      170,
+      363,
+      259
+    ],
+    "size": [
+      363,
+      259
+    ]
+  },
+  "one_voice_poster": {
+    "file": "assets/art/Day1 Scene 1/tiles/one_voice_poster.png",
+    "source_rect": [
+      1247,
+      73,
+      149,
+      220
+    ],
+    "size": [
+      149,
+      220
+    ]
+  },
+  "frequency_poster": {
+    "file": "assets/art/Day1 Scene 1/tiles/frequency_poster.png",
+    "source_rect": [
+      1220,
+      311,
+      185,
+      136
+    ],
+    "size": [
+      185,
+      136
+    ]
+  },
+  "broadcast_signpost": {
+    "file": "assets/art/Day1 Scene 1/tiles/broadcast_signpost.png",
+    "source_rect": [
+      1461,
+      59,
+      179,
+      786
+    ],
+    "size": [
+      179,
+      786
+    ]
+  },
+  "walled_fence": {
+    "file": "assets/art/Day1 Scene 1/tiles/walled_fence.png",
+    "source_rect": [
+      27,
+      444,
+      346,
+      209
+    ],
+    "size": [
+      346,
+      209
+    ]
+  },
+  "tree": {
+    "file": "assets/art/Day1 Scene 1/tiles/tree.png",
+    "source_rect": [
+      416,
+      428,
+      267,
+      257
+    ],
+    "size": [
+      267,
+      257
+    ]
+  },
+  "broadcast_antenna": {
+    "file": "assets/art/Day1 Scene 1/tiles/broadcast_antenna.png",
+    "source_rect": [
+      674,
+      449,
+      276,
+      237
+    ],
+    "size": [
+      276,
+      237
+    ]
+  },
+  "authority_building": {
+    "file": "assets/art/Day1 Scene 1/tiles/authority_building.png",
+    "source_rect": [
+      997,
+      480,
+      441,
+      240
+    ],
+    "size": [
+      441,
+      240
+    ]
+  },
+  "security_door": {
+    "file": "assets/art/Day1 Scene 1/tiles/security_door.png",
+    "source_rect": [
+      45,
+      674,
+      102,
+      213
+    ],
+    "size": [
+      102,
+      213
+    ]
+  },
+  "barred_window": {
+    "file": "assets/art/Day1 Scene 1/tiles/barred_window.png",
+    "source_rect": [
+      177,
+      698,
+      146,
+      151
+    ],
+    "size": [
+      146,
+      151
+    ]
+  },
+  "wall_lamp": {
+    "file": "assets/art/Day1 Scene 1/tiles/wall_lamp.png",
+    "source_rect": [
+      357,
+      714,
+      48,
+      102
+    ],
+    "size": [
+      48,
+      102
+    ]
+  },
+  "hanging_vines": {
+    "file": "assets/art/Day1 Scene 1/tiles/hanging_vines.png",
+    "source_rect": [
+      448,
+      694,
+      187,
+      205
+    ],
+    "size": [
+      187,
+      205
+    ]
+  },
+  "sidewalk_light": {
+    "file": "assets/art/Day1 Scene 1/tiles/sidewalk_light.png",
+    "source_rect": [
+      661,
+      730,
+      560,
+      82
+    ],
+    "size": [
+      560,
+      82
+    ]
+  },
+  "sidewalk_road": {
+    "file": "assets/art/Day1 Scene 1/tiles/sidewalk_road.png",
+    "source_rect": [
+      658,
+      820,
+      575,
+      87
+    ],
+    "size": [
+      575,
+      87
+    ]
+  },
+  "authority_emblem": {
+    "file": "assets/art/Day1 Scene 1/tiles/authority_emblem.png",
+    "source_rect": [
+      1278,
+      754,
+      141,
+      143
+    ],
+    "size": [
+      141,
+      143
+    ]
+  }
+}

@@ -44,9 +44,7 @@ var _transition_started := false
 @onready var dialogue_label: Label = %DialogueLabel
 @onready var dialogue_panel: PanelContainer = %DialoguePanel
 @onready var advance_prompt: Label = %AdvancePrompt
-@onready var protest_glow: ColorRect = %ProtestGlow
-@onready var fire_glow: Polygon2D = %FireGlow
-@onready var gun_flash: Polygon2D = %GunFlash
+@onready var curtain_particles: CPUParticles2D = %CurtainParticles
 @onready var curtain_rustle: AudioStreamPlayer = %CurtainRustle
 @onready var curtain_impact: AudioStreamPlayer = %CurtainImpact
 @onready var ambience: AudioStreamPlayer = %Ambience
@@ -124,6 +122,11 @@ func _present_civilian_line() -> void:
 func _enter_bedroom() -> void:
 	_bedroom_index = 0
 	bedroom.visible = true
+	curtains.visible = true
+	curtains.stop()
+	curtains.frame = 0
+	curtain_particles.emitting = true
+	curtain_particles.restart()
 	speaker_label.visible = false
 	bedroom_fade.modulate.a = 1.0
 	dialogue_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
@@ -139,7 +142,8 @@ func _enter_bedroom() -> void:
 func _present_bedroom_line() -> void:
 	_start_typewriter(BEDROOM_LINES[_bedroom_index])
 	if _bedroom_index == 4:
-		_pulse_unrest_reflection()
+		curtain_particles.amount = 56
+		curtain_particles.restart()
 
 
 func _start_typewriter(text: String) -> void:
@@ -171,17 +175,6 @@ func _begin_civilian_hold() -> void:
 		return
 	_hold_active = false
 	advance_prompt.visible = true
-
-
-func _pulse_unrest_reflection() -> void:
-	protest_glow.modulate.a = 0.18
-	fire_glow.modulate.a = 0.16
-	gun_flash.modulate.a = 0.52
-	var glow := create_tween().set_parallel(true)
-	glow.tween_property(protest_glow, "modulate:a", 0.12, 2.15).set_trans(Tween.TRANS_SINE)
-	glow.tween_property(fire_glow, "modulate:a", 0.13, 2.15).set_trans(Tween.TRANS_SINE)
-	var flash := create_tween()
-	flash.tween_property(gun_flash, "modulate:a", 0.0, 0.36).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 
 
 func _begin_curtain_close() -> void:

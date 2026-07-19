@@ -31,14 +31,16 @@ func _check_route_matrix() -> void:
 	for day0_route in [&"truthful", &"propaganda"]:
 		for report_one in [&"truthful", &"propaganda"]:
 			for report_two in [&"truthful", &"propaganda"]:
-				session.day0_rooftop_route = day0_route
-				session.day1_checkpoint_route = report_one
-				session.day1_seedless_route = report_two
-				var truth_count := [day0_route, report_one, report_two].count(&"truthful")
-				var expected: StringName = &"not_shoot" if truth_count >= 2 else &"shoot"
-				var key := "%s/%s/%s" % [day0_route, report_one, report_two]
-				_check(session.resolve_day3_route() == expected, "%s resolves by two-of-three majority to %s" % [key, expected])
-	_check(session.has_complete_day3_report_history(), "three accepted report results form complete history")
+				for day2_route in [&"truthful", &"propaganda"]:
+					session.day0_rooftop_route = day0_route
+					session.day1_checkpoint_route = report_one
+					session.day1_seedless_route = report_two
+					session.day2_bombing_route = day2_route
+					var truth_count := [day0_route, report_one, report_two, day2_route].count(&"truthful")
+					var expected: StringName = &"not_shoot" if truth_count >= 3 else &"shoot"
+					var key := "%s/%s/%s/%s" % [day0_route, report_one, report_two, day2_route]
+					_check(session.resolve_day3_route() == expected, "%s resolves by strict truthful majority to %s" % [key, expected])
+	_check(session.has_complete_day3_report_history(), "four accepted report results form complete history")
 	_check(session.CHECKPOINT_SCENES.has("day3_credits"), "credits have a resumable Day 3 checkpoint")
 
 
@@ -46,6 +48,7 @@ func _check_debug_fallback() -> void:
 	session.day0_rooftop_route = &""
 	session.day1_checkpoint_route = &""
 	session.day1_seedless_route = &""
+	session.day2_bombing_route = &""
 	session.day3_debug_route_override = &""
 	_check(session.resolve_day3_route() == &"", "incomplete direct launch requests the debug selector")
 	session.set_day3_debug_route_override(&"shoot")
@@ -85,6 +88,8 @@ func _check_scene_contracts() -> void:
 	_check(finale.get_node_or_null("TVBroadcast") is Day3TVBroadcast, "foreign-apartment report is composited inside a TV")
 	_check(finale.get_node_or_null("TVBroadcast/StoryImage") is TextureRect, "television broadcast supports dialogue-specific B-roll")
 	_check(finale.get_node_or_null("CenterCard/Title") is Label, "shoot-route title cards are centered independently of bottom captions")
+	_check(finale.get_node_or_null("Credits/TitleBackdrop") is TextureRect, "ending credits reuse the supplied title-screen artwork")
+	_check(finale.get_node_or_null("Credits/CRT") is ColorRect and finale.get_node("Credits/CRT").material is ShaderMaterial, "ending credits retain the CRT presentation")
 	_check("Permission granted by safeinyrskin" in Day3Finale.CREDITS, "permission credit is present")
 	finale.queue_free()
 	await process_frame
@@ -105,10 +110,11 @@ func _check_scene_contracts() -> void:
 	_check(scope.get_node_or_null("ScopeUI/RedFlash") is ColorRect, "successful scope shot has a dedicated red flash")
 	_check(scope.get_node_or_null("ScopeUI/ShotParticles") is CPUParticles2D and (scope.get_node("ScopeUI/ShotParticles") as CPUParticles2D).one_shot, "successful scope shot uses a bounded one-shot particle burst")
 	scope.free()
-	var day2 := load("res://scenes/narrative/day2_placeholder.tscn") as PackedScene
-	var card := day2.instantiate()
-	_check(card.get_node_or_null("ContinueToDay3") != null, "temporary Day 2 card exposes CONTINUE TO DAY 3")
-	card.free()
+	var day2 := load("res://scenes/Day 2/day2_peace_rally.tscn") as PackedScene
+	var rally := day2.instantiate()
+	_check(rally.get_node_or_null("Player") is Player, "Day 2 now starts as a playable side-scrolling rally")
+	_check(rally.get_node_or_null("World/AftermathBackground") is Sprite2D, "Day 2 carries a dedicated explosion-aftermath layer")
+	rally.free()
 
 
 func _check_licensed_music() -> void:
@@ -166,6 +172,8 @@ func _check_both_timelines_complete() -> void:
 			_check(observed_lines == expected_lines, "SHOOT aftermath preserves every submitted line in exact order")
 			_check(observed_images == ["news_podium", "news_unrest", "news_military", "passports", "tv_broadcast", "television"], "SHOOT aftermath uses contextual news B-roll, then passports, TV, and couch")
 			_check(observed_cards == ["And Now, Today’s News.", "Running away from Consequences Route"], "SHOOT ending uses the two centered authored title cards")
+		else:
+			_check(observed_cards == ["Oroboros Route"], "NOT SHOOT ending is named Oroboros Route")
 		finale.queue_free()
 		await process_frame
 

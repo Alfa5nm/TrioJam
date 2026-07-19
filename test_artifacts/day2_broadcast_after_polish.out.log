@@ -1,0 +1,53 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+DAY2_BROADCAST_TEST_START
+PASS: bombing report has its own report_id
+PASS: bombing report allows up to 2 characters per frame
+PASS: roster has exactly four characters
+PASS: roster includes suspicious_individual
+PASS: roster includes civilians
+PASS: roster includes opposition
+PASS: roster includes soldiers
+PASS: actions include planting_bomb
+PASS: action planting_bomb has placeholder art
+PASS: actions include peace_rally_victims
+PASS: action peace_rally_victims has placeholder art
+PASS: actions include helping
+PASS: action helping has placeholder art
+PASS: Planting Bomb Scene caps at 1 character
+PASS: Peace Rally Victims caps at 1 character
+PASS: Who is Helping Who? caps at 2 characters
+PASS: truthful sequence is order-sensitive
+PASS: truthful cause is planting the bomb
+PASS: truthful cause is carried by the suspicious individual alone
+PASS: truthful conflict is the peace rally victims
+PASS: truthful conflict is carried by civilians alone
+PASS: truthful outcome is the helping scene
+PASS: truthful helping orders opposition (helper) then civilians (helped)
+PASS: truthful sequence has a reporter recap script
+PASS: truthful reaction ends on the resolved line
+PASS: propaganda sequence is order-sensitive
+PASS: propaganda cause reuses the same shared bomb-planting photo
+PASS: propaganda cause is carried by opposition alone
+PASS: propaganda conflict reuses the same shared victims photo
+PASS: propaganda conflict is carried by soldiers alone
+PASS: propaganda outcome is the same helping action
+PASS: propaganda helping orders soldiers (helper) then civilians (helped)
+PASS: propaganda sequence has a reporter recap script
+PASS: propaganda reaction opens with the silent beat
+PASS: mismatch line matches the authored line
+PASS: reversing the helping order no longer matches the truthful outcome
+PASS: reversing the helping order doesn't match propaganda either
+PASS: intro finishes into the editing phase
+PASS: broadcast enabled at 3/3
+PASS: broadcast_resolved fired for truthful sequence
+PASS: truthful sequence matched
+PASS: solving the only report starts its recap directly
+PASS: single-report recap still opens with the generic Today's News line
+PASS: broadcast_resolved fired for propaganda sequence
+PASS: propaganda sequence matched
+PASS: solving propaganda also starts the recap
+PASS: broadcast_resolved fired for unrecognized combination
+PASS: unrecognized combination does not match
+PASS: a mismatch returns to editing instead of airing
+DAY2_BROADCAST_TEST_PASS

@@ -127,6 +127,8 @@ func _play_resolution_sequence() -> void:
 	ambience_fade.tween_property(tension, "volume_db", -40.0, _duration(0.24))
 	ambience_fade.tween_property(wind, "volume_db", -28.0, _duration(0.24))
 	pistol_shot.play()
+	shot_particles.emitting = false
+	shot_particles.position = _aim_display
 	shot_particles.restart()
 	shot_particles.emitting = true
 	var session := get_node_or_null("/root/GameSession")
@@ -137,10 +139,10 @@ func _play_resolution_sequence() -> void:
 	Engine.time_scale = 0.08
 	await get_tree().create_timer(0.045, true, false, true).timeout
 	Engine.time_scale = 1.0
-	var transition := create_tween()
-	transition.tween_interval(_duration(0.12))
-	transition.tween_property(fade, "modulate:a", 1.0, _duration(0.38))
-	await transition.finished
+	# Let the bounded blood burst read over the red impact frame, then cut
+	# directly to black. Never reveal the podium again after the shot.
+	await get_tree().create_timer(_duration(0.2)).timeout
+	fade.modulate.a = 1.0
 	resolution_sequence_finished.emit()
 	if auto_advance_to_finale:
 		_advance_to_finale()

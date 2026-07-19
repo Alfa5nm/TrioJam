@@ -1,0 +1,126 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/day2_cinematic_overlay.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="2_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/camera-click.wav" id="3_click"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
+
+[sub_resource type="StyleBoxFlat" id="Style_caption"]
+bg_color = Color(0.025, 0.072, 0.18, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.76, 1, 0.95)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0, 0, 0, 0.72)
+shadow_size = 7
+
+[node name="Day2CinematicOverlay" type="CanvasLayer"]
+layer = 40
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Image" type="TextureRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CameraChrome" type="Control" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopRule" type="ColorRect" parent="Root/CameraChrome"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 34.0
+grow_horizontal = 2
+color = Color(0.01, 0.02, 0.04, 0.82)
+
+[node name="Rec" type="Label" parent="Root/CameraChrome"]
+offset_left = 28.0
+offset_top = 7.0
+offset_right = 210.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(1, 0.22, 0.22, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "● REC  DAY 2"
+
+[node name="BottomRule" type="ColorRect" parent="Root/CameraChrome"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.01, 0.02, 0.04, 0.82)
+
+[node name="Caption" type="PanelContainer" parent="Root"]
+offset_left = 180.0
+offset_top = 538.0
+offset_right = 1100.0
+offset_bottom = 682.0
+theme_override_styles/panel = SubResource("Style_caption")
+
+[node name="Margin" type="MarginContainer" parent="Root/Caption"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="Text" type="Label" parent="Root/Caption/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 26
+text = "Dialogue"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Flash" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="CameraClick" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_click")
+bus = &"UI"
+
+[node name="Blip" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_blip")
+volume_db = -4.0
+bus = &"UI"

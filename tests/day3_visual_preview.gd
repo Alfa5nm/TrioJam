@@ -12,8 +12,10 @@ func _render_previews() -> void:
 	await _capture_stairwell()
 	await _capture_rooftop_dialogue()
 	await _capture_briefing()
+	await _capture_briefing_cg_caption()
 	await _capture_scope()
 	await _capture_tv()
+	await _capture_finale_caption()
 	print("DAY3_VISUAL_PREVIEW_PASS")
 	quit()
 
@@ -72,6 +74,26 @@ func _capture_scope() -> void:
 	await process_frame
 
 
+func _capture_briefing_cg_caption() -> void:
+	var room := (load("res://scenes/Day 3/day3_briefing_room.tscn") as PackedScene).instantiate() as Day3BriefingRoom
+	room.timing_scale = 0.01
+	room.get_node("CinematicDialogue").instant_mode = true
+	root.add_child(room)
+	await process_frame
+	room.cg_overlay.visible = true
+	room.cg_image.texture = load("res://assets/art/Day3/mc-stressing.png")
+	room.cg_image.modulate.a = 1.0
+	room.stress_grade.modulate.a = 0.22
+	room.cg_top_text.text = "You don’t have time. Go now, or we will decide for you."
+	room._layout_cg_panel(room.cg_top_panel, room.cg_top_text, room.cg_top_text.text, &"top")
+	room.cg_top_panel.visible = true
+	room.cg_bottom_panel.visible = false
+	await process_frame
+	_save("briefing-cg-dynamic-caption.png")
+	room.queue_free()
+	await process_frame
+
+
 func _capture_tv() -> void:
 	var finale := (load("res://scenes/Day 3/day3_finale.tscn") as PackedScene).instantiate() as Day3Finale
 	finale.play_on_ready = false
@@ -86,6 +108,22 @@ func _capture_tv() -> void:
 	await process_frame
 	await process_frame
 	_save("apartment-tv-broadcast.png")
+	finale.queue_free()
+	await process_frame
+
+
+func _capture_finale_caption() -> void:
+	var finale := (load("res://scenes/Day 3/day3_finale.tscn") as PackedScene).instantiate() as Day3Finale
+	finale.play_on_ready = false
+	finale.instant_mode = true
+	root.add_child(finale)
+	await process_frame
+	finale._black_screen()
+	finale.caption.text = "[color=#b2dcff][b]PEACE LEADER — DISTANT[/b][/color]\nToday, we put them down"
+	finale._layout_caption_panel("PEACE LEADER — DISTANT", "Today, we put them down")
+	finale.caption_panel.visible = true
+	await process_frame
+	_save("finale-dynamic-caption.png")
 	finale.queue_free()
 	await process_frame
 

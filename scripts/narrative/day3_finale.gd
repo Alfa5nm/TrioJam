@@ -84,6 +84,7 @@ var _resume_at_credits := false
 @onready var television_static: AudioStreamPlayer = $Audio/TelevisionStatic
 @onready var death_stinger: AudioStreamPlayer = $Audio/DeathStinger
 @onready var shoot_stinger: AudioStreamPlayer = $Audio/ShootStinger
+@onready var dialogue_blip: AudioStreamPlayer = $Audio/DialogueBlip
 
 
 func _ready() -> void:
@@ -177,6 +178,10 @@ func _play_not_shoot() -> void:
 	await _line("MC — NARRATION", "And the city began speaking for itself.", Color(0.7, 0.86, 1.0), 1.7)
 
 
+	_black_screen()
+	await _centered_card("Oroboros Route", 1.8)
+
+
 func _play_shoot() -> void:
 	_start_route_music(SHOOT)
 	shoot_stinger.play()
@@ -219,10 +224,11 @@ func _line(speaker: String, text: String, color: Color, hold_multiplier := 1.0) 
 	if television_line:
 		tv_broadcast.set_talking(true)
 		tv_broadcast.pulse_interference()
-	caption_panel.visible = true
 	caption.clear()
 	var heading := "" if speaker.is_empty() else "[color=#%s][b]%s[/b][/color]\n" % [color.to_html(false), speaker]
 	caption.text = heading + text
+	_layout_caption_panel(speaker, text)
+	caption_panel.visible = true
 	caption.visible_characters = -1 if instant_mode else 0
 	_skip_typewriter = false
 	_skip_hold = false
@@ -232,11 +238,33 @@ func _line(speaker: String, text: String, color: Color, hold_multiplier := 1.0) 
 			if _skip_typewriter:
 				break
 			caption.visible_characters = index
+			if index > 0 and index % 3 == 0:
+				dialogue_blip.pitch_scale = randf_range(0.94, 1.04)
+				dialogue_blip.play()
 			await get_tree().create_timer(0.026 * timing_scale).timeout
 		caption.visible_characters = -1
 	await _hold(0.9 * hold_multiplier)
 	if television_line:
 		tv_broadcast.set_talking(false)
+	caption_panel.visible = false
+
+
+func _layout_caption_panel(speaker: String, text: String) -> void:
+	var viewport_size := get_viewport().get_visible_rect().size
+	var font_size := 22.0
+	var maximum_width := minf(920.0, viewport_size.x - 96.0)
+	var minimum_width := minf(420.0, maximum_width)
+	var estimated_single_line_width := 56.0 + float(text.length()) * font_size * 0.52
+	var width := clampf(estimated_single_line_width, minimum_width, maximum_width)
+	var characters_per_line := maxf(24.0, (width - 56.0) / (font_size * 0.52))
+	var body_lines := maxi(1, ceili(float(text.length()) / characters_per_line))
+	var heading_height := 25.0 if not speaker.is_empty() else 0.0
+	var height := clampf(38.0 + heading_height + float(body_lines) * 29.0, 92.0, 190.0)
+	caption_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	caption.custom_minimum_size = Vector2(width - 56.0, height - 34.0)
+	caption_panel.custom_minimum_size = Vector2(width, height)
+	caption_panel.size = Vector2(width, height)
+	caption_panel.position = Vector2((viewport_size.x - width) * 0.5, viewport_size.y - height - 28.0)
 
 
 func _show_image(key: String) -> void:
@@ -358,7 +386,8 @@ func _play_credits() -> void:
 	credits.visible = true
 	var credits_gain := -1.5 if route == NOT_SHOOT else -7.0
 	create_tween().tween_property(route_music, "volume_db", credits_gain, 2.2)
-	credits_text.text = "\n".join(CREDITS)
+	var route_heading := "Oroboros Route" if route == NOT_SHOOT else "Running away from Consequences Route"
+	credits_text.text = route_heading + "\n\nAND NOW, TODAY'S NEWS\n\n" + "\n".join(CREDITS)
 	credits_text.position.y = 760.0
 	credits_hint.modulate.a = 0.0
 	_credits_active = true

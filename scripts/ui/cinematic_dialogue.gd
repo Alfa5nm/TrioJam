@@ -16,11 +16,18 @@ signal line_finished(text: String)
 @export_range(24.0, 42.0, 1.0) var standard_line_height := 34.0
 @export var bark_speaker_offset := Vector2(0.0, -12.0)
 @export_range(0.0, 1.0, 0.01) var bark_parallax_strength := 0.94
-@export_range(320.0, 680.0, 10.0) var bark_width := 460.0
+@export_range(260.0, 680.0, 10.0) var bark_width := 430.0
 @export_range(18, 34, 1) var bark_font_size := 27
 @export_range(18, 34, 1) var bark_long_font_size := 25
 @export_range(24.0, 64.0, 1.0) var bark_characters_per_line := 32.0
 @export_range(22.0, 42.0, 1.0) var bark_line_height := 31.0
+
+const PANEL_HORIZONTAL_PADDING := 48.0
+const PANEL_VERTICAL_PADDING := 20.0
+const STANDARD_MINIMUM_WIDTH := 230.0
+const BARK_MINIMUM_WIDTH := 210.0
+const STANDARD_MINIMUM_HEIGHT := 62.0
+const BARK_MINIMUM_HEIGHT := 58.0
 
 var is_presenting := false
 var _skip_requested := false
@@ -40,6 +47,7 @@ var _bubble_horizontal_bias := 0.0
 var _default_panel_style: StyleBoxFlat
 var _default_line_color := Color.WHITE
 var _default_tail_color := Color(0.0431373, 0.113725, 0.301961, 0.96)
+var _pending_panel_size := Vector2.ZERO
 
 const SOLDIER_TEXT_COLOR := Color(1.0, 0.31, 0.28, 1.0)
 const SOLDIER_BORDER_COLOR := Color(0.95, 0.18, 0.2, 0.98)
@@ -239,7 +247,12 @@ func _place_bubble() -> void:
 	# Keep the pointer attached to the speaker when the bubble is clamped away
 	# from its ideal centered position near either edge of the screen.
 	var local_pointer_x := clampf(anchor.x - bubble.position.x, 28.0, bubble.size.x - 28.0)
-	tail.position = Vector2(local_pointer_x - bubble.size.x * 0.5, panel.size.y - 72.0)
+	tail.position = Vector2.ZERO
+	tail.polygon = PackedVector2Array([
+		Vector2(local_pointer_x - 8.0, panel.size.y - 1.0),
+		Vector2(local_pointer_x + 8.0, panel.size.y - 1.0),
+		Vector2(local_pointer_x, panel.size.y + 13.0),
+	])
 
 
 func _type_line(text: String, presentation_id: int) -> void:
@@ -289,17 +302,13 @@ func _configure_standard_line(text := "") -> void:
 	speaker_label.visible = false
 	speaker_label.text = ""
 	blip.stream = _default_blip_stream
-	var estimated_lines := maxi(1, ceili(float(text.length()) / standard_characters_per_line))
-	var panel_height := maxf(72.0, 20.0 + float(estimated_lines) * standard_line_height)
-	bubble.size = Vector2(standard_width, panel_height + 14.0)
-	panel.custom_minimum_size = Vector2(standard_width, panel_height)
-	panel.size = Vector2(standard_width, panel_height)
-	margin.add_theme_constant_override(&"separation", 0)
-	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.custom_minimum_size = Vector2.ZERO
-	line.custom_minimum_size = Vector2(0.0, panel_height - 20.0)
-	line.add_theme_font_size_override(&"font_size", standard_font_size)
-	continue_cue.position = Vector2(standard_width - 29.0, panel_height - 26.0)
+	_apply_measured_layout(
+		text,
+		standard_font_size,
+		minf(STANDARD_MINIMUM_WIDTH, standard_width),
+		standard_width,
+		STANDARD_MINIMUM_HEIGHT
+	)
 
 
 func _configure_ambient_bark(speaker_name: String, text: String, blip_stream: AudioStream) -> void:
@@ -309,15 +318,74 @@ func _configure_ambient_bark(speaker_name: String, text: String, blip_stream: Au
 	speaker_label.visible = false
 	blip.stream = blip_stream if blip_stream != null else _default_blip_stream
 	var long_line := text.length() > 58
-	var estimated_lines := ceili(float(text.length()) / bark_characters_per_line)
-	var panel_height := maxf(82.0, 20.0 + float(estimated_lines) * bark_line_height)
-	bubble.size = Vector2(bark_width, panel_height + 14.0)
-	panel.custom_minimum_size = Vector2(bark_width, panel_height)
-	panel.size = Vector2(bark_width, panel_height)
+	var active_font_size := bark_long_font_size if long_line else bark_font_size
+	_apply_measured_layout(
+		text,
+		active_font_size,
+		minf(BARK_MINIMUM_WIDTH, bark_width),
+		bark_width,
+		BARK_MINIMUM_HEIGHT
+	)
+
+
+func _apply_measured_layout(
+		text: String,
+		font_size: int,
+		minimum_width: float,
+		maximum_width: float,
+		minimum_height: float
+	) -> void:
+	# Dialogue uses a proportional serif font, so character-count estimates make
+	# short lines inherit overly tall panels and long words wrap unpredictably.
+	# Measure the exact font at the exact wrap width used by the Label instead.
+	var font := line.get_theme_font(&"font")
+	var clean_text := text.replace("â€¦", "...")
+	var unwrapped_width := font.get_string_size(clean_text.replace("\n", " "), HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var active_width := clampf(ceilf(unwrapped_width + PANEL_HORIZONTAL_PADDING), minimum_width, maximum_width)
+	var content_width := maxf(1.0, active_width - PANEL_HORIZONTAL_PADDING)
+	var measured_text := font.get_multiline_string_size(
+		clean_text,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		content_width,
+		font_size,
+		-1,
+		TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	)
+	var font_line_height := maxf(font.get_height(font_size), 1.0)
+	var measured_body_height := maxf(ceilf(measured_text.y), font_line_height)
+	var panel_height := maxf(minimum_height, measured_body_height + PANEL_VERTICAL_PADDING)
+
 	margin.add_theme_constant_override(&"separation", 0)
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	line.custom_minimum_size = Vector2(0.0, panel_height - 20.0)
-	line.add_theme_font_size_override(&"font_size", bark_long_font_size if long_line else bark_font_size)
+	line.add_theme_font_size_override(&"font_size", font_size)
+	# Supplying both dimensions prevents Container minimum-size propagation from
+	# re-wrapping the Label at its old scene width on the first visible frame.
+	line.custom_minimum_size = Vector2(content_width, measured_body_height)
+	line.size = Vector2(content_width, measured_body_height)
+	line.update_minimum_size()
+	margin.update_minimum_size()
+	panel.custom_minimum_size = Vector2(active_width, panel_height)
+	panel.update_minimum_size()
+	panel.size = Vector2(active_width, panel_height)
+	panel.queue_sort()
+	bubble.size = Vector2(active_width, panel_height + 14.0)
+	continue_cue.position = Vector2(active_width - 29.0, panel_height - 26.0)
+	# A Container keeps the previous child's minimum until its queued sort runs.
+	# Commit once more on the deferred pass so a short follow-up line can shrink
+	# after a tall line instead of inheriting its empty lower half.
+	_pending_panel_size = Vector2(active_width, panel_height)
+	_commit_measured_panel_size.call_deferred()
+
+
+func _commit_measured_panel_size() -> void:
+	if _pending_panel_size == Vector2.ZERO or not is_instance_valid(panel):
+		return
+	var measured_size := _pending_panel_size
+	panel.size = measured_size
+	bubble.size = Vector2(measured_size.x, measured_size.y + 14.0)
+	continue_cue.position = Vector2(measured_size.x - 29.0, measured_size.y - 26.0)
+	if is_presenting:
+		_place_bubble()
 
 
 func _apply_speaker_style(speaker_name: String) -> void:

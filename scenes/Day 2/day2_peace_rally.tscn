@@ -1,0 +1,783 @@
+[gd_scene format=3 uid="uid://cgly0a0rx0fvf"]
+
+[ext_resource type="Script" uid="uid://bx5my2aus1i12" path="res://scripts/world/day2_peace_rally_controller.gd" id="1_controller"]
+[ext_resource type="Texture2D" uid="uid://c3d7ovrar6grr" path="res://assets/art/Day 2 Side Scroll/Day 2 side scroller.png" id="2_normal"]
+[ext_resource type="Texture2D" uid="uid://dhym1p6l1pw02" path="res://assets/art/Day 2 Side Scroll/Explosion aftermath total scene.png" id="3_aftermath"]
+[ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="4_player"]
+[ext_resource type="Script" uid="uid://c25tbf4uysgff" path="res://scripts/world/day1_horizontal_camera.gd" id="5_camera"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="6_dialogue"]
+[ext_resource type="PackedScene" path="res://scenes/ui/day2_cinematic_overlay.tscn" id="7_overlay"]
+[ext_resource type="Texture2D" uid="uid://hvd68fmmu8j4" path="res://assets/art/Day1 Scene 1/npcs/r1c2-occupation-protester-a.png" id="8_protester_a"]
+[ext_resource type="Texture2D" uid="uid://booxnlkqyyv0o" path="res://assets/art/Day1 Scene 1/npcs/r1c3-occupation-protester-b.png" id="9_protester_b"]
+[ext_resource type="Texture2D" uid="uid://bla8o7524d4no" path="res://assets/art/Day1 Scene 1/npcs/r1c4-occupation-protester-c.png" id="10_protester_c"]
+[ext_resource type="Texture2D" uid="uid://bnch6ayehjxdr" path="res://assets/art/Day1 Scene 1/npcs/r2c3-gossiping-gal-a.png" id="11_civilian_a"]
+[ext_resource type="Texture2D" uid="uid://ch6b7mxwpxipt" path="res://assets/art/Day1 Scene 1/npcs/r2c4-gossiping-gal-b.png" id="12_civilian_b"]
+[ext_resource type="Texture2D" uid="uid://j4ume5eu775x" path="res://assets/art/Day1 Scene 1/npcs/r2c1-seedless-representative-guard-a.png" id="13_soldier"]
+[ext_resource type="Texture2D" uid="uid://jpm133im5l2a" path="res://assets/art/Day 2 Side Scroll/npcs/peace-leader.png" id="14_leader"]
+[ext_resource type="Texture2D" uid="uid://cpd18vrm552pv" path="res://assets/art/Day1 Scene 1/encounters/source/checkpoint-soldier-supplied.png" id="15_d3th5"]
+[ext_resource type="Script" uid="uid://svsun0obexan" path="res://scripts/world/day2_dispersal_actor.gd" id="16_dispersal"]
+[ext_resource type="Texture2D" uid="uid://bhhuehv56y1gg" path="res://assets/art/Day1 Scene 1/particles/leaf-particle.svg" id="18_leaf"]
+[ext_resource type="Texture2D" uid="uid://dbahr6xw8obhx" path="res://assets/art/Day1 Scene 1/particles/dust-mote.svg" id="19_dust"]
+[ext_resource type="AudioStream" uid="uid://d2aath1mvhbe5" path="res://assets/audio/ambience/day1/angry-crowd-70647.mp3" id="20_crowd"]
+[ext_resource type="AudioStream" uid="uid://cuqs7i3p2p6mw" path="res://assets/audio/day1/cutscene/crowd-panic.wav" id="21_panic"]
+[ext_resource type="AudioStream" uid="uid://ml2uc4gqgshh" path="res://assets/audio/day2/bomb-beep.wav" id="22_beep"]
+[ext_resource type="AudioStream" uid="uid://conalkiiwkfp5" path="res://assets/audio/day2/explosion-layered.wav" id="23_explosion"]
+[ext_resource type="AudioStream" uid="uid://dx6y7bb0yf037" path="res://assets/audio/day2/tinnitus.wav" id="24_tinnitus"]
+[ext_resource type="AudioStream" uid="uid://0dmo0gu5a0hl" path="res://assets/audio/day2/aftermath-rumble.wav" id="25_rumble"]
+[ext_resource type="AudioStream" uid="uid://vgmbcsakudpx" path="res://assets/audio/foley/day1-pavement/pavement-step-a.ogg" id="26_step_a"]
+[ext_resource type="AudioStream" uid="uid://biyre7yrx5n2j" path="res://assets/audio/foley/day1-pavement/pavement-step-b.ogg" id="27_step_b"]
+[ext_resource type="AudioStream" uid="uid://b72qovuu17yt6" path="res://assets/audio/foley/day1-pavement/pavement-step-c.ogg" id="28_step_c"]
+[ext_resource type="Texture2D" uid="uid://dhrctlpqklnxn" path="res://assets/art/Day 2 Side Scroll/npcs/dispersal/r1c3-occupation-protester-b/strip.png" id="29_run_a"]
+[ext_resource type="Texture2D" uid="uid://ddd65uwavttdj" path="res://assets/art/Day 2 Side Scroll/npcs/dispersal/r2c3-gossiping-gal-a/strip.png" id="30_run_b"]
+[ext_resource type="Texture2D" uid="uid://cnbrsn8lf2q00" path="res://assets/art/Day 2 Side Scroll/npcs/dispersal/r2c4-gossiping-gal-b/strip.png" id="31_run_c"]
+[ext_resource type="Texture2D" uid="uid://dtxtwiik651r2" path="res://assets/art/Day 2 Side Scroll/npcs/dispersal/r4c1-anti-seedless-protester-a/strip.png" id="32_run_d"]
+[ext_resource type="Texture2D" uid="uid://by3cjocndsyld" path="res://assets/art/Day 2 Side Scroll/npcs/dispersal/r4c4-anti-seedless-protester-d/strip.png" id="33_run_e"]
+[ext_resource type="Texture2D" uid="uid://capij1l2k0j7n" path="res://assets/art/Day 2 Side Scroll/npcs/aftermath/leader/injured-leader-strip.png" id="34_injured_leader"]
+[ext_resource type="Texture2D" uid="uid://bigh23t1u042x" path="res://assets/art/Day 2 Side Scroll/npcs/aftermath/bomb-soldier/bomb-soldier-strip.png" id="35_bomb_soldier"]
+[ext_resource type="Texture2D" uid="uid://bii5xwafgoe3y" path="res://assets/art/Day 2 Side Scroll/npcs/aftermath/casualties/deceased-a.png" id="36_dead_a"]
+[ext_resource type="Texture2D" uid="uid://6j171hmxhgvq" path="res://assets/art/Day 2 Side Scroll/npcs/aftermath/casualties/deceased-b.png" id="37_dead_b"]
+[ext_resource type="Texture2D" uid="uid://oa2tp66kpaih" path="res://assets/art/Day 2 Side Scroll/npcs/aftermath/casualties/injured-a-strip.png" id="38_injured_a"]
+[ext_resource type="Texture2D" uid="uid://di50l55rr0ea7" path="res://assets/art/Day 2 Side Scroll/npcs/aftermath/casualties/injured-b-strip.png" id="39_injured_b"]
+[ext_resource type="AudioStream" uid="uid://cbnyk5t4bn6p1" path="res://assets/audio/day3/sfx/paper-handoff.wav" id="40_cloth"]
+[ext_resource type="AudioStream" uid="uid://btuf350yae2ar" path="res://assets/audio/day3/sfx/table-contact.wav" id="41_package"]
+[ext_resource type="AudioStream" uid="uid://bpmbxjemj81jp" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="42_latch"]
+[ext_resource type="AudioStream" uid="uid://c6n2mffvffyn" path="res://assets/audio/day3/sfx/radio-click.wav" id="43_arm"]
+[ext_resource type="AudioStream" uid="uid://bn7fb0gt6hwad" path="res://assets/audio/day3/ambience/emergency-siren.wav" id="44_siren"]
+[ext_resource type="AudioStream" uid="uid://c2hbvip01oww" path="res://assets/audio/day1/cutscene/tense-ambience.wav" id="45_music"]
+[ext_resource type="Texture2D" uid="uid://bj8r45oe6p6um" path="res://assets/art/Day1 Scene 1/npcs/r4c1-anti-seedless-protester-a.png" id="46_anti_seedless_a"]
+
+[sub_resource type="RectangleShape2D" id="Shape_ground"]
+size = Vector2(3800, 120)
+
+[sub_resource type="RectangleShape2D" id="Shape_border"]
+size = Vector2(90, 410)
+
+[sub_resource type="AtlasTexture" id="Atlas_bomb_soldier_1"]
+atlas = ExtResource("35_bomb_soldier")
+region = Rect2(0, 0, 384, 384)
+
+[sub_resource type="AtlasTexture" id="Atlas_bomb_soldier_2"]
+atlas = ExtResource("35_bomb_soldier")
+region = Rect2(384, 0, 384, 384)
+
+[sub_resource type="SpriteFrames" id="Frames_bomb_soldier"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_bomb_soldier_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_bomb_soldier_2")
+}],
+"loop": false,
+"name": &"plant",
+"speed": 1.55
+}]
+
+[sub_resource type="AtlasTexture" id="Atlas_injured_leader_1"]
+atlas = ExtResource("34_injured_leader")
+region = Rect2(0, 0, 384, 384)
+
+[sub_resource type="AtlasTexture" id="Atlas_injured_leader_2"]
+atlas = ExtResource("34_injured_leader")
+region = Rect2(384, 0, 384, 384)
+
+[sub_resource type="SpriteFrames" id="Frames_injured_leader"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_injured_leader_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_injured_leader_2")
+}],
+"loop": true,
+"name": &"injured",
+"speed": 1.25
+}]
+
+[sub_resource type="AtlasTexture" id="Atlas_injured_a_1"]
+atlas = ExtResource("38_injured_a")
+region = Rect2(0, 0, 384, 384)
+
+[sub_resource type="AtlasTexture" id="Atlas_injured_a_2"]
+atlas = ExtResource("38_injured_a")
+region = Rect2(384, 0, 384, 384)
+
+[sub_resource type="SpriteFrames" id="Frames_injured_a"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_injured_a_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_injured_a_2")
+}],
+"loop": true,
+"name": &"injured",
+"speed": 0.8
+}]
+
+[sub_resource type="AtlasTexture" id="Atlas_injured_b_1"]
+atlas = ExtResource("39_injured_b")
+region = Rect2(0, 0, 384, 384)
+
+[sub_resource type="AtlasTexture" id="Atlas_injured_b_2"]
+atlas = ExtResource("39_injured_b")
+region = Rect2(384, 0, 384, 384)
+
+[sub_resource type="SpriteFrames" id="Frames_injured_b"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_injured_b_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_injured_b_2")
+}],
+"loop": true,
+"name": &"injured",
+"speed": 0.72
+}]
+
+[sub_resource type="RectangleShape2D" id="Shape_trigger"]
+size = Vector2(220, 360)
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_motes"]
+emission_shape = 3
+emission_box_extents = Vector3(1750, 260, 1)
+direction = Vector3(0.35, 1, 0)
+spread = 34.0
+initial_velocity_min = 10.0
+initial_velocity_max = 25.0
+gravity = Vector3(3, 8, 0)
+scale_min = 0.25
+scale_max = 0.72
+color = Color(0.76, 0.9, 1, 0.38)
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_smoke"]
+emission_shape = 1
+emission_sphere_radius = 150.0
+direction = Vector3(0, -1, 0)
+spread = 28.0
+initial_velocity_min = 16.0
+initial_velocity_max = 42.0
+gravity = Vector3(8, -8, 0)
+damping_min = 3.0
+damping_max = 8.0
+scale_min = 1.6
+scale_max = 4.4
+color = Color(0.11, 0.13, 0.18, 0.48)
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_embers"]
+emission_shape = 1
+emission_sphere_radius = 140.0
+direction = Vector3(0.1, -1, 0)
+spread = 48.0
+initial_velocity_min = 28.0
+initial_velocity_max = 85.0
+gravity = Vector3(6, 20, 0)
+scale_min = 0.18
+scale_max = 0.55
+color = Color(1, 0.28, 0.08, 0.9)
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_ash"]
+emission_shape = 3
+emission_box_extents = Vector3(900, 180, 1)
+direction = Vector3(0.18, 1, 0)
+spread = 42.0
+initial_velocity_min = 12.0
+initial_velocity_max = 34.0
+gravity = Vector3(5, 10, 0)
+damping_min = 2.0
+damping_max = 5.0
+scale_min = 0.18
+scale_max = 0.55
+color = Color(0.16, 0.18, 0.22, 0.66)
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_debris"]
+emission_shape = 1
+emission_sphere_radius = 115.0
+direction = Vector3(0, -1, 0)
+spread = 70.0
+initial_velocity_min = 35.0
+initial_velocity_max = 105.0
+gravity = Vector3(0, 95, 0)
+damping_min = 2.0
+damping_max = 5.0
+scale_min = 0.22
+scale_max = 0.72
+color = Color(0.28, 0.24, 0.23, 0.8)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.48, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="Texture_light"]
+gradient = SubResource("Gradient_light")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="OccluderPolygon2D" id="Occluder_stage"]
+polygon = PackedVector2Array(-320, -30, 320, -30, 320, 80, -320, 80)
+
+[sub_resource type="Shader" id="Shader_vignette"]
+code = "shader_type canvas_item;
+void fragment(){ vec2 p=UV-vec2(0.5); float v=smoothstep(0.24,0.78,length(p)); COLOR=vec4(0.10,0.0,0.06,v*0.72); }"
+
+[sub_resource type="ShaderMaterial" id="Material_vignette"]
+shader = SubResource("Shader_vignette")
+
+[node name="Day2PeaceRally" type="Node2D" unique_id=518294545]
+script = ExtResource("1_controller")
+player_path = NodePath("Player")
+camera_path = NodePath("HorizontalCamera")
+dialogue_path = NodePath("CinematicDialogue")
+overlay_path = NodePath("Day2CinematicOverlay")
+
+[node name="World" type="Node2D" parent="." unique_id=652874945]
+
+[node name="AftermathBackground" type="Sprite2D" parent="World" unique_id=1228783769]
+z_index = -20
+position = Vector2(1844, 355)
+scale = Vector2(0.772, 0.772)
+texture = ExtResource("3_aftermath")
+
+[node name="NormalBackground" type="Sprite2D" parent="World" unique_id=186692235]
+z_index = -20
+position = Vector2(1844, 355)
+scale = Vector2(0.772, 0.772)
+texture = ExtResource("2_normal")
+
+[node name="Collision" type="Node2D" parent="." unique_id=246406226]
+
+[node name="Ground" type="StaticBody2D" parent="Collision" unique_id=1119864286]
+collision_layer = 2
+
+[node name="Shape" type="CollisionShape2D" parent="Collision/Ground" unique_id=275409309]
+position = Vector2(1844, 648)
+shape = SubResource("Shape_ground")
+
+[node name="LeftBorder" type="StaticBody2D" parent="Collision" unique_id=775296450]
+collision_layer = 2
+
+[node name="Shape" type="CollisionShape2D" parent="Collision/LeftBorder" unique_id=959576909]
+position = Vector2(-42, 455)
+shape = SubResource("Shape_border")
+
+[node name="RightBorder" type="StaticBody2D" parent="Collision" unique_id=85337992]
+collision_layer = 2
+
+[node name="Shape" type="CollisionShape2D" parent="Collision/RightBorder" unique_id=914460484]
+position = Vector2(3730, 455)
+shape = SubResource("Shape_border")
+
+[node name="LeftDebris" type="StaticBody2D" parent="Collision" unique_id=1548245937]
+collision_layer = 2
+
+[node name="Shape" type="CollisionShape2D" parent="Collision/LeftDebris" unique_id=1462572063]
+position = Vector2(1030, 455)
+shape = SubResource("Shape_border")
+
+[node name="EastBlockade" type="StaticBody2D" parent="Collision" unique_id=1504553460]
+collision_layer = 2
+
+[node name="Shape" type="CollisionShape2D" parent="Collision/EastBlockade" unique_id=1545591920]
+position = Vector2(3045, 455)
+shape = SubResource("Shape_border")
+
+[node name="Player" parent="." unique_id=324047577 instance=ExtResource("4_player")]
+z_index = 10
+position = Vector2(330, 535)
+footstep_stream = ExtResource("26_step_a")
+footstep_stream_alt_a = ExtResource("27_step_b")
+footstep_stream_alt_b = ExtResource("28_step_c")
+
+[node name="HorizontalCamera" type="Camera2D" parent="." unique_id=1557292167]
+position = Vector2(570, 273)
+zoom = Vector2(1.64, 1.64)
+limit_left = 0
+limit_top = 0
+limit_right = 3700
+limit_bottom = 720
+limit_smoothed = true
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+script = ExtResource("5_camera")
+target_path = NodePath("../Player")
+framing_offset = Vector2(240, -194.665)
+
+[node name="NPCs" type="Node2D" parent="." unique_id=488983611]
+y_sort_enabled = true
+
+[node name="RallyCrowd" type="Node2D" parent="NPCs" unique_id=104976547]
+y_sort_enabled = true
+
+[node name="ProtesterA" type="Sprite2D" parent="NPCs/RallyCrowd" unique_id=703917711]
+z_index = 2
+position = Vector2(1450, 441)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("8_protester_a")
+
+[node name="ProtesterB" type="Sprite2D" parent="NPCs/RallyCrowd" unique_id=319631810]
+z_index = 3
+position = Vector2(1593, 466.99997)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("9_protester_b")
+
+[node name="ProtesterC" type="Sprite2D" parent="NPCs/RallyCrowd" unique_id=1738994460]
+z_index = 2
+position = Vector2(2212, 502)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("10_protester_c")
+
+[node name="CivilianA" type="Sprite2D" parent="NPCs/RallyCrowd" unique_id=1890268072]
+z_index = 3
+position = Vector2(2298, 476)
+scale = Vector2(0.59, 0.59)
+texture = ExtResource("11_civilian_a")
+
+[node name="CivilianB" type="Sprite2D" parent="NPCs/RallyCrowd" unique_id=1424445995]
+z_index = 1
+position = Vector2(1320, 441)
+scale = Vector2(0.59, 0.59)
+texture = ExtResource("12_civilian_b")
+
+[node name="PeaceLeader" type="Sprite2D" parent="NPCs" unique_id=2136761112]
+position = Vector2(1847, 306.00003)
+scale = Vector2(0.5210413, 0.5210413)
+texture = ExtResource("14_leader")
+
+[node name="ForegroundPodium2" type="Sprite2D" parent="NPCs" unique_id=554666983]
+z_index = 1
+position = Vector2(2251, 495.99997)
+scale = Vector2(0.7652284, 0.7652284)
+texture = ExtResource("2_normal")
+region_enabled = true
+region_rect = Rect2(2832, 584, 192, 136)
+region_filter_clip_enabled = true
+
+[node name="ForegroundPodium" type="Sprite2D" parent="NPCs" unique_id=1521723854]
+z_index = 1
+position = Vector2(1858, 343)
+scale = Vector2(0.772, 0.772)
+texture = ExtResource("2_normal")
+region_enabled = true
+region_rect = Rect2(2360, 384, 112, 144)
+region_filter_clip_enabled = true
+
+[node name="SuspiciousWorker" type="Sprite2D" parent="NPCs" unique_id=1686346964]
+modulate = Color(0.58, 0.65, 0.76, 0.88)
+position = Vector2(2265, 434)
+scale = Vector2(-0.52, 0.52)
+texture = ExtResource("15_d3th5")
+
+[node name="BombPlantingSoldier" type="AnimatedSprite2D" parent="NPCs" unique_id=991828322]
+position = Vector2(2257, 435.00003)
+scale = Vector2(-0.35636893, 0.35636893)
+sprite_frames = SubResource("Frames_bomb_soldier")
+animation = &"plant"
+
+[node name="AftermathActors" type="Node2D" parent="NPCs" unique_id=799104178]
+z_index = 1
+y_sort_enabled = true
+
+[node name="CrouchedLeader" type="AnimatedSprite2D" parent="NPCs/AftermathActors" unique_id=697978769]
+z_index = 3
+position = Vector2(1845.9999, 526)
+scale = Vector2(0.39036208, 0.39036208)
+sprite_frames = SubResource("Frames_injured_leader")
+animation = &"injured"
+frame_progress = 0.88790196
+
+[node name="DeceasedA" type="Sprite2D" parent="NPCs/AftermathActors" unique_id=940298520]
+z_index = 1
+position = Vector2(1577.62, 508.62003)
+scale = Vector2(0.47197908, 0.47197908)
+texture = ExtResource("36_dead_a")
+
+[node name="DeceasedB" type="Sprite2D" parent="NPCs/AftermathActors" unique_id=1321524981]
+z_index = 1
+position = Vector2(2079.3, 516.7)
+scale = Vector2(0.4098959, 0.4098959)
+texture = ExtResource("37_dead_b")
+
+[node name="InjuredA" type="AnimatedSprite2D" parent="NPCs/AftermathActors" unique_id=1532752503]
+z_index = 2
+position = Vector2(2383.1, 526.89996)
+scale = Vector2(0.3536458, 0.3536458)
+sprite_frames = SubResource("Frames_injured_a")
+animation = &"injured"
+
+[node name="InjuredB" type="AnimatedSprite2D" parent="NPCs/AftermathActors" unique_id=1012914913]
+z_index = 2
+position = Vector2(1362.8436, 515.84357)
+scale = Vector2(-0.40685636, 0.40685636)
+sprite_frames = SubResource("Frames_injured_b")
+animation = &"injured"
+
+[node name="BloodDecals" type="Node2D" parent="NPCs/AftermathActors" unique_id=1784149709]
+
+[node name="DecalA" type="Polygon2D" parent="NPCs/AftermathActors/BloodDecals" unique_id=1405372284]
+position = Vector2(1520, 583)
+color = Color(0.19, 0.015, 0.025, 0.46)
+polygon = PackedVector2Array(-48, -5, -19, -10, 28, -8, 61, -1, 38, 5, -12, 8)
+
+[node name="DecalB" type="Polygon2D" parent="NPCs/AftermathActors/BloodDecals" unique_id=1300337426]
+position = Vector2(2140, 583)
+color = Color(0.19, 0.015, 0.025, 0.4)
+polygon = PackedVector2Array(-42, -4, -13, -9, 35, -6, 51, 0, 22, 7, -31, 5)
+
+[node name="PanicCrowd" type="Node2D" parent="NPCs" unique_id=1650608001]
+y_sort_enabled = true
+
+[node name="RunnerA" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=1774688800]
+z_index = 4
+position = Vector2(1700, 588)
+scale = Vector2(0.62, 0.62)
+script = ExtResource("16_dispersal")
+strip = ExtResource("29_run_a")
+flee_direction = -1.0
+start_delay = 0.04
+flee_speed = 310.0
+
+[node name="RunnerB" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=1362141015]
+z_index = 3
+position = Vector2(2010, 588)
+scale = Vector2(0.58, 0.58)
+script = ExtResource("16_dispersal")
+strip = ExtResource("30_run_b")
+default_pose = ExtResource("11_civilian_a")
+start_delay = 0.18
+flee_speed = 275.0
+barrier_x = 2670.0
+
+[node name="Mother" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=1759207023]
+z_index = 4
+position = Vector2(1560, 588)
+scale = Vector2(0.61, 0.61)
+script = ExtResource("16_dispersal")
+strip = ExtResource("31_run_c")
+flee_direction = -1.0
+start_delay = 0.31
+flee_speed = 295.0
+
+[node name="ShovedCivilian" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=1965336399]
+z_index = 4
+position = Vector2(2170, 588)
+scale = Vector2(0.6, 0.6)
+script = ExtResource("16_dispersal")
+strip = ExtResource("32_run_d")
+default_pose = ExtResource("46_anti_seedless_a")
+start_delay = 0.11
+flee_speed = 325.0
+barrier_x = 2750.0
+
+[node name="RunnerE" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=886294366]
+z_index = 5
+position = Vector2(1480, 588)
+scale = Vector2(0.57, 0.57)
+script = ExtResource("16_dispersal")
+strip = ExtResource("33_run_e")
+flee_direction = -1.0
+start_delay = 0.24
+
+[node name="RunnerF" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=1199586969]
+modulate = Color(0.88, 0.95, 1, 0.96)
+z_index = 2
+position = Vector2(1900, 578)
+scale = Vector2(0.54, 0.54)
+script = ExtResource("16_dispersal")
+strip = ExtResource("29_run_a")
+flee_direction = -1.0
+start_delay = 0.37
+flee_speed = 260.0
+
+[node name="RunnerG" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=806319281]
+modulate = Color(0.9, 0.92, 1, 0.94)
+z_index = 3
+position = Vector2(2070, 588)
+scale = Vector2(0.56, 0.56)
+script = ExtResource("16_dispersal")
+strip = ExtResource("32_run_d")
+default_pose = ExtResource("46_anti_seedless_a")
+start_delay = 0.43
+flee_speed = 300.0
+barrier_x = 2815.0
+
+[node name="RunnerH" type="AnimatedSprite2D" parent="NPCs/PanicCrowd" unique_id=955979213]
+modulate = Color(0.82, 0.9, 1, 0.92)
+z_index = 2
+position = Vector2(1780, 578)
+scale = Vector2(0.53, 0.53)
+script = ExtResource("16_dispersal")
+strip = ExtResource("30_run_b")
+default_pose = ExtResource("11_civilian_a")
+start_delay = 0.49
+flee_speed = 250.0
+barrier_x = 2600.0
+
+[node name="SoldierA" type="Sprite2D" parent="NPCs/PanicCrowd" unique_id=1782547902]
+z_index = 5
+position = Vector2(2860, 442)
+scale = Vector2(-0.62, 0.62)
+texture = ExtResource("13_soldier")
+
+[node name="SoldierB" type="Sprite2D" parent="NPCs/PanicCrowd" unique_id=936369151]
+z_index = 5
+position = Vector2(3040, 442)
+scale = Vector2(-0.62, 0.62)
+texture = ExtResource("13_soldier")
+
+[node name="BlockadeCrowd" type="Node2D" parent="NPCs" unique_id=1480309965]
+y_sort_enabled = true
+
+[node name="CivilianSpeaker" type="Sprite2D" parent="NPCs/BlockadeCrowd" unique_id=2094782551]
+z_index = 4
+position = Vector2(2615, 492)
+scale = Vector2(0.57, 0.57)
+texture = ExtResource("9_protester_b")
+
+[node name="Mother" type="Sprite2D" parent="NPCs/BlockadeCrowd" unique_id=140948289]
+z_index = 5
+position = Vector2(2694.9998, 451)
+scale = Vector2(-0.59, 0.59)
+texture = ExtResource("12_civilian_b")
+
+[node name="StrugglingCivilian" type="Sprite2D" parent="NPCs/BlockadeCrowd" unique_id=941660101]
+z_index = 6
+position = Vector2(2775, 486)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("46_anti_seedless_a")
+
+[node name="CivilianRear" type="Sprite2D" parent="NPCs/BlockadeCrowd" unique_id=553978992]
+modulate = Color(0.86, 0.92, 1, 0.94)
+z_index = 3
+position = Vector2(2512, 468)
+scale = Vector2(0.54, 0.54)
+texture = ExtResource("11_civilian_a")
+
+[node name="Triggers" type="Node2D" parent="." unique_id=282484870]
+
+[node name="Rally" type="Area2D" parent="Triggers" unique_id=711215246]
+position = Vector2(1180, 455)
+
+[node name="Shape" type="CollisionShape2D" parent="Triggers/Rally" unique_id=1494177280]
+position = Vector2(284, 0)
+shape = SubResource("Shape_trigger")
+
+[node name="Containment" type="Area2D" parent="Triggers" unique_id=1126915954]
+position = Vector2(2480, 455)
+
+[node name="Shape" type="CollisionShape2D" parent="Triggers/Containment" unique_id=811389024]
+position = Vector2(3, -21)
+shape = SubResource("Shape_trigger")
+
+[node name="Blockade" type="Area2D" parent="Triggers" unique_id=1891196042]
+position = Vector2(2785, 455)
+
+[node name="Shape" type="CollisionShape2D" parent="Triggers/Blockade" unique_id=488570463]
+shape = SubResource("Shape_trigger")
+
+[node name="Exit" type="Area2D" parent="Triggers" unique_id=361280711]
+position = Vector2(3500, 455)
+
+[node name="Shape" type="CollisionShape2D" parent="Triggers/Exit" unique_id=654269422]
+shape = SubResource("Shape_trigger")
+
+[node name="Focus" type="Node2D" parent="." unique_id=914736312]
+position = Vector2(2, 6)
+
+[node name="Stage" type="Node2D" parent="Focus" unique_id=468069442]
+position = Vector2(1844, 420)
+
+[node name="SoldierReveal" type="Node2D" parent="Focus" unique_id=1323047932]
+position = Vector2(2265, 460)
+
+[node name="Blockade" type="Node2D" parent="Focus" unique_id=665558328]
+position = Vector2(2940, 480)
+
+[node name="Rescue" type="Node2D" parent="Focus" unique_id=486566085]
+position = Vector2(2320, 480)
+
+[node name="DialogueAnchors" type="Node2D" parent="." unique_id=1129114705]
+
+[node name="MC" type="Node2D" parent="DialogueAnchors" unique_id=1399467850]
+
+[node name="Soldier" type="Node2D" parent="DialogueAnchors" unique_id=162072725]
+position = Vector2(2866, 373)
+
+[node name="Civilian" type="Node2D" parent="DialogueAnchors" unique_id=1360468296]
+position = Vector2(2573, 380)
+
+[node name="Mother" type="Node2D" parent="DialogueAnchors" unique_id=667561994]
+position = Vector2(2623, 383)
+
+[node name="Leader" type="Node2D" parent="DialogueAnchors" unique_id=320495133]
+position = Vector2(1851, 353)
+
+[node name="CinematicDialogue" parent="." unique_id=605346251 instance=ExtResource("6_dialogue")]
+characters_per_second = 24.0
+punctuation_pause = 0.15
+
+[node name="Day2CinematicOverlay" parent="." unique_id=1685836801 instance=ExtResource("7_overlay")]
+
+[node name="Audio" type="Node" parent="." unique_id=1174160158]
+
+[node name="RallyAmbience" type="AudioStreamPlayer" parent="Audio" unique_id=151748463]
+stream = ExtResource("20_crowd")
+volume_db = -22.0
+bus = &"Ambience"
+
+[node name="RallyMusic" type="AudioStreamPlayer" parent="Audio" unique_id=2011713015]
+stream = ExtResource("45_music")
+volume_db = -25.0
+
+[node name="PanicAmbience" type="AudioStreamPlayer" parent="Audio" unique_id=321533748]
+stream = ExtResource("21_panic")
+volume_db = -13.0
+bus = &"Ambience"
+
+[node name="BombBeep" type="AudioStreamPlayer2D" parent="Audio" unique_id=535190908]
+position = Vector2(2265, 500)
+stream = ExtResource("22_beep")
+volume_db = -18.0
+max_distance = 1600.0
+bus = &"SFX"
+
+[node name="ClothHandling" type="AudioStreamPlayer2D" parent="Audio" unique_id=968557748]
+position = Vector2(2265, 500)
+stream = ExtResource("40_cloth")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="PackagePlacement" type="AudioStreamPlayer2D" parent="Audio" unique_id=1747341853]
+position = Vector2(2265, 500)
+stream = ExtResource("41_package")
+volume_db = -8.0
+bus = &"SFX"
+
+[node name="MetalLatch" type="AudioStreamPlayer2D" parent="Audio" unique_id=2017775992]
+position = Vector2(2265, 500)
+stream = ExtResource("42_latch")
+volume_db = -6.0
+bus = &"SFX"
+
+[node name="ArmingClick" type="AudioStreamPlayer2D" parent="Audio" unique_id=124464404]
+position = Vector2(2265, 500)
+stream = ExtResource("43_arm")
+volume_db = -5.0
+bus = &"SFX"
+
+[node name="DistantSirens" type="AudioStreamPlayer" parent="Audio" unique_id=981104517]
+stream = ExtResource("44_siren")
+volume_db = -24.0
+bus = &"Ambience"
+
+[node name="Explosion" type="AudioStreamPlayer" parent="Audio" unique_id=790868255]
+stream = ExtResource("23_explosion")
+volume_db = -2.0
+bus = &"SFX"
+
+[node name="Tinnitus" type="AudioStreamPlayer" parent="Audio" unique_id=474762164]
+stream = ExtResource("24_tinnitus")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="AftermathRumble" type="AudioStreamPlayer" parent="Audio" unique_id=1620864742]
+stream = ExtResource("25_rumble")
+volume_db = -17.0
+bus = &"Ambience"
+
+[node name="Particles" type="Node2D" parent="." unique_id=132388820]
+
+[node name="DaylightMotes" type="GPUParticles2D" parent="Particles" unique_id=1051543114]
+z_index = 8
+position = Vector2(1844, 240)
+amount = 72
+texture = ExtResource("18_leaf")
+lifetime = 8.0
+preprocess = 8.0
+process_material = SubResource("Particles_motes")
+
+[node name="Smoke" type="GPUParticles2D" parent="Particles" unique_id=119972459]
+z_index = 6
+position = Vector2(1844, 390)
+amount = 42
+texture = ExtResource("19_dust")
+lifetime = 7.0
+preprocess = 1.0
+process_material = SubResource("Particles_smoke")
+
+[node name="Embers" type="GPUParticles2D" parent="Particles" unique_id=292343598]
+z_index = 7
+position = Vector2(1844, 430)
+amount = 34
+texture = ExtResource("19_dust")
+lifetime = 2.6
+process_material = SubResource("Particles_embers")
+
+[node name="Ash" type="GPUParticles2D" parent="Particles" unique_id=329989544]
+z_index = 5
+position = Vector2(1844, 250)
+amount = 70
+texture = ExtResource("19_dust")
+lifetime = 7.5
+process_material = SubResource("Particles_ash")
+
+[node name="SettlingDebris" type="GPUParticles2D" parent="Particles" unique_id=1778981497]
+z_index = 5
+position = Vector2(1844, 400)
+emitting = false
+amount = 56
+texture = ExtResource("19_dust")
+lifetime = 2.2
+one_shot = true
+process_material = SubResource("Particles_debris")
+
+[node name="Lighting" type="Node2D" parent="." unique_id=1478651683]
+
+[node name="WorldTone" type="CanvasModulate" parent="Lighting" unique_id=455776229]
+color = Color(0.82, 0.91, 1, 1)
+
+[node name="StageLight" type="PointLight2D" parent="Lighting" unique_id=208138494]
+position = Vector2(1844, 325)
+scale = Vector2(3.3, 1.8)
+color = Color(0.58, 0.84, 1, 1)
+energy = 0.56
+texture = SubResource("Texture_light")
+
+[node name="FireLight" type="PointLight2D" parent="Lighting" unique_id=760797458]
+position = Vector2(1846, 460)
+scale = Vector2(2.2, 1.55)
+color = Color(1, 0.28, 0.08, 1)
+energy = 0.9
+texture = SubResource("Texture_light")
+
+[node name="StageOccluder" type="LightOccluder2D" parent="Lighting" unique_id=1703588317]
+position = Vector2(1838, 496)
+occluder = SubResource("Occluder_stage")
+
+[node name="ScreenFX" type="CanvasLayer" parent="." unique_id=2073223015]
+layer = 30
+
+[node name="StressVignette" type="ColorRect" parent="ScreenFX" unique_id=1532982565]
+material = SubResource("Material_vignette")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ExplosionFlash" type="ColorRect" parent="ScreenFX" unique_id=901005191]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.96, 0.86, 1)

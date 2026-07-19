@@ -11,6 +11,12 @@ polygon = PackedVector2Array(-235, -18, 235, -18, 235, 18, -235, 18)
 script = ExtResource("2_script")
 returning_from_briefing = false
 
+[node name="WarmLandingLight" parent="." index="9" unique_id=1935554659]
+position = Vector2(1054, 65)
+
+[node name="MidflightSoftFill" parent="." index="11" unique_id=1973073042]
+position = Vector2(634, 386)
+
 [node name="Day3DialogueAnchor" type="Node2D" parent="Player" parent_id_path=PackedInt32Array(1107255841) index="9" unique_id=1377696262]
 position = Vector2(0, -205)
 
@@ -37,11 +43,14 @@ position = Vector2(1080, 253)
 scale = Vector2(-0.92, 0.92)
 texture = ExtResource("3_guard")
 
-[node name="LandingLightOccluder" type="LightOccluder2D" parent="." index="27"]
+[node name="DialogueAnchor" type="Node2D" parent="Guard" index="0" unique_id=2070703867]
+position = Vector2(-22.826086, -78.26087)
+
+[node name="LandingLightOccluder" type="LightOccluder2D" parent="." index="27" unique_id=46411132]
 position = Vector2(1035, 407)
 occluder = SubResource("Day3LandingOccluder")
 
-[node name="StairwellMotes" type="CPUParticles2D" parent="." index="28"]
+[node name="StairwellMotes" type="CPUParticles2D" parent="." index="28" unique_id=42246117]
 z_index = 12
 position = Vector2(720, 330)
 amount = 38
@@ -57,6 +66,3 @@ initial_velocity_max = 9.0
 scale_amount_min = 0.45
 scale_amount_max = 1.35
 color = Color(0.65, 0.88, 1, 0.2)
-
-[node name="DialogueAnchor" type="Node2D" parent="Guard" index="0" unique_id=2070703867]
-position = Vector2(-22.826086, -78.26087)

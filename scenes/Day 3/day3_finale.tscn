@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/narrative/day3_finale.gd" id="1_script"]
 [ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/gunshot.wav" id="2_gunshot"]
@@ -11,12 +11,21 @@
 [ext_resource type="AudioStream" path="res://assets/audio/day3/music/death-stinger.wav" id="9_death"]
 [ext_resource type="AudioStream" path="res://assets/audio/day3/music/shoot-stinger.wav" id="10_shoot"]
 [ext_resource type="PackedScene" path="res://scenes/ui/day3_tv_broadcast.tscn" id="11_tv"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="12_dialogue_blip"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/main-menu-title-screen.png" id="13_credits_backdrop"]
+[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="14_credits_font"]
 
 [sub_resource type="Shader" id="FilmShader"]
 code = "shader_type canvas_item;\nuniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;\nuniform float grain_strength : hint_range(0.0, 0.2) = 0.035;\nuniform float scanline_strength : hint_range(0.0, 0.2) = 0.045;\nfloat hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }\nvoid fragment(){\n vec4 c = texture(screen_texture, SCREEN_UV);\n float grain = (hash(UV * vec2(1280.0,720.0) + TIME * 41.0) - 0.5) * grain_strength;\n float scan = sin(UV.y * 720.0 * 3.14159) * scanline_strength;\n COLOR = vec4(c.rgb + grain - scan, c.a);\n}"
 
 [sub_resource type="ShaderMaterial" id="FilmMaterial"]
 shader = SubResource("FilmShader")
+
+[sub_resource type="Shader" id="CreditsCRTShader"]
+code = "shader_type canvas_item;\nfloat hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }\nvoid fragment(){\n vec2 q = UV - 0.5;\n float scan = (sin(UV.y * 720.0 * 3.14159265) * 0.5 + 0.5) * 0.105;\n float noise = (hash(floor(UV * vec2(640.0,360.0)) + floor(TIME * 24.0)) - 0.5) * 0.032;\n float vignette = smoothstep(0.34, 0.72, length(q * vec2(0.9, 1.0))) * 0.42;\n float alpha = clamp(0.035 + scan + vignette + max(noise, 0.0), 0.0, 0.58);\n COLOR = vec4(0.005, 0.008, 0.025, alpha);\n}"
+
+[sub_resource type="ShaderMaterial" id="CreditsCRTMaterial"]
+shader = SubResource("CreditsCRTShader")
 
 [sub_resource type="StyleBoxFlat" id="PlaceholderStyle"]
 bg_color = Color(0.015, 0.025, 0.055, 0.96)
@@ -159,27 +168,22 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CaptionPanel" type="PanelContainer" parent="."]
-layout_mode = 1
-anchors_preset = 12
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 52.0
-offset_top = -202.0
-offset_right = -52.0
-offset_bottom = -24.0
-grow_horizontal = 2
-grow_vertical = 0
+layout_mode = 0
+offset_left = 180.0
+offset_top = 570.0
+offset_right = 1100.0
+offset_bottom = 680.0
 theme_override_styles/panel = SubResource("CaptionStyle")
 
 [node name="Caption" type="RichTextLabel" parent="CaptionPanel"]
-custom_minimum_size = Vector2(0, 178)
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_colors/default_color = Color(0.96, 0.96, 0.98, 1)
 theme_override_font_sizes/normal_font_size = 22
 theme_override_font_sizes/bold_font_size = 18
 bbcode_enabled = true
 text = "Caption"
-fit_content = true
+fit_content = false
 scroll_active = false
 autowrap_mode = 2
 
@@ -235,6 +239,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="TitleBackdrop" type="TextureRect" parent="Credits"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("13_credits_backdrop")
+expand_mode = 1
+stretch_mode = 6
+
 [node name="Background" type="ColorRect" parent="Credits"]
 layout_mode = 1
 anchors_preset = 15
@@ -242,15 +258,21 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.004, 0.006, 0.016, 0.97)
+mouse_filter = 2
+color = Color(0.005, 0.003, 0.014, 0.38)
 
 [node name="CreditsText" type="Label" parent="Credits"]
-offset_left = 80.0
-offset_right = 1200.0
-theme_override_colors/font_color = Color(0.9, 0.92, 0.98, 1)
-theme_override_font_sizes/font_size = 24
+offset_left = 710.0
+offset_right = 1240.0
+theme_override_colors/font_color = Color(0.96, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.015, 0.005, 0.03, 0.95)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("14_credits_font")
+theme_override_font_sizes/font_size = 21
 text = "CREDITS"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="SkipHint" type="Label" parent="Credits"]
 layout_mode = 1
@@ -266,9 +288,21 @@ offset_bottom = -12.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.62, 0.66, 0.76, 1)
+theme_override_fonts/font = ExtResource("14_credits_font")
 theme_override_font_sizes/font_size = 14
 text = "ENTER / E  SKIP CREDITS"
 horizontal_alignment = 2
+
+[node name="CRT" type="ColorRect" parent="Credits"]
+material = SubResource("CreditsCRTMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
 
 [node name="Audio" type="Node" parent="."]
 
@@ -318,3 +352,8 @@ bus = &"SFX"
 stream = ExtResource("10_shoot")
 volume_db = -7.0
 bus = &"SFX"
+
+[node name="DialogueBlip" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("12_dialogue_blip")
+volume_db = -2.0
+bus = &"UI"

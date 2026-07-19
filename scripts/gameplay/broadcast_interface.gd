@@ -76,6 +76,7 @@ var _active_transcript_label: Label
 var _transcript_scroll_internal := false
 var _transcript_follow_latest := true
 var _is_day1_context := false
+var _is_day2_context := false
 
 @onready var scene_frame: SceneFrame = %SceneFrame
 @onready var character_roster: CharacterRoster = %CharacterRoster
@@ -119,6 +120,7 @@ func _ready() -> void:
 	if session != null:
 		session.save_checkpoint("broadcast")
 		_is_day1_context = session.broadcast_context == &"day1"
+		_is_day2_context = session.broadcast_context == &"day2"
 	_slots = [cause_slot, conflict_slot, outcome_slot]
 	_normalize_frame_geometry()
 	for slot in _slots:
@@ -145,6 +147,8 @@ func _ready() -> void:
 	_reparent_name_entry_to_left_panel()
 	if _is_day1_context:
 		load_report_chain(BroadcastDemoData.day1_reports())
+	elif _is_day2_context:
+		load_report(BroadcastDemoData.bombing_report())
 	else:
 		load_report(BroadcastDemoData.rooftop_killing_report())
 
@@ -950,11 +954,11 @@ func _finish_chain_mission_response() -> void:
 		_set_phase(Phase.EDITING)
 		_set_editing_enabled(true)
 		return
-	_record_day1_route(finishing_report, sequence)
+	_record_story_route(finishing_report, sequence)
 	_chain_results.append({"report": finishing_report, "sequence": sequence})
 	if _chain_index + 1 < _report_chain.size():
 		_load_next_chain_report()
-	elif _is_day1_context and use_news_broadcast_scene:
+	elif (_is_day1_context or _is_day2_context) and use_news_broadcast_scene:
 		_start_day1_news_handoff()
 	else:
 		_start_combined_recap()
@@ -1005,8 +1009,8 @@ func _apply_chain_recap_visuals(owner_index: int) -> void:
 			_slots[index].show_scene_reveal(action.scene_image)
 
 
-func _record_day1_route(solved_report: BroadcastReport, solved_sequence: BroadcastSequence) -> void:
-	if not _is_day1_context or solved_report == null:
+func _record_story_route(solved_report: BroadcastReport, solved_sequence: BroadcastSequence) -> void:
+	if solved_report == null or not (_is_day1_context or _is_day2_context):
 		return
 	var route := &""
 	if solved_sequence == solved_report.truthful_sequence:
@@ -1016,8 +1020,18 @@ func _record_day1_route(solved_report: BroadcastReport, solved_sequence: Broadca
 	if route == &"":
 		return
 	var session := get_node_or_null("/root/GameSession")
-	if session != null and session.has_method(&"set_day1_report_route"):
+	if session == null:
+		return
+	if _is_day1_context and session.has_method(&"set_day1_report_route"):
 		session.set_day1_report_route(solved_report.report_id, route)
+	elif _is_day2_context and session.has_method(&"set_day2_report_route"):
+		session.set_day2_report_route(route)
+
+
+# Compatibility helper retained for the existing Day 1 smoke tests and any
+# editor tooling that called the original private hook directly.
+func _record_day1_route(solved_report: BroadcastReport, solved_sequence: BroadcastSequence) -> void:
+	_record_story_route(solved_report, solved_sequence)
 
 
 func _finish_day1_broadcast() -> void:

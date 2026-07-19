@@ -12,6 +12,18 @@
 [ext_resource type="AudioStream" uid="uid://d2aath1mvhbe5" path="res://assets/audio/ambience/day1/angry-crowd-70647.mp3" id="10_crowd_audio"]
 [ext_resource type="Texture2D" uid="uid://ch6b7mxwpxipt" path="res://assets/art/Day1 Scene 1/npcs/r2c4-gossiping-gal-b.png" id="13_customer_c"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_campaign"]
+bg_color = Color(0.93, 0.97, 0.87, 0.96)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.08, 0.35, 0.48, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [sub_resource type="RectangleShape2D" id="RectangleShape_rally_trigger"]
 size = Vector2(150, 359.5)
 
@@ -25,18 +37,6 @@ width = 128
 height = 128
 fill_from = Vector2(0.5, 0)
 fill_to = Vector2(0.5, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_campaign"]
-bg_color = Color(0.93, 0.97, 0.87, 0.96)
-border_width_left = 5
-border_width_top = 5
-border_width_right = 5
-border_width_bottom = 5
-border_color = Color(0.08, 0.35, 0.48, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
 
 [node name="Day1SeedlessRally" type="Node2D" unique_id=432229355]
 script = ExtResource("1_script")
@@ -171,7 +171,7 @@ texture = SubResource("GradientTexture2D_podium")
 polygon = PackedVector2Array(-58, -250, 58, -250, 68, -88, -68, -88)
 uv = PackedVector2Array(0, 0, 128, 0, 128, 128, 0, 128)
 
-[node name="CampaignPlacard" type="PanelContainer" parent="."]
+[node name="CampaignPlacard" type="PanelContainer" parent="." unique_id=726273890]
 z_index = 5
 offset_left = -250.0
 offset_top = -570.0
@@ -179,11 +179,12 @@ offset_right = 250.0
 offset_bottom = -490.0
 theme_override_styles/panel = SubResource("StyleBox_campaign")
 
-[node name="Text" type="Label" parent="CampaignPlacard"]
+[node name="Text" type="Label" parent="CampaignPlacard" unique_id=1206213548]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.03, 0.18, 0.28, 1)
 theme_override_font_sizes/font_size = 26
-text = "TO A SEEDLESS,\nCONVENIENT FUTURE"
+text = "TO A SEEDLESS,
+CONVENIENT FUTURE"
 horizontal_alignment = 1
 vertical_alignment = 1
 

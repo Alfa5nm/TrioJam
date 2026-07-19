@@ -43,13 +43,16 @@ func _run() -> void:
 	await create_timer(0.03).timeout
 	scene._request_advance()
 	await process_frame
-	_check(scene.bedroom.visible and scene._bedroom_index == 0, "bedroom cutscene begins only after the black-screen dialogue")
-	_check(not scene.speaker_label.visible, "speaker header clears for internal bedroom narration")
-	_check(scene.dialogue_label.text.begins_with("I watched as the civilians"), "bedroom narration opens with the requested line")
+	_check(scene.bedroom.visible and scene._bedroom_index == 0, "CG sequence begins only after the black-screen dialogue")
+	_check(not scene.has_node("Bedroom/Plate") and not scene.has_node("Bedroom/ReflectionLayer"), "generated bedroom/window interstitial is removed")
+	_check(scene.curtains.visible and scene.curtains.frame == 0, "curtain-pull CG carries the internal narration")
+	_check(scene.curtain_particles.emitting and scene.curtain_particles.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE, "curtain CG has a restrained particle layer")
+	_check(not scene.speaker_label.visible, "speaker header clears for internal CG narration")
+	_check(scene.dialogue_label.text.begins_with("I watched as the civilians"), "CG narration opens with the requested line")
 	_check(scene.curtains.sprite_frames.get_frame_count(&"close") == 2, "curtain close uses the two supplied illustrations")
 	_check(scene.curtains.sprite_frames.get_frame_texture(&"close", 0) == Day0Epilogue.CURTAIN_PULL, "curtain pull is the first frame")
 	_check(scene.curtains.sprite_frames.get_frame_texture(&"close", 1) == Day0Epilogue.CURTAIN_ENDING, "curtain ending is the second frame")
-	_check(not scene.curtains.visible, "curtain illustrations remain hidden until the closing beat")
+	_check(scene.curtains.visible, "curtain illustration remains visible beneath the narration dialogue")
 	_check(scene.ambience.stream != null and scene.ambience.bus == &"Ambience", "Day Zero ending ambience is assigned to the Ambience bus")
 	_check(scene.music.stream != null and scene.music.bus == &"Ambience", "Day Zero ending music is assigned to the Ambience bus")
 	_check(scene.ambience.autoplay and scene.music.autoplay, "Day Zero ambience and music begin automatically")
@@ -61,7 +64,7 @@ func _run() -> void:
 	for _line in 4:
 		scene._request_advance()
 	_check(scene._bedroom_index == 4, "gunshot consequence line occurs at the intended narrative beat")
-	_check(scene.gun_flash.modulate.a > 0.0 or scene.protest_glow.modulate.a > 0.12, "gunshot line activates unrest reflections")
+	_check(scene.curtain_particles.amount == 56 and scene.curtain_particles.emitting, "gunshot consequence line intensifies the CG particle drift")
 	for _line in 3:
 		scene._request_advance()
 	_check(scene.dialogue_label.text == "...", "silence precedes closing the curtains")

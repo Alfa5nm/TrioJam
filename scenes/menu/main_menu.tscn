@@ -1,40 +1,84 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=18 format=3 uid="uid://dgpjkrqwuqsmq"]
 
-[ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_bg"]
-[ext_resource type="FontFile" path="res://assets/fonts/DiarioDeAndy.otf" id="3_font"]
+[ext_resource type="Script" uid="uid://cajf3mnfmvutc" path="res://scripts/menu/main_menu.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://d3oqxnoyeqy44" path="res://scenes/menu/Untitled509_20260719170240.png" id="2_backdrop"]
+[ext_resource type="Texture2D" uid="uid://da05vfcosck04" path="res://scenes/menu/kjwh.png" id="3_logo"]
+[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="4_menu_font"]
+[ext_resource type="FontFile" uid="uid://c1sfk720ytkw2" path="res://assets/fonts/DiarioDeAndy.otf" id="5_heading_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="6_ui_blip"]
 
-[sub_resource type="StyleBoxFlat" id="Panel"]
-bg_color = Color(0.006, 0.008, 0.014, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
+[sub_resource type="Shader" id="Shader_crt"]
+code = "shader_type canvas_item;\nuniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;\nuniform float curvature : hint_range(0.0, 0.08) = 0.018;\nuniform float scanline_strength : hint_range(0.0, 0.3) = 0.12;\nuniform float noise_strength : hint_range(0.0, 0.12) = 0.025;\nuniform float aberration : hint_range(0.0, 0.01) = 0.0015;\nfloat hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }\nvoid fragment(){\n vec2 uv = SCREEN_UV;\n vec2 centered = uv - 0.5;\n float radius = dot(centered, centered);\n uv += centered * radius * curvature;\n vec2 chroma = vec2(aberration * (0.5 + radius * 2.0), 0.0);\n vec3 col;\n col.r = texture(screen_texture, uv + chroma).r;\n col.g = texture(screen_texture, uv).g;\n col.b = texture(screen_texture, uv - chroma).b;\n float scan = sin(uv.y * 720.0 * 3.14159265) * scanline_strength;\n float fine_scan = sin(uv.y * 1080.0 * 3.14159265) * 0.025;\n float noise = (hash(floor(uv * vec2(640.0, 360.0)) + floor(TIME * 24.0)) - 0.5) * noise_strength;\n float vignette = smoothstep(0.82, 0.18, length(centered * vec2(0.88, 1.0)));\n float flicker = 0.985 + sin(TIME * 53.0) * 0.006;\n col = (col - scan - fine_scan + noise) * flicker * mix(0.72, 1.0, vignette);\n if(uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0){ col = vec3(0.0); }\n COLOR = vec4(col, 1.0);\n}"
+
+[sub_resource type="ShaderMaterial" id="Material_crt"]
+shader = SubResource("Shader_crt")
+
+[sub_resource type="StyleBoxFlat" id="Button_normal"]
+content_margin_left = 28.0
+content_margin_right = 18.0
+bg_color = Color(0.015, 0.012, 0.027, 0.44)
+border_width_left = 2
 border_width_bottom = 1
-border_color = Color(0.82, 0.78, 0.7, 0.28)
-corner_radius_top_left = 4
+border_color = Color(0.78, 0.8, 0.9, 0.2)
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="Button"]
-bg_color = Color(0.01, 0.014, 0.022, 0.9)
-border_width_bottom = 1
-border_color = Color(0.9, 0.87, 0.79, 0.45)
-
-[sub_resource type="StyleBoxFlat" id="ButtonHover"]
-bg_color = Color(0.11, 0.105, 0.11, 0.96)
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.8)
-
-[sub_resource type="StyleBoxFlat" id="LineEdit"]
-bg_color = Color(0.02, 0.025, 0.036, 1)
-border_width_left = 1
+[sub_resource type="StyleBoxFlat" id="Button_hover"]
+content_margin_left = 34.0
+content_margin_right = 18.0
+bg_color = Color(0.12, 0.018, 0.075, 0.9)
+border_width_left = 5
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.45)
+border_color = Color(1, 0.12, 0.45, 0.92)
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+shadow_color = Color(0.9, 0.02, 0.32, 0.32)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="Button_pressed"]
+content_margin_left = 38.0
+content_margin_right = 18.0
+bg_color = Color(0.025, 0.12, 0.2, 0.95)
+border_width_left = 6
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.05, 0.83, 1, 1)
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="Button_disabled"]
+content_margin_left = 28.0
+content_margin_right = 18.0
+bg_color = Color(0.018, 0.018, 0.028, 0.26)
+border_width_left = 2
+border_color = Color(0.3, 0.31, 0.38, 0.2)
+
+[sub_resource type="StyleBoxFlat" id="Panel_settings"]
+content_margin_left = 36.0
+content_margin_top = 28.0
+content_margin_right = 36.0
+content_margin_bottom = 28.0
+bg_color = Color(0.012, 0.009, 0.025, 0.965)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.75, 1, 0.74)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.72)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="Panel_rule"]
+bg_color = Color(0.88, 0.9, 1, 0.34)
 
 [node name="MainMenu" type="Control"]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -42,138 +86,289 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Base" type="ColorRect" parent="."]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_bg")
+color = Color(0.018, 0.009, 0.035, 1)
+
+[node name="BackdropParallax" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -34.0
+offset_top = -22.0
+offset_right = 34.0
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Image" type="TextureRect" parent="BackdropParallax"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_backdrop")
 expand_mode = 1
 stretch_mode = 6
-modulate = Color(0.3, 0.32, 0.42, 1)
 
-[node name="Shade" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.004, 0.006, 0.012, 0.62)
+[node name="RightNewsPanel" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(598, -24, 1304, -24, 1304, 744, 858, 744)
+color = Color(0.055, 0.025, 0.09, 0.985)
+
+[node name="PanelEdge" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(594, -24, 602, -24, 866, 744, 856, 744)
+color = Color(0.94, 0.05, 0.35, 0.24)
+
+[node name="TitleLogo" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(958, 160)
+scale = Vector2(0.295, 0.295)
+texture = ExtResource("3_logo")
 
 [node name="Title" type="Label" parent="."]
-offset_left = 62.0
-offset_top = 64.0
-offset_right = 800.0
-offset_bottom = 145.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 58
+visible = false
 text = "Now. Todays' News."
+
+[node name="TitleRule" type="ColorRect" parent="."]
+offset_left = 824.0
+offset_top = 273.0
+offset_right = 1184.0
+offset_bottom = 275.0
+mouse_filter = 2
+color = Color(0.92, 0.93, 1, 0.22)
 
 [node name="Menu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-offset_left = 68.0
-offset_top = 420.0
-offset_right = 350.0
-offset_bottom = 666.0
-theme_override_constants/separation = 8
+offset_left = 818.0
+offset_top = 314.0
+offset_right = 1188.0
+offset_bottom = 602.0
+theme_override_constants/separation = 11
 
 [node name="NewGameButton" type="Button" parent="Menu"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(370, 56)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 26
-theme_override_styles/normal = SubResource("Button")
-theme_override_styles/hover = SubResource("ButtonHover")
+focus_neighbor_bottom = NodePath("../ContinueButton")
+theme_override_colors/font_color = Color(0.94, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.88, 0.93, 1)
+theme_override_colors/font_focus_color = Color(1, 0.88, 0.93, 1)
+theme_override_colors/font_pressed_color = Color(0.7, 0.94, 1, 1)
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("Button_normal")
+theme_override_styles/hover = SubResource("Button_hover")
+theme_override_styles/focus = SubResource("Button_hover")
+theme_override_styles/pressed = SubResource("Button_pressed")
 text = "NEW GAME"
+alignment = 0
 
 [node name="ContinueButton" type="Button" parent="Menu"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(370, 56)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 26
-theme_override_styles/normal = SubResource("Button")
-theme_override_styles/hover = SubResource("ButtonHover")
+focus_neighbor_top = NodePath("../NewGameButton")
+focus_neighbor_bottom = NodePath("../SettingsButton")
+theme_override_colors/font_color = Color(0.94, 0.94, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.38, 0.4, 0.48, 0.78)
+theme_override_colors/font_hover_color = Color(1, 0.88, 0.93, 1)
+theme_override_colors/font_focus_color = Color(1, 0.88, 0.93, 1)
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("Button_normal")
+theme_override_styles/hover = SubResource("Button_hover")
+theme_override_styles/focus = SubResource("Button_hover")
+theme_override_styles/pressed = SubResource("Button_pressed")
+theme_override_styles/disabled = SubResource("Button_disabled")
 text = "CONTINUE"
+alignment = 0
 
 [node name="SettingsButton" type="Button" parent="Menu"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(370, 56)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 26
-theme_override_styles/normal = SubResource("Button")
-theme_override_styles/hover = SubResource("ButtonHover")
+focus_neighbor_top = NodePath("../ContinueButton")
+focus_neighbor_bottom = NodePath("../QuitButton")
+theme_override_colors/font_color = Color(0.94, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.88, 0.93, 1)
+theme_override_colors/font_focus_color = Color(1, 0.88, 0.93, 1)
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("Button_normal")
+theme_override_styles/hover = SubResource("Button_hover")
+theme_override_styles/focus = SubResource("Button_hover")
+theme_override_styles/pressed = SubResource("Button_pressed")
 text = "SETTINGS"
+alignment = 0
 
 [node name="QuitButton" type="Button" parent="Menu"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(370, 56)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 26
-theme_override_styles/normal = SubResource("Button")
-theme_override_styles/hover = SubResource("ButtonHover")
+focus_neighbor_top = NodePath("../SettingsButton")
+theme_override_colors/font_color = Color(0.94, 0.94, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.88, 0.93, 1)
+theme_override_colors/font_focus_color = Color(1, 0.88, 0.93, 1)
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("Button_normal")
+theme_override_styles/hover = SubResource("Button_hover")
+theme_override_styles/focus = SubResource("Button_hover")
+theme_override_styles/pressed = SubResource("Button_pressed")
 text = "QUIT"
+alignment = 0
+
+[node name="Footer" type="Label" parent="."]
+offset_left = 836.0
+offset_top = 640.0
+offset_right = 1180.0
+offset_bottom = 668.0
+theme_override_colors/font_color = Color(0.58, 0.6, 0.72, 0.78)
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 14
+text = "A STORY ABOUT THE WORDS BETWEEN EVENTS"
+horizontal_alignment = 1
+
+[node name="SettingsDim" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0.005, 0.003, 0.012, 0.78)
 
 [node name="SettingsPanel" type="PanelContainer" parent="."]
 unique_name_in_owner = true
-offset_left = 380.0
-offset_top = 105.0
-offset_right = 900.0
-offset_bottom = 650.0
-theme_override_styles/panel = SubResource("Panel")
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -290.0
+offset_top = -280.0
+offset_right = 290.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Panel_settings")
 
 [node name="Layout" type="VBoxContainer" parent="SettingsPanel"]
 layout_mode = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 9
 
 [node name="Title" type="Label" parent="SettingsPanel/Layout"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.94, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("5_heading_font")
+theme_override_font_sizes/font_size = 37
 text = "SETTINGS"
 horizontal_alignment = 1
 
+[node name="Rule" type="Panel" parent="SettingsPanel/Layout"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel_rule")
+
 [node name="MasterLabel" type="Label" parent="SettingsPanel/Layout"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 18
 text = "MASTER"
+
 [node name="MasterSlider" type="HSlider" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
-max_value = 100.0
+
 [node name="SFXLabel" type="Label" parent="SettingsPanel/Layout"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 18
 text = "SFX"
+
 [node name="SFXSlider" type="HSlider" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
-max_value = 100.0
+
 [node name="AmbienceLabel" type="Label" parent="SettingsPanel/Layout"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 18
 text = "AMBIENCE"
+
 [node name="AmbienceSlider" type="HSlider" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
-max_value = 100.0
+
 [node name="UILabel" type="Label" parent="SettingsPanel/Layout"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 18
 text = "UI"
+
 [node name="UISlider" type="HSlider" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
-max_value = 100.0
+
 [node name="FullscreenToggle" type="CheckButton" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 18
 text = "FULLSCREEN"
+
 [node name="ResolutionOptions" type="OptionButton" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 17
+
 [node name="SettingsClose" type="Button" parent="SettingsPanel/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_menu_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("Button_normal")
+theme_override_styles/hover = SubResource("Button_hover")
+theme_override_styles/focus = SubResource("Button_hover")
+theme_override_styles/pressed = SubResource("Button_pressed")
 text = "SAVE AND CLOSE"
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="Navigate" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("6_ui_blip")
+volume_db = -13.0
+bus = &"UI"
+
+[node name="CRT" type="ColorRect" parent="."]
+material = SubResource("Material_crt")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

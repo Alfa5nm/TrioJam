@@ -32,13 +32,18 @@ func _ready() -> void:
 	fade.modulate.a = 1.0
 	_reset_route()
 	player.controls_enabled = false
-	var reveal := create_tween()
-	reveal.tween_property(fade, "modulate:a", 0.0, 0.55)
-	await reveal.finished
 	if _returning_from_briefing:
+		# Reposition and rebuild the upper route while the screen is fully covered.
+		# This prevents one rendered frame at the inherited Day 0 spawn.
 		guard.visible = false
 		player.global_position = Vector2(1015, 356)
+		player.velocity = Vector2.ZERO
 		activate_upper_route()
+		await get_tree().create_timer(1.15).timeout
+	var reveal := create_tween()
+	reveal.tween_property(fade, "modulate:a", 0.0, 0.85 if _returning_from_briefing else 0.55)
+	await reveal.finished
+	if _returning_from_briefing:
 		await dialogue.show_bark("…I can’t even remember the last time I felt autonomy of my own self.", "MC", player_dialogue_anchor, 1.45)
 	else:
 		guard.visible = true
