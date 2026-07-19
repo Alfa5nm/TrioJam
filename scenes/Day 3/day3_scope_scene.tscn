@@ -45,6 +45,23 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.96, 0.015, 0.07, 0)
 
+[node name="ShotParticles" type="CPUParticles2D" parent="ScopeUI"]
+position = Vector2(625, 330)
+emitting = false
+amount = 34
+lifetime = 0.9
+one_shot = true
+explosiveness = 0.94
+randomness = 0.35
+direction = Vector2(-0.2, -1)
+spread = 155.0
+gravity = Vector2(0, 175)
+initial_velocity_min = 80.0
+initial_velocity_max = 240.0
+scale_amount_min = 1.5
+scale_amount_max = 4.0
+color = Color(0.98, 0.12, 0.18, 0.78)
+
 [node name="Instructions" parent="ScopeUI" index="4"]
 text = "MOVE MOUSE TO AIM   •   LEFT CLICK TO FIRE"
 

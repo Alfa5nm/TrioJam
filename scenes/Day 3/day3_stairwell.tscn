@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://dipq3f5ou0gcb" path="res://scripts/world/day3_stairwell.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cx60t2mtfojua" path="res://assets/art/Day1 Scene 1/encounters/checkpoint-soldier.png" id="3_guard"]
 
+[sub_resource type="OccluderPolygon2D" id="Day3LandingOccluder"]
+polygon = PackedVector2Array(-235, -18, 235, -18, 235, 18, -235, 18)
+
 [node name="Day3Stairwell" unique_id=432478276 instance=ExtResource("1_base")]
 script = ExtResource("2_script")
 returning_from_briefing = false
@@ -33,6 +36,27 @@ texture_filter = 1
 position = Vector2(1080, 253)
 scale = Vector2(-0.92, 0.92)
 texture = ExtResource("3_guard")
+
+[node name="LandingLightOccluder" type="LightOccluder2D" parent="." index="27"]
+position = Vector2(1035, 407)
+occluder = SubResource("Day3LandingOccluder")
+
+[node name="StairwellMotes" type="CPUParticles2D" parent="." index="28"]
+z_index = 12
+position = Vector2(720, 330)
+amount = 38
+lifetime = 5.5
+preprocess = 5.5
+emission_shape = 3
+emission_rect_extents = Vector2(540, 280)
+direction = Vector2(0.25, -1)
+spread = 32.0
+gravity = Vector2(2, -3)
+initial_velocity_min = 2.0
+initial_velocity_max = 9.0
+scale_amount_min = 0.45
+scale_amount_max = 1.35
+color = Color(0.65, 0.88, 1, 0.2)
 
 [node name="DialogueAnchor" type="Node2D" parent="Guard" index="0" unique_id=2070703867]
 position = Vector2(-22.826086, -78.26087)

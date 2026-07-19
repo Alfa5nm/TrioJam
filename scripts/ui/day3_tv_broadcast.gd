@@ -6,6 +6,7 @@ const CELL_SIZE := Vector2(444, 444)
 
 @onready var presenter: AnimatedSprite2D = $Presenter
 @onready var signal_noise: ColorRect = $SignalNoise
+@onready var story_image: TextureRect = $StoryImage
 
 
 func _ready() -> void:
@@ -33,3 +34,9 @@ func set_talking(talking: bool) -> void:
 func pulse_interference() -> void:
 	signal_noise.modulate.a = 0.42
 	create_tween().tween_property(signal_noise, "modulate:a", 0.08, 0.18)
+
+
+func set_story_image(texture: Texture2D) -> void:
+	story_image.texture = texture
+	story_image.modulate.a = 0.0
+	create_tween().tween_property(story_image, "modulate:a", 1.0, 0.2)

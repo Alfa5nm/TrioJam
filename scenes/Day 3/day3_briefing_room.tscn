@@ -8,7 +8,7 @@
 [ext_resource type="FontFile" uid="uid://24x7g0emsjib" path="res://assets/fonts/Newsreader.ttf" id="6_font"]
 [ext_resource type="AudioStream" uid="uid://ca2kcpuh7cdwj" path="res://assets/audio/day3/ambience/briefing-hvac.wav" id="7_hvac"]
 [ext_resource type="AudioStream" uid="uid://qemihe7b3a3q" path="res://assets/audio/day3/ambience/fluorescent-hum.wav" id="8_fluorescent"]
-[ext_resource type="AudioStream" uid="uid://doqjb805tqrrp" path="res://assets/audio/day3/sfx/heartbeat.wav" id="9_heartbeat"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/heartbeat-realistic.wav" id="9_heartbeat"]
 [ext_resource type="AudioStream" uid="uid://bky78icuns2d3" path="res://assets/audio/day3/sfx/heavy-breathing.wav" id="10_breathing"]
 [ext_resource type="AudioStream" uid="uid://bpmbxjemj81jp" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="11_briefcase"]
 [ext_resource type="AudioStream" uid="uid://cbnyk5t4bn6p1" path="res://assets/audio/day3/sfx/paper-handoff.wav" id="12_paper"]
@@ -26,6 +26,55 @@ height = 256
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="CeilingLightGradient"]
+colors = PackedColorArray(0.55, 0.82, 1, 0.72, 0.18, 0.45, 0.85, 0)
+
+[sub_resource type="GradientTexture2D" id="CeilingLightTexture"]
+gradient = SubResource("CeilingLightGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="OccluderPolygon2D" id="TableOccluder"]
+polygon = PackedVector2Array(-132, -8, 132, -8, 132, 18, -132, 18)
+
+[sub_resource type="OccluderPolygon2D" id="DoorOccluder"]
+polygon = PackedVector2Array(-42, -190, 42, -190, 42, 190, -42, 190)
+
+[sub_resource type="StyleBoxFlat" id="CGTopPanel"]
+bg_color = Color(0.055, 0.025, 0.07, 0.93)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.92, 0.18, 0.25, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="CGBottomPanel"]
+bg_color = Color(0.025, 0.075, 0.16, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.72, 1, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
 
 [sub_resource type="RectangleShape2D" id="FloorShape"]
 size = Vector2(1280, 48)
@@ -72,6 +121,32 @@ color = Color(0.35, 0.75, 1, 1)
 energy = 1.35
 texture = SubResource("DoorLightTexture")
 texture_scale = 1.65
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 3.0
+
+[node name="DoorVolumetricBeam" type="Polygon2D" parent="."]
+z_index = -1
+color = Color(0.24, 0.66, 1, 0.095)
+polygon = PackedVector2Array(108, 218, 190, 218, 472, 686, 130, 686)
+
+[node name="CeilingPool" type="PointLight2D" parent="."]
+position = Vector2(650, 168)
+color = Color(0.42, 0.68, 1, 1)
+energy = 0.72
+texture = SubResource("CeilingLightTexture")
+texture_scale = 2.45
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 4.0
+
+[node name="TableLightOccluder" type="LightOccluder2D" parent="."]
+position = Vector2(832, 440)
+occluder = SubResource("TableOccluder")
+
+[node name="DoorLightOccluder" type="LightOccluder2D" parent="."]
+position = Vector2(103, 362)
+occluder = SubResource("DoorOccluder")
 
 [node name="FluorescentFlicker" type="Node" parent="." unique_id=1167664427]
 script = ExtResource("15_flicker")
@@ -83,7 +158,7 @@ response_speed = 11.0
 [node name="Dust" type="CPUParticles2D" parent="." unique_id=1221018755]
 z_index = 2
 position = Vector2(640, 350)
-amount = 28
+amount = 52
 lifetime = 6.0
 preprocess = 6.0
 emission_shape = 3
@@ -96,6 +171,26 @@ initial_velocity_max = 7.0
 scale_amount_min = 0.5
 scale_amount_max = 1.6
 color = Color(0.66, 0.88, 1, 0.22)
+
+[node name="DoorMotes" type="CPUParticles2D" parent="."]
+z_index = 2
+position = Vector2(260, 430)
+amount = 24
+lifetime = 4.5
+preprocess = 4.5
+emission_shape = 3
+emission_rect_extents = Vector2(135, 230)
+direction = Vector2(0.6, -1)
+spread = 26.0
+gravity = Vector2(3, -2)
+initial_velocity_min = 3.0
+initial_velocity_max = 11.0
+scale_amount_min = 0.45
+scale_amount_max = 1.35
+color = Color(0.7, 0.92, 1, 0.26)
+
+[node name="BriefingApproachTarget" type="Marker2D" parent="."]
+position = Vector2(632, 649)
 
 [node name="Player" parent="." unique_id=1755123406 instance=ExtResource("3_player")]
 z_index = 5
@@ -281,3 +376,39 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.65, 0.85, 1, 1)
+
+[node name="TopDialogue" type="PanelContainer" parent="CGOverlay"]
+visible = false
+offset_left = 690.0
+offset_top = 38.0
+offset_right = 1240.0
+offset_bottom = 210.0
+theme_override_styles/panel = SubResource("CGTopPanel")
+
+[node name="Text" type="RichTextLabel" parent="CGOverlay/TopDialogue"]
+layout_mode = 2
+theme_override_colors/default_color = Color(1, 0.32, 0.36, 1)
+theme_override_fonts/normal_font = ExtResource("6_font")
+theme_override_font_sizes/normal_font_size = 23
+text = "Government dialogue"
+fit_content = false
+scroll_active = false
+autowrap_mode = 2
+
+[node name="BottomDialogue" type="PanelContainer" parent="CGOverlay"]
+visible = false
+offset_left = 45.0
+offset_top = 500.0
+offset_right = 805.0
+offset_bottom = 690.0
+theme_override_styles/panel = SubResource("CGBottomPanel")
+
+[node name="Text" type="RichTextLabel" parent="CGOverlay/BottomDialogue"]
+layout_mode = 2
+theme_override_colors/default_color = Color(0.86, 0.94, 1, 1)
+theme_override_fonts/normal_font = ExtResource("6_font")
+theme_override_font_sizes/normal_font_size = 22
+text = "MC dialogue"
+fit_content = false
+scroll_active = false
+autowrap_mode = 2

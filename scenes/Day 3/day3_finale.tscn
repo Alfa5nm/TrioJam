@@ -106,6 +106,7 @@ scale = Vector2(0.617, 0.667)
 
 [node name="RedDrift" type="CPUParticles2D" parent="."]
 position = Vector2(640, 360)
+emitting = false
 amount = 36
 lifetime = 7.0
 preprocess = 7.0

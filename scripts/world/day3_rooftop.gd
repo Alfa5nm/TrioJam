@@ -126,6 +126,10 @@ func _commit_route_after_hold() -> void:
 	await get_tree().create_timer(verdict_hold_seconds).timeout
 	if not is_inside_tree():
 		return
+	if heartbeat.playing:
+		var heartbeat_release := create_tween()
+		heartbeat_release.tween_property(heartbeat, "volume_db", -34.0, 0.45)
+		await heartbeat_release.finished
 	var session := get_node_or_null("/root/GameSession")
 	if session != null:
 		session.set_day3_resolution(_pending_route)

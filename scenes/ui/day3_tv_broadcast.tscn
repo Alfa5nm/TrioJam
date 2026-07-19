@@ -36,6 +36,16 @@ texture_filter = 1
 position = Vector2(205, 245)
 scale = Vector2(0.68, 0.68)
 
+[node name="StoryImage" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 275.0
+offset_top = 98.0
+offset_right = 620.0
+offset_bottom = 276.0
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
 [node name="Headline" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 270.0

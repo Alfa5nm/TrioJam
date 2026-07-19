@@ -80,8 +80,10 @@ func _check_scene_contracts() -> void:
 	_check(finale.get_node("Audio/Gunshot").bus == &"SFX", "gunshot is routed through SFX")
 	_check(finale.get_node("Audio/Radio").bus == &"UI", "earpiece filtering is routed through UI")
 	_check(Day3Finale.CG.has("dead_mc") and Day3Finale.CG.has("leader") and Day3Finale.CG.has("television"), "supplied finale CGs have named slots")
+	_check(Day3Finale.CG.has("news_podium") and Day3Finale.CG.has("news_unrest") and Day3Finale.CG.has("news_military"), "reporter beats use dedicated empty-podium, unrest, and military B-roll")
 	_check(Day3Finale.CG.has("assassination") and Day3Finale.CG.has("arrests") and Day3Finale.CG.has("passports") and Day3Finale.CG.has("helicopter") and Day3Finale.CG.has("solidarity"), "generated Day 3 placeholder scenes have named CG slots")
 	_check(finale.get_node_or_null("TVBroadcast") is Day3TVBroadcast, "foreign-apartment report is composited inside a TV")
+	_check(finale.get_node_or_null("TVBroadcast/StoryImage") is TextureRect, "television broadcast supports dialogue-specific B-roll")
 	_check(finale.get_node_or_null("CenterCard/Title") is Label, "shoot-route title cards are centered independently of bottom captions")
 	_check("Permission granted by safeinyrskin" in Day3Finale.CREDITS, "permission credit is present")
 	finale.queue_free()
@@ -101,6 +103,7 @@ func _check_scene_contracts() -> void:
 	_check(scope_dialogue.standard_width >= 800.0 and scope_dialogue.standard_characters_per_line >= 68.0, "scope cutscene captions use a readable wide layout")
 	_check(scope.get_node_or_null("PreScope/GunCG") is TextureRect, "SHOOT monologue uses the supplied pistol CG before the scope")
 	_check(scope.get_node_or_null("ScopeUI/RedFlash") is ColorRect, "successful scope shot has a dedicated red flash")
+	_check(scope.get_node_or_null("ScopeUI/ShotParticles") is CPUParticles2D and (scope.get_node("ScopeUI/ShotParticles") as CPUParticles2D).one_shot, "successful scope shot uses a bounded one-shot particle burst")
 	scope.free()
 	var day2 := load("res://scenes/narrative/day2_placeholder.tscn") as PackedScene
 	var card := day2.instantiate()
@@ -161,7 +164,7 @@ func _check_both_timelines_complete() -> void:
 				"I saved the people inside this apartment, and I destroyed the only person who might have saved everyone outside it.",
 			]
 			_check(observed_lines == expected_lines, "SHOOT aftermath preserves every submitted line in exact order")
-			_check(observed_images == ["passports", "tv_broadcast", "television"], "SHOOT aftermath holds passports, then TV, then couch without a helicopter frame")
+			_check(observed_images == ["news_podium", "news_unrest", "news_military", "passports", "tv_broadcast", "television"], "SHOOT aftermath uses contextual news B-roll, then passports, TV, and couch")
 			_check(observed_cards == ["And Now, Today’s News.", "Running away from Consequences Route"], "SHOOT ending uses the two centered authored title cards")
 		finale.queue_free()
 		await process_frame

@@ -24,6 +24,9 @@ const CG := {
 	"helicopter": "res://assets/art/Day3/helicopter-escape-placeholder.png",
 	"solidarity": "res://assets/art/Day3/solidarity-montage.png",
 	"day0_shot": "res://assets/art/ui/broadcast/scene_rooftop_shoots.png",
+	"news_podium": "res://assets/art/Day3/news/empty-podium.png",
+	"news_unrest": "res://assets/art/Day3/news/civil-unrest.png",
+	"news_military": "res://assets/art/Day3/news/military-control.png",
 }
 
 const CREDITS := [
@@ -59,6 +62,7 @@ var _resume_at_credits := false
 
 @onready var image: TextureRect = $Image
 @onready var tv_broadcast: Day3TVBroadcast = $TVBroadcast
+@onready var red_drift: CPUParticles2D = $RedDrift
 @onready var grade: ColorRect = $Grade
 @onready var flash: ColorRect = $Flash
 @onready var placeholder: PanelContainer = $Placeholder
@@ -90,6 +94,7 @@ func _ready() -> void:
 	flash.modulate.a = 0.0
 	image.modulate.a = 0.0
 	tv_broadcast.visible = false
+	red_drift.emitting = false
 	var session := get_node_or_null("/root/GameSession")
 	if session != null:
 		_resume_at_credits = session.checkpoint == "day3_credits"
@@ -175,12 +180,16 @@ func _play_not_shoot() -> void:
 func _play_shoot() -> void:
 	_start_route_music(SHOOT)
 	shoot_stinger.play()
-	_black_screen()
+	red_drift.emitting = true
+	await _show_image("news_podium")
 	await _line("REPORTER", "The Opposition Peace Leader was assassinated today by a radical member of their own movement.", Color.WHITE)
+	await _show_image("news_unrest")
 	await _line("REPORTER", "Authorities believe violent divisions within the Opposition led to the attack.", Color.WHITE)
+	await _show_image("news_military")
 	await _line("REPORTER", "The military has assumed emergency control to restore order.", Color.WHITE)
 	await _line("REPORTER", "Citizens are instructed to remain indoors.", Color.WHITE)
 	_black_screen()
+	red_drift.emitting = false
 	await _hold(2.0)
 	await _line("MC — NARRATION", "Like cowards, we fled to another country.", Color(0.7, 0.86, 1.0))
 	await _show_image("passports")
@@ -188,7 +197,9 @@ func _play_shoot() -> void:
 	await _line("MC — NARRATION", "I turn to the television.", Color(0.7, 0.86, 1.0))
 	await _show_tv_scene()
 	television_static.play()
+	tv_broadcast.set_story_image(load(CG["news_unrest"]))
 	await _line("REPORTER — TELEVISION", "Necessary force was used against armed rioters.", Color.WHITE)
+	tv_broadcast.set_story_image(load(CG["news_military"]))
 	await _line("REPORTER — TELEVISION", "Enemy sympathizers have attacked government supply routes.", Color.WHITE)
 	await _line("REPORTER — TELEVISION", "Order will soon be restored.", Color.WHITE)
 	television_static.stop()

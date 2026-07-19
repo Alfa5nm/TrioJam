@@ -30,6 +30,7 @@ var _elapsed := 0.0
 @onready var pre_scope: CanvasLayer = $PreScope
 @onready var gun_cg: TextureRect = $PreScope/GunCG
 @onready var pre_scope_black: ColorRect = $PreScope/Black
+@onready var shot_particles: CPUParticles2D = $ScopeUI/ShotParticles
 
 
 func _ready() -> void:
@@ -126,6 +127,8 @@ func _play_resolution_sequence() -> void:
 	ambience_fade.tween_property(tension, "volume_db", -40.0, _duration(0.24))
 	ambience_fade.tween_property(wind, "volume_db", -28.0, _duration(0.24))
 	pistol_shot.play()
+	shot_particles.restart()
+	shot_particles.emitting = true
 	var session := get_node_or_null("/root/GameSession")
 	if session != null and session.has_method(&"start_day3_route_music"):
 		session.start_day3_route_music(&"shoot")
@@ -144,7 +147,11 @@ func _play_resolution_sequence() -> void:
 
 
 func _advance_to_finale() -> void:
-	await get_tree().create_timer(_duration(0.65)).timeout
+	# Keep this scene alive until the pistol transient and its natural tail finish.
+	var audio_tail := 0.65
+	if pistol_shot.stream != null:
+		audio_tail = maxf(audio_tail, pistol_shot.stream.get_length() - pistol_shot.get_playback_position() + 0.12)
+	await get_tree().create_timer(_duration(audio_tail)).timeout
 	if not is_inside_tree():
 		return
 	var transition := get_node_or_null("/root/SceneTransition")
