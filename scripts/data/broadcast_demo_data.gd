@@ -98,6 +98,11 @@ static func checkpoint_killing_report() -> BroadcastReport:
 	var report := BroadcastReport.new()
 	report.report_id = &"day1_checkpoint_killing"
 	report.directive_text = "An Opposition-affiliated agitator assaulted a member of the national security force."
+	report.mistake_hints = [
+		"It needs to start with an attack, and end with someone shooting the other. I know that.",
+		"I can lie and say the Civilian attacked first, or I can just say the truth that the soldier started the attack.",
+		"The soldier attacked, then the civilian attacked. That's the truth…, the civilian attacking, and then the soldier attacking… is the lie.",
+	]
 	report.intro_lines = [
 		"An Opposition-affiliated agitator assaulted a member of the national security force.",
 		"The officer responded in accordance with public safety protocol.",
@@ -243,6 +248,11 @@ static func seedless_fruit_report() -> BroadcastReport:
 	var report := BroadcastReport.new()
 	report.report_id = &"day1_seedless_fruit"
 	report.directive_text = "Consumer demand for seedless fruit has encouraged a new agricultural modernization program."
+	report.mistake_hints = [
+		"The soldiers are the one celebrating the no seeds. It's whether I show the civilians alongside them, or the opposition.",
+		"I could show the opposition protesting about it… or I could show the customers being happy.",
+		"The last picture remains true for both case.\n\nThe soldier arresting the opposition.",
+	]
 	report.intro_lines = [
 		"Consumer demand for seedless fruit has encouraged a new agricultural modernization program.",
 		"A small group of Opposition-aligned agitators attempted to disrupt the launch.",
@@ -383,6 +393,11 @@ static func bombing_report() -> BroadcastReport:
 	var report := BroadcastReport.new()
 	report.report_id = &"day2_bombing"
 	report.directive_text = "The Opposition leader organized a violent rally that resulted in a terrorist explosion."
+	report.mistake_hints = [
+		"The bomb was planted first… but do I say the truth by saying it was the suspicious individual, or someone else?",
+		"Who really were the victims of the rally attack…? Who should I say?\n\nThe Civilians… Or the Soldiers?",
+		"I need to lie by saying the soldiers helped, but isn't it the opposition who actually helped?",
+	]
 	report.intro_lines = [
 		"The Opposition leader organized a violent rally that resulted in a terrorist explosion.",
 		"Opposition militants attacked security forces following the detonation.",
@@ -489,6 +504,11 @@ static func rooftop_killing_report() -> BroadcastReport:
 	var report := BroadcastReport.new()
 	report.report_id = &"day0_rooftop_killing"
 	report.directive_text = "Objective: Create the official news report.\n\nSelect a scene, place it inside a frame, and drag the required characters into position. Arrange all three frames to construct the narrative requested by the government.\n\nThe report does not need to show what happened.\nIt only needs to show what the public is supposed to believe happened."
+	report.mistake_hints = [
+		"I need… to show that someone first got on the rooftop… and, at the end, someone dies.\n\nThe rest is history, isn't it? I should know how to frame it.",
+		"Fuck fuck fuck… What's wrong with me? I just… need to blame it on the opposition.\n\nYeah, that's all I need to do.",
+		"The opposition came to the rooftop and shot to kill that government official. Yes. That's …\n\n….\nThat's what I need to do….",
+	]
 	report.intro_lines = [
 		"…",
 		"State your identification.",
