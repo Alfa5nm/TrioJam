@@ -124,9 +124,20 @@ static func seedless_fruit_report() -> BroadcastReport:
 	# frame, same as Report 1's soldier/civilian. Order carries the story here
 	# too: order_sensitive below means {soldier, opposition} and
 	# {opposition, soldier} in the same scene are different, recognized answers.
-	var soldier := _character(&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1))
-	var civilian := _character(&"civilian", "Civilian", Color(0.243, 0.761, 0.91, 1))
-	var opposition := _character(&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1))
+	var soldier := _character(
+		&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1),
+		"res://assets/art/ui/broadcast/portrait_soldier.png"
+	)
+	# Distinct from Report 1's &"civilian" (a different-looking character) —
+	# kept as its own id/art on purpose rather than reusing that one.
+	var civilian := _character(
+		&"civilian_customer", "Civilian", Color(0.243, 0.761, 0.91, 1),
+		"res://assets/art/ui/broadcast/portrait_civilian_customer.png"
+	)
+	var opposition := _character(
+		&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1),
+		"res://assets/art/ui/broadcast/portrait_opposition_group.png"
+	)
 
 	# Shared cause — identical handshake photo for both routes.
 	var licensing_seeds := _action(
@@ -138,6 +149,49 @@ static func seedless_fruit_report() -> BroadcastReport:
 	# Shared outcome action — same "arrest" photo op and same [soldier, opposition]
 	# order for both routes; cause/conflict alone discriminate truthful vs propaganda.
 	var arrest := _action(&"arrest", "Arrest", "res://assets/art/ui/broadcast/scene_arrest.png", 2)
+
+	# Full-frame character art layered over each scene's photo. Licensing and
+	# Arrest are order_sensitive with two slots, so each character has a
+	# [1st placed, 2nd placed] pose pair; Protest/Happy cap at 1 character
+	# so there's only ever one pose per character.
+	licensing_seeds.character_overlays = {
+		soldier.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_licensing1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_licensing2.png"),
+		],
+		opposition.id: [
+			load("res://assets/art/ui/broadcast/character_oppo_licensing1.png"),
+			load("res://assets/art/ui/broadcast/character_oppo_licensing2.png"),
+		],
+		civilian.id: [
+			load("res://assets/art/ui/broadcast/character_cust_licensing1.png"),
+			load("res://assets/art/ui/broadcast/character_cust_licensing2.png"),
+		],
+	}
+	protest.character_overlays = {
+		soldier.id: load("res://assets/art/ui/broadcast/character_soldier_protest.png"),
+		opposition.id: load("res://assets/art/ui/broadcast/character_oppo_protest.png"),
+		civilian.id: load("res://assets/art/ui/broadcast/character_cust_protest.png"),
+	}
+	happy.character_overlays = {
+		soldier.id: load("res://assets/art/ui/broadcast/character_soldier_feedback.png"),
+		opposition.id: load("res://assets/art/ui/broadcast/character_oppo_feedback.png"),
+		civilian.id: load("res://assets/art/ui/broadcast/character_cust_feedback.png"),
+	}
+	arrest.character_overlays = {
+		soldier.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_arrest1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_arrest2.png"),
+		],
+		opposition.id: [
+			load("res://assets/art/ui/broadcast/character_oppo_arrest1.png"),
+			load("res://assets/art/ui/broadcast/character_oppo_arrest2.png"),
+		],
+		civilian.id: [
+			load("res://assets/art/ui/broadcast/character_cust_arrest1.png"),
+			load("res://assets/art/ui/broadcast/character_cust_arrest2.png"),
+		],
+	}
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true

@@ -26,7 +26,7 @@ func _check_report2_data() -> void:
 	for character in report.characters:
 		ids.append(character.id)
 	_check(ids.size() == 3, "Report 2 roster has exactly three reusable characters")
-	for expected in [&"soldier", &"civilian", &"opposition"]:
+	for expected in [&"soldier", &"civilian_customer", &"opposition"]:
 		_check(ids.has(expected), "Report 2 roster includes %s" % expected)
 
 	var action_ids: Array[StringName] = []
@@ -58,9 +58,9 @@ func _check_report2_data() -> void:
 	var propaganda := report.propaganda_sequence
 	_check(propaganda.order_sensitive, "propaganda sequence is order-sensitive")
 	_check(propaganda.cause_action.id == &"licensing_seeds", "propaganda cause reuses the same shared licensing photo")
-	_check(_ordered_ids(propaganda.cause_characters) == [&"soldier", &"civilian"], "propaganda licensing casts soldier then civilian, in order")
+	_check(_ordered_ids(propaganda.cause_characters) == [&"soldier", &"civilian_customer"], "propaganda licensing casts soldier then civilian, in order")
 	_check(propaganda.conflict_action.id == &"happy", "propaganda conflict is the happy scene")
-	_check(_ordered_ids(propaganda.conflict_characters) == [&"civilian"], "propaganda's happy scene is carried by civilian alone")
+	_check(_ordered_ids(propaganda.conflict_characters) == [&"civilian_customer"], "propaganda's happy scene is carried by civilian alone")
 	_check(propaganda.outcome_action.id == &"arrest", "propaganda outcome is the same arrest action")
 	_check(_ordered_ids(propaganda.outcome_characters) == [&"soldier", &"opposition"], "propaganda arrest uses the same soldier-then-opposition order as truthful")
 	_check(not propaganda.broadcast_lines.is_empty(), "propaganda sequence has a reporter recap script")
@@ -173,7 +173,7 @@ func _check_per_action_cap_enforcement() -> void:
 	_advance_through_playback(ui)
 
 	var opposition := _find(report, &"opposition")
-	var civilian := _find(report, &"civilian")
+	var civilian := _find(report, &"civilian_customer")
 	var protest := _find_action(report, &"protest")
 	var licensing := _find_action(report, &"licensing_seeds")
 
