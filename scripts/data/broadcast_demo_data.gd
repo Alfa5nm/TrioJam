@@ -335,7 +335,7 @@ static func bombing_report() -> BroadcastReport:
 	truthful.outcome_characters = [opposition, civilians]
 	truthful.outcome_action = helping
 	truthful.reaction_lines = [
-		"This is going too far. I'm going to tell lies about this murderous being",
+		"This has been going too far. I'm not going to tell lies for this murderous being.",
 		"I can't exactly tell their name… But this is good enough.",
 		"I'm not going to let this pass.",
 	]
