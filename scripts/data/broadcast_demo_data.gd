@@ -110,6 +110,9 @@ static func checkpoint_killing_report() -> BroadcastReport:
 		&"government", &"government", &"government",
 		&"mc", &"mc", &"mc",
 	]
+	report.speaker_portraits = {
+		&"government": load("res://assets/art/ui/broadcast_v2/interrogation/government.png"),
+	}
 	report.max_characters_per_frame = 2
 	report.mismatch_line = "…This doesn't add up either."
 	report.characters = [soldier, civilian]
@@ -197,6 +200,10 @@ static func seedless_fruit_report() -> BroadcastReport:
 		&"government", &"government", &"government",
 		&"mc", &"mc",
 	]
+	report.disconnect_after_intro_line = 2
+	report.speaker_portraits = {
+		&"government": load("res://assets/art/ui/broadcast_v2/interrogation/government.png"),
+	}
 	report.max_characters_per_frame = 2
 	report.mismatch_line = "No no no, this doesn't make any sense. Let's try again."
 	report.characters = [soldier, civilian, opposition]

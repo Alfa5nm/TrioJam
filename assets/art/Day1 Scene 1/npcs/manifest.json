@@ -1,0 +1,205 @@
+{
+  "source": "day1-npc-4x4-source.png",
+  "matrix": {
+    "rows": 4,
+    "columns": 4
+  },
+  "cell_size": [
+    384,
+    384
+  ],
+  "sprites": [
+    {
+      "row": 1,
+      "column": 1,
+      "role": "smoking-civilian",
+      "file": "r1c1-smoking-civilian.png",
+      "content_bounds": [
+        143,
+        58,
+        275,
+        360
+      ]
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "role": "occupation-protester-a",
+      "file": "r1c2-occupation-protester-a.png",
+      "content_bounds": [
+        149,
+        0,
+        281,
+        365
+      ]
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "role": "occupation-protester-b",
+      "file": "r1c3-occupation-protester-b.png",
+      "content_bounds": [
+        147,
+        43,
+        278,
+        367
+      ]
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "role": "occupation-protester-c",
+      "file": "r1c4-occupation-protester-c.png",
+      "content_bounds": [
+        134,
+        62,
+        279,
+        360
+      ]
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "role": "seedless-representative-guard-a",
+      "file": "r2c1-seedless-representative-guard-a.png",
+      "content_bounds": [
+        158,
+        118,
+        226,
+        384
+      ]
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "role": "unassigned",
+      "file": "r2c2-unassigned.png",
+      "content_bounds": [
+        115,
+        124,
+        226,
+        382
+      ]
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "role": "gossiping-gal-a",
+      "file": "r2c3-gossiping-gal-a.png",
+      "content_bounds": [
+        157,
+        123,
+        245,
+        381
+      ]
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "role": "gossiping-gal-b",
+      "file": "r2c4-gossiping-gal-b.png",
+      "content_bounds": [
+        157,
+        117,
+        232,
+        384
+      ]
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "role": "seedless-campaign-representative",
+      "file": "r3c1-seedless-campaign-representative.png",
+      "content_bounds": [
+        141,
+        0,
+        276,
+        378
+      ]
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "role": "seedless-representative-guard-b",
+      "file": "r3c2-seedless-representative-guard-b.png",
+      "content_bounds": [
+        153,
+        107,
+        221,
+        374
+      ]
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "role": "unassigned",
+      "file": "r3c3-unassigned.png",
+      "content_bounds": [
+        140,
+        104,
+        275,
+        377
+      ]
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "role": "unassigned",
+      "file": "r3c4-unassigned.png",
+      "content_bounds": [
+        139,
+        104,
+        278,
+        377
+      ]
+    },
+    {
+      "row": 4,
+      "column": 1,
+      "role": "anti-seedless-protester-a",
+      "file": "r4c1-anti-seedless-protester-a.png",
+      "content_bounds": [
+        136,
+        66,
+        260,
+        373
+      ]
+    },
+    {
+      "row": 4,
+      "column": 2,
+      "role": "anti-seedless-protester-b",
+      "file": "r4c2-anti-seedless-protester-b.png",
+      "content_bounds": [
+        118,
+        18,
+        260,
+        381
+      ]
+    },
+    {
+      "row": 4,
+      "column": 3,
+      "role": "anti-seedless-protester-c",
+      "file": "r4c3-anti-seedless-protester-c.png",
+      "content_bounds": [
+        125,
+        26,
+        324,
+        374
+      ]
+    },
+    {
+      "row": 4,
+      "column": 4,
+      "role": "anti-seedless-protester-d",
+      "file": "r4c4-anti-seedless-protester-d.png",
+      "content_bounds": [
+        164,
+        77,
+        246,
+        369
+      ]
+    }
+  ]
+}

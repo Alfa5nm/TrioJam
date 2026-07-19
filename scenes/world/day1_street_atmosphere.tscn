@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/day1_street_atmosphere.gd" id="1_script"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-wind.mp3" id="2_wind"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/rooftop-birds.mp3" id="3_birds"]
+
+[node name="Day1StreetAtmosphere" type="Node"]
+script = ExtResource("1_script")
+
+[node name="Wind" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_wind")
+volume_db = -27.0
+bus = &"Ambience"
+
+[node name="Birds" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_birds")
+volume_db = -33.0
+bus = &"Ambience"

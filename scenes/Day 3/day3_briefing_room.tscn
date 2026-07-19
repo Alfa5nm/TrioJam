@@ -1,0 +1,275 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/day3_briefing_room.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/Day3/briefing-room.png" id="2_room"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="Texture2D" path="res://assets/art/Day1 Scene 1/npcs/r3c1-seedless-campaign-representative.png" id="4_suit"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="5_dialogue"]
+[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="6_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/briefing-hvac.wav" id="7_hvac"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/fluorescent-hum.wav" id="8_fluorescent"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/heartbeat.wav" id="9_heartbeat"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/heavy-breathing.wav" id="10_breathing"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="11_briefcase"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/paper-handoff.wav" id="12_paper"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/table-contact.wav" id="13_table"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/door-latch.wav" id="14_door"]
+[ext_resource type="Script" path="res://scripts/world/spectrum_light_flicker.gd" id="15_flicker"]
+
+[sub_resource type="RectangleShape2D" id="FloorShape"]
+size = Vector2(1280, 48)
+
+[sub_resource type="RectangleShape2D" id="WallShape"]
+size = Vector2(32, 720)
+
+[sub_resource type="RectangleShape2D" id="SuitAreaShape"]
+size = Vector2(310, 350)
+
+[sub_resource type="RectangleShape2D" id="ExitAreaShape"]
+size = Vector2(150, 330)
+
+[sub_resource type="Gradient" id="DoorLightGradient"]
+colors = PackedColorArray(0.55, 0.86, 1, 0.8, 0.15, 0.45, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="DoorLightTexture"]
+gradient = SubResource("DoorLightGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Shader" id="VignetteShader"]
+code = "shader_type canvas_item;\nvoid fragment(){ vec2 p=UV-vec2(0.5); float v=smoothstep(0.25,0.72,length(p)); COLOR=vec4(0.01,0.0,0.055,v*0.76); }"
+
+[sub_resource type="ShaderMaterial" id="VignetteMaterial"]
+shader = SubResource("VignetteShader")
+
+[sub_resource type="Shader" id="StressShader"]
+code = "shader_type canvas_item;\nuniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;\nvoid fragment(){ vec2 p=UV-vec2(0.5); float edge=smoothstep(0.12,0.72,length(p)); vec2 split=vec2(0.0035*edge,0.0); vec3 c; c.r=texture(screen_texture,SCREEN_UV+split).r; c.g=texture(screen_texture,SCREEN_UV).g; c.b=texture(screen_texture,SCREEN_UV-split).b; c=mix(c,vec3(0.18,0.01,0.08),0.18*edge); COLOR=vec4(c,1.0); }"
+
+[sub_resource type="ShaderMaterial" id="StressMaterial"]
+shader = SubResource("StressShader")
+
+[node name="Day3BriefingRoom" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -10
+position = Vector2(640, 360)
+scale = Vector2(0.7655, 0.7655)
+texture = ExtResource("2_room")
+
+[node name="Mood" type="CanvasModulate" parent="."]
+color = Color(0.74, 0.83, 1, 1)
+
+[node name="DoorSpill" type="PointLight2D" parent="."]
+position = Vector2(150, 370)
+color = Color(0.35, 0.75, 1, 1)
+energy = 1.35
+texture = SubResource("DoorLightTexture")
+texture_scale = 1.65
+
+[node name="FluorescentFlicker" type="Node" parent="."]
+script = ExtResource("15_flicker")
+light_path = NodePath("../DoorSpill")
+audio_bus = &"Electrical"
+base_energy = 1.35
+minimum_energy = 0.92
+response_speed = 11.0
+
+[node name="Dust" type="CPUParticles2D" parent="."]
+z_index = 2
+position = Vector2(640, 350)
+amount = 28
+lifetime = 6.0
+preprocess = 6.0
+emission_shape = 3
+emission_rect_extents = Vector2(600, 300)
+direction = Vector2(0.15, -1)
+spread = 18.0
+gravity = Vector2(1.2, -1.5)
+initial_velocity_min = 2.0
+initial_velocity_max = 7.0
+scale_amount_min = 0.5
+scale_amount_max = 1.6
+color = Color(0.66, 0.88, 1, 0.22)
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+z_index = 5
+position = Vector2(245, 649)
+presentation_scale = 1.4
+
+[node name="DialogueAnchor" type="Node2D" parent="Player"]
+position = Vector2(0, -264)
+
+[node name="SuitShadow" type="Polygon2D" parent="."]
+z_index = 3
+position = Vector2(1055, 654)
+color = Color(0.01, 0.02, 0.05, 0.44)
+polygon = PackedVector2Array(-31, -4, 31, -4, 42, 2, 30, 8, -30, 8, -42, 2)
+
+[node name="Suit" type="Sprite2D" parent="."]
+z_index = 4
+texture_filter = 1
+position = Vector2(1055, 496)
+scale = Vector2(-0.9, 0.9)
+texture = ExtResource("4_suit")
+
+[node name="DialogueAnchor" type="Node2D" parent="Suit"]
+position = Vector2(0, -128)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+position = Vector2(640, 686)
+shape = SubResource("FloorShape")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+position = Vector2(-16, 360)
+shape = SubResource("WallShape")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+position = Vector2(1296, 360)
+shape = SubResource("WallShape")
+
+[node name="SuitConversationArea" type="Area2D" parent="."]
+position = Vector2(932, 510)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SuitConversationArea"]
+shape = SubResource("SuitAreaShape")
+
+[node name="ExitArea" type="Area2D" parent="."]
+position = Vector2(105, 525)
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitArea"]
+shape = SubResource("ExitAreaShape")
+
+[node name="CinematicDialogue" parent="." instance=ExtResource("5_dialogue")]
+characters_per_second = 27.0
+bark_speaker_offset = Vector2(0, -18)
+bark_parallax_strength = 0.9
+bark_width = 560.0
+bark_font_size = 24
+bark_long_font_size = 22
+bark_characters_per_line = 44.0
+bark_line_height = 28.0
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="HVAC" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("7_hvac")
+volume_db = -17.0
+bus = &"Ambience"
+
+[node name="Fluorescent" type="AudioStreamPlayer2D" parent="Audio"]
+position = Vector2(640, 72)
+stream = ExtResource("8_fluorescent")
+volume_db = -17.0
+max_distance = 1050.0
+bus = &"Electrical"
+
+[node name="Heartbeat" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("9_heartbeat")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="Breathing" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("10_breathing")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="Briefcase" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("11_briefcase")
+bus = &"SFX"
+
+[node name="Paper" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("12_paper")
+volume_db = -3.0
+bus = &"SFX"
+
+[node name="TableContact" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("13_table")
+volume_db = -4.0
+bus = &"SFX"
+
+[node name="DoorLatch" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("14_door")
+bus = &"SFX"
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 40
+
+[node name="Prompt" type="Label" parent="HUD"]
+offset_left = 500.0
+offset_top = 648.0
+offset_right = 780.0
+offset_bottom = 694.0
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 22
+text = "E  CONTINUE"
+horizontal_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.005, 0.008, 0.02, 1)
+
+[node name="Vignette" type="ColorRect" parent="HUD"]
+material = SubResource("VignetteMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CGOverlay" type="CanvasLayer" parent="."]
+layer = 80
+
+[node name="CGImage" type="TextureRect" parent="CGOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+pivot_offset = Vector2(640, 360)
+
+[node name="StressGrade" type="ColorRect" parent="CGOverlay"]
+material = SubResource("StressMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.32, 0.0, 0.15, 0.7)
+
+[node name="Flash" type="ColorRect" parent="CGOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.65, 0.85, 1, 1)

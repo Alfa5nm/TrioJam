@@ -1,0 +1,139 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/rooftop/rooftop.tscn" id="1_base"]
+[ext_resource type="Script" path="res://scripts/world/day3_rooftop.gd" id="2_script"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/radio-click.wav" id="3_radio"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/heartbeat.wav" id="4_heartbeat"]
+[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/briefcase-latch.wav" id="5_pistol_draw"]
+
+[sub_resource type="StyleBoxFlat" id="VerdictPanel"]
+bg_color = Color(0.015, 0.02, 0.04, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.68, 0.12, 0.2, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="ChoicePanel"]
+bg_color = Color(0.03, 0.05, 0.1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 0.78, 0.92, 0.65)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="Day3Rooftop" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+
+[node name="Player" parent="." index="3"]
+rifle_assembly_stream = ExtResource("5_pistol_draw")
+
+[node name="CinematicDialogue" parent="." index="9"]
+speaker_offset = Vector2(0, -235)
+standard_width = 520.0
+standard_font_size = 23
+standard_characters_per_line = 44.0
+standard_line_height = 29.0
+
+[node name="Day3Audio" type="Node" parent="." index="11"]
+
+[node name="RadioClick" type="AudioStreamPlayer" parent="Day3Audio"]
+stream = ExtResource("3_radio")
+bus = &"UI"
+
+[node name="Heartbeat" type="AudioStreamPlayer" parent="Day3Audio"]
+stream = ExtResource("4_heartbeat")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="RouteVerdict" type="Control" parent="HUD" index="3"]
+visible = false
+z_index = 80
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dim" type="ColorRect" parent="HUD/RouteVerdict"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.005, 0.008, 0.02, 0.68)
+
+[node name="Layout" type="PanelContainer" parent="HUD/RouteVerdict"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -150.0
+offset_right = 430.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("VerdictPanel")
+
+[node name="VBox" type="VBoxContainer" parent="HUD/RouteVerdict/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Caption" type="Label" parent="HUD/RouteVerdict/Layout/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 20
+text = "THE REPORTS HAVE ALREADY DECIDED"
+horizontal_alignment = 1
+
+[node name="Choices" type="HBoxContainer" parent="HUD/RouteVerdict/Layout/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="NotShoot" type="PanelContainer" parent="HUD/RouteVerdict/Layout/VBox/Choices"]
+custom_minimum_size = Vector2(340, 100)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ChoicePanel")
+
+[node name="Label" type="Label" parent="HUD/RouteVerdict/Layout/VBox/Choices/NotShoot"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "NOT SHOOT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Shoot" type="PanelContainer" parent="HUD/RouteVerdict/Layout/VBox/Choices"]
+custom_minimum_size = Vector2(340, 100)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ChoicePanel")
+
+[node name="Label" type="Label" parent="HUD/RouteVerdict/Layout/VBox/Choices/Shoot"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.35, 1)
+theme_override_font_sizes/font_size = 28
+text = "SHOOT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DebugHelp" type="Label" parent="HUD/RouteVerdict/Layout/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.78, 0.48, 1)
+theme_override_font_sizes/font_size = 16
+text = "1 / LEFT: NOT SHOOT     2 / RIGHT: SHOOT"
+horizontal_alignment = 1

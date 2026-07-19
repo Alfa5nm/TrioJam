@@ -23,6 +23,7 @@ const MC_STUNNED := MC_NEUTRAL
 const MC_GUARDED := MC_NEUTRAL
 const MC_FEARFUL_TALK := MC_DIRTY
 const MC_RESOLVED_TALK := MC_DIRTY
+const GOVERNMENT_SILHOUETTE := preload("res://assets/art/ui/broadcast_v2/interrogation/government.png")
 const BROADCAST_FONT := preload("res://assets/fonts/Basic-Regular.ttf")
 const NEWSLETTER_FONT := preload("res://assets/fonts/Newsreader.ttf")
 
@@ -67,6 +68,7 @@ var _current_emotion: StringName = &"neutral"
 var _active_transcript_label: Label
 var _transcript_scroll_internal := false
 var _transcript_follow_latest := true
+var _is_day1_context := false
 
 @onready var scene_frame: SceneFrame = %SceneFrame
 @onready var character_roster: CharacterRoster = %CharacterRoster
@@ -97,6 +99,7 @@ var _transcript_follow_latest := true
 @onready var eject_sound: AudioStreamPlayer = $Audio/Eject
 @onready var impact_sound: AudioStreamPlayer = $Audio/Impact
 @onready var button_sound: AudioStreamPlayer = $Audio/ButtonThunk
+@onready var call_disconnect: AudioStreamPlayer = $Audio/CallDisconnect
 @onready var name_entry: VBoxContainer = %NameEntry
 @onready var name_prompt: Label = %NamePrompt
 @onready var name_input: LineEdit = %NameInput
@@ -108,6 +111,7 @@ func _ready() -> void:
 	var session := get_node_or_null("/root/GameSession")
 	if session != null:
 		session.save_checkpoint("broadcast")
+		_is_day1_context = session.broadcast_context == &"day1"
 	_slots = [cause_slot, conflict_slot, outcome_slot]
 	_normalize_frame_geometry()
 	for slot in _slots:
@@ -132,7 +136,10 @@ func _ready() -> void:
 		(tv_hum.stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
 	name_entry.visible = false
 	_reparent_name_entry_to_left_panel()
-	load_report(BroadcastDemoData.rooftop_killing_report())
+	if _is_day1_context:
+		load_report_chain(BroadcastDemoData.day1_reports())
+	else:
+		load_report(BroadcastDemoData.rooftop_killing_report())
 
 
 ## Interior of each frame's painted border in broadcast-console-base-v4.png,
@@ -404,7 +411,13 @@ func _update_speaker_portrait(speaker: StringName, beat: BroadcastDialogueBeat =
 		speaker_portrait.visible = false
 		desk_portrait.visible = false
 		return
-	var texture: Texture2D = _mc_texture(_current_emotion, false) if speaker == &"mc" else report.speaker_portraits.get(speaker)
+	var texture: Texture2D
+	if speaker == &"mc":
+		texture = _mc_texture(_current_emotion, false)
+	elif speaker == &"government":
+		texture = report.speaker_portraits.get(speaker, GOVERNMENT_SILHOUETTE)
+	else:
+		texture = report.speaker_portraits.get(speaker)
 	if texture == null:
 		speaker_portrait.visible = false
 		desk_portrait.visible = false
@@ -438,12 +451,16 @@ func _emotion_tint(emotion: StringName) -> Color:
 
 
 func _advance_playback() -> void:
+	if not _playback_is_recap and report != null and _playback_index == report.disconnect_after_intro_line:
+		call_disconnect.play()
 	_playback_index += 1
 	if _playback_index >= _playback_lines.size():
 		var was_recap := _playback_is_recap
 		_end_playback()
 		if was_recap:
 			dialogue_label.text += "\n\n— End of broadcast —"
+			if _is_day1_context:
+				_finish_day1_broadcast.call_deferred()
 		else:
 			_reveal_desk()
 		return
@@ -811,6 +828,8 @@ func _finish_mission_response() -> void:
 		var session := get_node_or_null("/root/GameSession")
 		if session != null:
 			session.set_pending_broadcast(report.report_id, accepted)
+			if report.report_id == &"day0_rooftop_killing" and session.has_method(&"set_day0_report_route"):
+				session.set_day0_report_route(&"propaganda")
 		_pending_sequence = null
 		_set_phase(Phase.NEWS_HANDOFF)
 		if use_news_broadcast_scene:
@@ -900,11 +919,24 @@ func _finish_chain_mission_response() -> void:
 		_set_phase(Phase.EDITING)
 		_set_editing_enabled(true)
 		return
+	_record_day1_route(finishing_report, sequence)
 	_chain_results.append({"report": finishing_report, "sequence": sequence})
 	if _chain_index + 1 < _report_chain.size():
 		_load_next_chain_report()
+	elif _is_day1_context and use_news_broadcast_scene:
+		_start_day1_news_handoff()
 	else:
 		_start_combined_recap()
+
+
+func _start_day1_news_handoff() -> void:
+	_set_phase(Phase.NEWS_HANDOFF)
+	_set_editing_enabled(false)
+	continue_button.visible = false
+	desk_continue_button.visible = false
+	var transition_service := get_node_or_null("/root/SceneTransition")
+	if transition_service != null and not transition_service.busy:
+		transition_service.transition_to("res://scenes/gameplay/news_broadcast.tscn", false)
 
 
 ## Plays every solved report's broadcast_lines back to back as one "Today's News"
@@ -940,6 +972,33 @@ func _apply_chain_recap_visuals(owner_index: int) -> void:
 		var action := shots[index].action
 		if action != null and action.scene_image != null:
 			_slots[index].show_scene_reveal(action.scene_image)
+
+
+func _record_day1_route(solved_report: BroadcastReport, solved_sequence: BroadcastSequence) -> void:
+	if not _is_day1_context or solved_report == null:
+		return
+	var route := &""
+	if solved_sequence == solved_report.truthful_sequence:
+		route = &"truthful"
+	elif solved_sequence == solved_report.propaganda_sequence:
+		route = &"propaganda"
+	if route == &"":
+		return
+	var session := get_node_or_null("/root/GameSession")
+	if session != null and session.has_method(&"set_day1_report_route"):
+		session.set_day1_report_route(solved_report.report_id, route)
+
+
+func _finish_day1_broadcast() -> void:
+	_set_phase(Phase.NEWS_HANDOFF)
+	_set_editing_enabled(false)
+	await get_tree().create_timer(1.15).timeout
+	var session := get_node_or_null("/root/GameSession")
+	if session != null:
+		session.save_checkpoint("day1_ending")
+	var transition_service := get_node_or_null("/root/SceneTransition")
+	if transition_service != null and not transition_service.busy:
+		transition_service.transition_to("res://scenes/Day 1/Side Scroll Section/Day 1 ending.tscn", false)
 
 
 func _show_toast(text: String) -> void:

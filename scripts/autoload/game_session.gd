@@ -10,7 +10,25 @@ const CHECKPOINT_SCENES := {
 	# Preserve older saves while routing the retired standalone interrogation into the desk UI.
 	"interrogation": "res://scenes/gameplay/broadcast_interface.tscn",
 	"broadcast": "res://scenes/gameplay/broadcast_interface.tscn",
+	"day1_scene1": "res://scenes/Day 1/Side Scroll Section/Side_Scroll Day 1.tscn",
+	"day1_ending": "res://scenes/Day 1/Side Scroll Section/Day 1 ending.tscn",
+	"day2": "res://scenes/narrative/day2_placeholder.tscn",
+	"day3_stairwell": "res://scenes/Day 3/day3_stairwell.tscn",
+	"day3_stairwell_return": "res://scenes/Day 3/day3_stairwell_return.tscn",
+	"day3_briefing": "res://scenes/Day 3/day3_briefing_room.tscn",
+	"day3_rooftop": "res://scenes/Day 3/day3_rooftop.tscn",
+	"day3_scope": "res://scenes/Day 3/day3_scope_scene.tscn",
+	"day3_finale": "res://scenes/Day 3/day3_finale.tscn",
+	"day3_credits": "res://scenes/Day 3/day3_finale.tscn",
 }
+
+const DAY0_REPORT_ROOFTOP := &"day0_rooftop_killing"
+const DAY1_REPORT_CHECKPOINT := &"day1_checkpoint_killing"
+const DAY1_REPORT_SEEDLESS := &"day1_seedless_fruit"
+const ROUTE_TRUTHFUL := &"truthful"
+const ROUTE_PROPAGANDA := &"propaganda"
+const DAY3_NOT_SHOOT := &"not_shoot"
+const DAY3_SHOOT := &"shoot"
 
 var player_name := "MC"
 var checkpoint := ""
@@ -23,6 +41,13 @@ var resolution := DEFAULT_RESOLUTION
 var profile_path := PROFILE_PATH
 var settings_path := SETTINGS_PATH
 var pending_broadcast_package: BroadcastPackage
+var broadcast_context: StringName = &"day0"
+var day0_rooftop_route: StringName = &""
+var day1_checkpoint_route: StringName = &""
+var day1_seedless_route: StringName = &""
+var day3_briefing_complete := false
+var day3_resolution: StringName = &""
+var day3_debug_route_override: StringName = &""
 
 
 func set_pending_broadcast(report_id: StringName, sequence: BroadcastSequence) -> void:
@@ -31,6 +56,120 @@ func set_pending_broadcast(report_id: StringName, sequence: BroadcastSequence) -
 
 func clear_pending_broadcast() -> void:
 	pending_broadcast_package = null
+
+
+func begin_day1_broadcast() -> void:
+	broadcast_context = &"day1"
+	day1_checkpoint_route = &""
+	day1_seedless_route = &""
+	checkpoint = "broadcast"
+	save_profile()
+
+
+func set_day0_report_route(route: StringName) -> void:
+	if route not in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]:
+		return
+	day0_rooftop_route = route
+	save_profile()
+
+
+func begin_day1_scene1() -> void:
+	broadcast_context = &"day1_story"
+	day1_checkpoint_route = &""
+	day1_seedless_route = &""
+	checkpoint = "day1_scene1"
+	save_profile()
+
+
+func set_day1_report_route(report_id: StringName, route: StringName) -> void:
+	if route not in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]:
+		return
+	match report_id:
+		DAY1_REPORT_CHECKPOINT:
+			day1_checkpoint_route = route
+		DAY1_REPORT_SEEDLESS:
+			day1_seedless_route = route
+		_:
+			return
+	save_profile()
+
+
+func get_day1_report_route(report_id: StringName) -> StringName:
+	match report_id:
+		DAY1_REPORT_CHECKPOINT:
+			return day1_checkpoint_route
+		DAY1_REPORT_SEEDLESS:
+			return day1_seedless_route
+		_:
+			return &""
+
+
+func complete_day1() -> void:
+	broadcast_context = &"day1_complete"
+	checkpoint = "day2"
+	save_profile()
+
+
+func begin_day3() -> void:
+	broadcast_context = &"day3"
+	day3_briefing_complete = false
+	day3_resolution = &""
+	day3_debug_route_override = &""
+	checkpoint = "day3_stairwell"
+	save_profile()
+
+
+func mark_day3_briefing_complete() -> void:
+	day3_briefing_complete = true
+	checkpoint = "day3_stairwell_return"
+	save_profile()
+
+
+func has_complete_day3_report_history() -> bool:
+	return _effective_day0_route() != &"" \
+		and day1_checkpoint_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
+		and day1_seedless_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]
+
+
+func set_day3_debug_route_override(route: StringName) -> void:
+	if route in [DAY3_NOT_SHOOT, DAY3_SHOOT]:
+		day3_debug_route_override = route
+
+
+func resolve_day3_route() -> StringName:
+	if day3_debug_route_override in [DAY3_NOT_SHOOT, DAY3_SHOOT]:
+		return day3_debug_route_override
+	if not has_complete_day3_report_history():
+		return &""
+	# The only accepted Day 0 broadcast is propaganda. Day 3 therefore reaches
+	# the two-of-three truthful majority only when both independent Day 1
+	# reports were aired truthfully.
+	return DAY3_NOT_SHOOT if day1_checkpoint_route == ROUTE_TRUTHFUL \
+		and day1_seedless_route == ROUTE_TRUTHFUL else DAY3_SHOOT
+
+
+func set_day3_resolution(route: StringName) -> void:
+	if route not in [DAY3_NOT_SHOOT, DAY3_SHOOT]:
+		return
+	day3_resolution = route
+	checkpoint = "day3_finale"
+	save_profile()
+
+
+func complete_day3() -> void:
+	broadcast_context = &"day3_complete"
+	checkpoint = ""
+	save_profile()
+
+
+func _effective_day0_route() -> StringName:
+	if day0_rooftop_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]:
+		return day0_rooftop_route
+	# Older saves could only leave Day 0 after airing the propaganda report.
+	if day1_checkpoint_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
+		and day1_seedless_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]:
+		return ROUTE_PROPAGANDA
+	return &""
 
 
 func _ready() -> void:
@@ -62,6 +201,13 @@ func start_new_game(raw_name: String) -> bool:
 		return false
 	player_name = normalize_player_name(raw_name)
 	checkpoint = "scene0"
+	broadcast_context = &"day0"
+	day0_rooftop_route = &""
+	day1_checkpoint_route = &""
+	day1_seedless_route = &""
+	day3_briefing_complete = false
+	day3_resolution = &""
+	day3_debug_route_override = &""
 	save_profile()
 	return true
 
@@ -69,6 +215,13 @@ func start_new_game(raw_name: String) -> bool:
 func begin_day_zero() -> void:
 	player_name = "MC"
 	checkpoint = "scene0"
+	broadcast_context = &"day0"
+	day0_rooftop_route = &""
+	day1_checkpoint_route = &""
+	day1_seedless_route = &""
+	day3_briefing_complete = false
+	day3_resolution = &""
+	day3_debug_route_override = &""
 	save_profile()
 
 
@@ -99,6 +252,12 @@ func save_profile() -> void:
 	var config := ConfigFile.new()
 	config.set_value("profile", "player_name", player_name)
 	config.set_value("profile", "checkpoint", checkpoint)
+	config.set_value("story", "broadcast_context", String(broadcast_context))
+	config.set_value("story", "day0_rooftop_route", String(day0_rooftop_route))
+	config.set_value("story", "day1_checkpoint_route", String(day1_checkpoint_route))
+	config.set_value("story", "day1_seedless_route", String(day1_seedless_route))
+	config.set_value("story", "day3_briefing_complete", day3_briefing_complete)
+	config.set_value("story", "day3_resolution", String(day3_resolution))
 	config.save(profile_path)
 
 
@@ -108,6 +267,13 @@ func load_profile() -> void:
 		return
 	player_name = str(config.get_value("profile", "player_name", "MC"))
 	checkpoint = str(config.get_value("profile", "checkpoint", ""))
+	broadcast_context = StringName(config.get_value("story", "broadcast_context", "day0"))
+	day0_rooftop_route = StringName(config.get_value("story", "day0_rooftop_route", ""))
+	day1_checkpoint_route = StringName(config.get_value("story", "day1_checkpoint_route", ""))
+	day1_seedless_route = StringName(config.get_value("story", "day1_seedless_route", ""))
+	day3_briefing_complete = bool(config.get_value("story", "day3_briefing_complete", false))
+	day3_resolution = StringName(config.get_value("story", "day3_resolution", ""))
+	day3_debug_route_override = &""
 
 
 func save_settings() -> void:

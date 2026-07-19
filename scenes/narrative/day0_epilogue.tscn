@@ -1,10 +1,13 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/narrative/day0_epilogue.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/art/Epilogue/bedroom-window-master-v1.png" id="2_bedroom"]
 [ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="3_font"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
 [ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-rustle.ogg" id="5_curtain"]
+[ext_resource type="AudioStream" path="res://assets/audio/epilogue/day0-curtain-ambience.wav" id="6_ambience"]
+[ext_resource type="AudioStream" path="res://assets/audio/epilogue/day0-curtain-music.wav" id="7_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-impact.wav" id="8_impact"]
 
 [sub_resource type="StyleBoxFlat" id="DialogueStyle"]
 bg_color = Color(0.0431373, 0.113725, 0.301961, 0.96)
@@ -89,8 +92,9 @@ modulate = Color(1, 1, 1, 0)
 
 [node name="Curtains" type="AnimatedSprite2D" parent="Bedroom"]
 unique_name_in_owner = true
+visible = false
 position = Vector2(640, 360)
-scale = Vector2(2.35727, 0.994475)
+scale = Vector2(0.666667, 0.666667)
 texture_filter = 1
 
 [node name="BedroomFade" type="ColorRect" parent="Bedroom"]
@@ -172,3 +176,23 @@ unique_name_in_owner = true
 stream = ExtResource("5_curtain")
 volume_db = 1.0
 bus = &"SFX"
+
+[node name="CurtainImpact" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("8_impact")
+volume_db = -2.0
+bus = &"SFX"
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("6_ambience")
+volume_db = -15.0
+autoplay = true
+bus = &"Ambience"
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("7_music")
+volume_db = -12.0
+autoplay = true
+bus = &"Ambience"

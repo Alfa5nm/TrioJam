@@ -3,8 +3,9 @@ extends Control
 
 signal epilogue_finished
 
-const CURTAIN_SHEET := preload("res://assets/art/Epilogue/curtain-close-sheet-v1.png")
-const CURTAIN_CELL_SIZE := Vector2(543, 724)
+const CURTAIN_PULL := preload("res://assets/art/Epilogue/curtain-pull.png")
+const CURTAIN_ENDING := preload("res://assets/art/Epilogue/curtain-ending.png")
+const DAY1_SCENE := "res://scenes/Day 1/Side Scroll Section/Side_Scroll Day 1.tscn"
 const CIVILIAN_LINES := [
 	"They murdered him!",
 	"You believe everything they show you!",
@@ -25,6 +26,7 @@ const FINAL_LINE := "I have to work tomorrow..."
 
 @export var instant_mode := false
 @export_range(0.01, 1.0, 0.01) var timing_scale := 1.0
+@export var auto_advance_to_day1 := true
 
 var _civilian_index := 0
 var _bedroom_index := -1
@@ -34,6 +36,7 @@ var _type_accumulator := 0.0
 var _closing := false
 var _finished := false
 var _hold_active := false
+var _transition_started := false
 
 @onready var bedroom: Control = %Bedroom
 @onready var curtains: AnimatedSprite2D = %Curtains
@@ -45,6 +48,9 @@ var _hold_active := false
 @onready var fire_glow: Polygon2D = %FireGlow
 @onready var gun_flash: Polygon2D = %GunFlash
 @onready var curtain_rustle: AudioStreamPlayer = %CurtainRustle
+@onready var curtain_impact: AudioStreamPlayer = %CurtainImpact
+@onready var ambience: AudioStreamPlayer = %Ambience
+@onready var music: AudioStreamPlayer = %Music
 @onready var blip: AudioStreamPlayer = %Blip
 @onready var bedroom_fade: ColorRect = %BedroomFade
 
@@ -52,7 +58,13 @@ var _hold_active := false
 func _ready() -> void:
 	_setup_curtain_frames()
 	curtains.animation_finished.connect(_on_curtains_closed)
+	curtains.frame_changed.connect(_on_curtain_frame_changed)
+	curtains.visible = false
 	bedroom.visible = false
+	_set_loop(ambience)
+	_set_loop(music)
+	ambience.play()
+	music.play()
 	dialogue_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_present_civilian_line()
 
@@ -175,8 +187,15 @@ func _pulse_unrest_reflection() -> void:
 func _begin_curtain_close() -> void:
 	_closing = true
 	dialogue_panel.visible = false
+	curtains.visible = true
+	curtains.frame = 0
 	curtain_rustle.play()
 	curtains.play(&"close")
+
+
+func _on_curtain_frame_changed() -> void:
+	if _closing and curtains.frame == 1:
+		curtain_impact.play()
 
 
 func _on_curtains_closed() -> void:
@@ -189,21 +208,42 @@ func _on_curtains_closed() -> void:
 	dialogue_label.visible_characters = -1
 	advance_prompt.visible = false
 	epilogue_finished.emit()
+	if auto_advance_to_day1:
+		_advance_to_day1.call_deferred()
+
+
+func _advance_to_day1() -> void:
+	if _transition_started:
+		return
+	_transition_started = true
+	await get_tree().create_timer(_duration(2.4)).timeout
+	if not is_inside_tree():
+		return
+	var session := get_node_or_null("/root/GameSession")
+	if session != null and session.has_method(&"begin_day1_scene1"):
+		session.begin_day1_scene1()
+	var transition := get_node_or_null("/root/SceneTransition")
+	if transition != null and not transition.busy:
+		transition.transition_to(DAY1_SCENE, false)
+	else:
+		get_tree().change_scene_to_file(DAY1_SCENE)
 
 
 func _setup_curtain_frames() -> void:
 	var frames := SpriteFrames.new()
 	frames.add_animation(&"close")
 	frames.set_animation_loop(&"close", false)
-	frames.set_animation_speed(&"close", 2.8)
-	for column in 4:
-		var frame := AtlasTexture.new()
-		frame.atlas = CURTAIN_SHEET
-		frame.region = Rect2(Vector2(column * CURTAIN_CELL_SIZE.x, 0), CURTAIN_CELL_SIZE)
-		frames.add_frame(&"close", frame)
+	frames.set_animation_speed(&"close", 40.0 if instant_mode else 0.85)
+	frames.add_frame(&"close", CURTAIN_PULL)
+	frames.add_frame(&"close", CURTAIN_ENDING)
 	curtains.sprite_frames = frames
 	curtains.animation = &"close"
 	curtains.frame = 0
+
+
+func _set_loop(player: AudioStreamPlayer) -> void:
+	if player.stream is AudioStreamWAV:
+		(player.stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
 
 
 func _duration(seconds: float) -> float:

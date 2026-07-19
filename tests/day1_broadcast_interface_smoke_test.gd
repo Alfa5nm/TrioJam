@@ -9,6 +9,7 @@ func _init() -> void:
 
 
 func _run() -> void:
+	_check_report1_data()
 	_check_report2_data()
 	await _check_chain_flow()
 	await _check_per_action_cap_enforcement()
@@ -17,10 +18,17 @@ func _run() -> void:
 	quit(failures)
 
 
+func _check_report1_data() -> void:
+	var report := BroadcastDemoData.checkpoint_killing_report()
+	_check(report.speaker_portraits.get(&"government") == BroadcastInterface.GOVERNMENT_SILHOUETTE, "Report 1 assigns the supplied government silhouette")
+
+
 func _check_report2_data() -> void:
 	var report := BroadcastDemoData.seedless_fruit_report()
 	_check(report.report_id == &"day1_seedless_fruit", "seedless fruit report has its own report_id")
 	_check(report.max_characters_per_frame == 2, "seedless fruit report allows 2 characters per frame")
+	_check(report.speaker_portraits.get(&"government") == BroadcastInterface.GOVERNMENT_SILHOUETTE, "Report 2 assigns the supplied government silhouette")
+	_check(report.disconnect_after_intro_line == 2, "Report 2 disconnects after the final government directive")
 
 	var ids: Array[StringName] = []
 	for character in report.characters:
@@ -95,6 +103,9 @@ func _check_chain_flow() -> void:
 	var report1 := BroadcastDemoData.checkpoint_killing_report()
 	var report2 := BroadcastDemoData.seedless_fruit_report()
 	ui.load_report_chain([report1, report2])
+	report1.speaker_portraits.clear()
+	ui._update_speaker_portrait(&"government")
+	_check(ui.desk_portrait.visible and ui.desk_portrait.texture == BroadcastInterface.GOVERNMENT_SILHOUETTE, "government dialogue falls back to the black silhouette when report data omits it")
 	_advance_through_playback(ui)
 	_check(ui.report == report1, "chain starts on the first report")
 	_check(ui.phase == BroadcastInterface.Phase.EDITING, "first report's intro finishes into editing")
@@ -111,6 +122,7 @@ func _check_chain_flow() -> void:
 
 	_advance_through_playback(ui)
 	_check(ui.phase == BroadcastInterface.Phase.EDITING, "report 2's intro finishes into editing")
+	_check(ui.call_disconnect.stream != null and ui.call_disconnect.playing, "Report 2 plays the authored call-disconnect cue after the government directive")
 
 	# Solve report 2 (truthful) — its own reaction lines play first, then the
 	# chain should fall into the combined recap covering both reports.

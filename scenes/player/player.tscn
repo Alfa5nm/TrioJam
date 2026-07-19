@@ -3,13 +3,14 @@
 [ext_resource type="Script" uid="uid://1gcitxvt0gu3" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://c3ig7t0i5112p" path="res://assets/art/characters/office-worker-actions-sheet.png" id="2_sheet"]
 [ext_resource type="Texture2D" uid="uid://bq12a8fk8khmv" path="res://assets/art/characters/office-worker-execute-sheet.png" id="3_execute"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/office-worker-pistol-sheet.png" id="4_pistol"]
 
 [sub_resource type="CapsuleShape2D" id="Capsule_player"]
 radius = 18.0
 height = 118.0
 
 [sub_resource type="OccluderPolygon2D" id="Occluder_player"]
-polygon = PackedVector2Array(-24, -172, 23, -172, 36, -10, 24, 0, -24, 0, -36, -10)
+polygon = PackedVector2Array(-15, -174, -6, -181, 12.047035, -181.19315, 19, -172, 24, -128, 32, -83, 36, -10, 24, 0, -24, 0, -54, -12, -32, -114)
 
 [sub_resource type="AtlasTexture" id="Execute_8"]
 atlas = ExtResource("3_execute")
@@ -42,6 +43,38 @@ region = Rect2(2560, 0, 512, 512)
 [sub_resource type="AtlasTexture" id="Execute_7"]
 atlas = ExtResource("3_execute")
 region = Rect2(3072, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_1"]
+atlas = ExtResource("4_pistol")
+region = Rect2(0, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_2"]
+atlas = ExtResource("4_pistol")
+region = Rect2(512, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_3"]
+atlas = ExtResource("4_pistol")
+region = Rect2(1024, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_4"]
+atlas = ExtResource("4_pistol")
+region = Rect2(1536, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_5"]
+atlas = ExtResource("4_pistol")
+region = Rect2(2048, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_6"]
+atlas = ExtResource("4_pistol")
+region = Rect2(2560, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_7"]
+atlas = ExtResource("4_pistol")
+region = Rect2(3072, 0, 512, 512)
+
+[sub_resource type="AtlasTexture" id="Pistol_8"]
+atlas = ExtResource("4_pistol")
+region = Rect2(3584, 0, 512, 512)
 
 [sub_resource type="AtlasTexture" id="Idle_1"]
 atlas = ExtResource("2_sheet")
@@ -160,6 +193,43 @@ animations = [{
 "loop": false,
 "name": &"interact",
 "speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Pistol_8")
+}],
+"loop": false,
+"name": &"pistol_aim",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Pistol_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Pistol_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Pistol_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Pistol_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Pistol_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Pistol_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("Pistol_7")
+}, {
+"duration": 1.35,
+"texture": SubResource("Pistol_8")
+}],
+"loop": false,
+"name": &"pistol_draw",
+"speed": 6.0
 }, {
 "frames": [{
 "duration": 1.0,

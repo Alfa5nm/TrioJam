@@ -1,0 +1,104 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/day3_tv_broadcast.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/Broadcast/news-studio-background-v1.png" id="2_studio"]
+[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="3_font"]
+
+[sub_resource type="Shader" id="TVShader"]
+code = "shader_type canvas_item;\nfloat hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}\nvoid fragment(){float line=sin(UV.y*360.0*3.14159)*0.045;float noise=(hash(UV*vec2(640.0,360.0)+TIME*31.0)-0.5)*0.06;COLOR=vec4(vec3(noise-line),0.11); }"
+
+[sub_resource type="ShaderMaterial" id="TVMaterial"]
+shader = SubResource("TVShader")
+
+[node name="Day3TVBroadcast" type="Control"]
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 640.0
+offset_bottom = 360.0
+clip_contents = true
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Studio" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_studio")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Presenter" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(205, 245)
+scale = Vector2(0.68, 0.68)
+
+[node name="Headline" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 270.0
+offset_top = 40.0
+offset_right = 614.0
+offset_bottom = 91.0
+color = Color(0.012, 0.026, 0.065, 0.91)
+
+[node name="Text" type="Label" parent="Headline"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 25
+text = "TODAY'S NEWS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LowerThird" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 248.0
+offset_top = 279.0
+offset_right = 640.0
+offset_bottom = 340.0
+color = Color(0.015, 0.04, 0.09, 0.94)
+
+[node name="Text" type="Label" parent="LowerThird"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 17
+text = "STATE NEWS NETWORK    •    LIVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OnAir" type="Label" parent="."]
+layout_mode = 0
+offset_left = 492.0
+offset_top = 12.0
+offset_right = 616.0
+offset_bottom = 38.0
+theme_override_colors/font_color = Color(1, 0.25, 0.29, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 16
+text = "● ON AIR"
+horizontal_alignment = 2
+
+[node name="SignalNoise" type="ColorRect" parent="."]
+material = SubResource("TVMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.08)

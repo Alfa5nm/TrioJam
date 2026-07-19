@@ -10,9 +10,41 @@
 [ext_resource type="PackedScene" uid="uid://dx0mhrvwe45dm" path="res://scenes/world/pavement_bird_flock.tscn" id="9_birds"]
 [ext_resource type="Texture2D" uid="uid://5fpgutasb5vi" path="res://assets/art/Day1 Scene 1/6.png" id="9_vqnrx"]
 [ext_resource type="Texture2D" uid="uid://dohpoggpi0f37" path="res://assets/art/Day1 Scene 1/7.png" id="10_g07fq"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="11_dialogue"]
+[ext_resource type="PackedScene" uid="uid://esmmwp6yd7np" path="res://scenes/world/ambient_bark_trigger.tscn" id="12_bark"]
+[ext_resource type="PackedScene" uid="uid://b52bxlsvjegyh" path="res://scenes/world/day1_checkpoint_encounter.tscn" id="14_checkpoint"]
+[ext_resource type="PackedScene" path="res://scenes/ui/day1_camera_capture.tscn" id="15_camera_capture"]
+[ext_resource type="Texture2D" uid="uid://b77he2rn5filn" path="res://assets/art/Day1 Scene 1/post-event/post-event-barricade.png" id="16_barricade"]
+[ext_resource type="PackedScene" uid="uid://cfa8ulrt405q1" path="res://scenes/world/day1_gossip_conversation.tscn" id="17_gossip"]
+[ext_resource type="PackedScene" uid="uid://5c0tjaa7yhrm" path="res://scenes/world/day1_protest_crowd.tscn" id="18_occupation_crowd"]
+[ext_resource type="AudioStream" uid="uid://vgmbcsakudpx" path="res://assets/audio/foley/day1-pavement/pavement-step-a.ogg" id="19_step_a"]
+[ext_resource type="AudioStream" uid="uid://biyre7yrx5n2j" path="res://assets/audio/foley/day1-pavement/pavement-step-b.ogg" id="20_step_b"]
+[ext_resource type="AudioStream" uid="uid://b72qovuu17yt6" path="res://assets/audio/foley/day1-pavement/pavement-step-c.ogg" id="21_step_c"]
+[ext_resource type="PackedScene" path="res://scenes/world/day1_street_atmosphere.tscn" id="22_atmosphere"]
+[ext_resource type="PackedScene" path="res://scenes/world/day1_leaf_drift_zone.tscn" id="23_leaves"]
+[ext_resource type="PackedScene" path="res://scenes/world/day1_dust_mote_zone.tscn" id="24_dust"]
+[ext_resource type="PackedScene" uid="uid://ca1k7mgpx36y1" path="res://scenes/world/day1_seedless_rally.tscn" id="25_seedless_rally"]
+[ext_resource type="PackedScene" path="res://scenes/ui/day1_seedless_camera_capture.tscn" id="26_seedless_capture"]
+[ext_resource type="Script" uid="uid://crqrwnmxams7r" path="res://scripts/world/day1_broadcast_room_exit.gd" id="27_broadcast_exit"]
+[ext_resource type="Texture2D" uid="uid://bj8r45oe6p6um" path="res://assets/art/Day1 Scene 1/npcs/r4c1-anti-seedless-protester-a.png" id="28_opposition_male"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape_post_event_barrier"]
+size = Vector2(64, 370)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape_broadcast_exit"]
+size = Vector2(150, 320)
 
 [node name="SideScrollDay1" type="Node2D" unique_id=2040803725]
 position = Vector2(-2, 0)
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=932147515]
+z_index = -10
+offset_left = -789.0
+offset_top = -522.0
+offset_right = 10378.0
+offset_bottom = 1014.0
+mouse_filter = 2
+color = Color(0.09019608, 0.12941177, 0.16862746, 1)
 
 [node name="3" type="Sprite2D" parent="." unique_id=442147610]
 position = Vector2(3419.0002, 427)
@@ -30,6 +62,7 @@ scale = Vector2(0.814559, 0.814559)
 texture = ExtResource("8_30a61")
 
 [node name="6" type="Sprite2D" parent="." unique_id=1741814947]
+z_index = -2
 position = Vector2(7493, 381)
 scale = Vector2(0.81774706, 0.81774706)
 texture = ExtResource("9_vqnrx")
@@ -64,25 +97,121 @@ texture = ExtResource("4_h8sci")
 
 [node name="Player" parent="." unique_id=562071822 instance=ExtResource("1_ivuku")]
 z_index = 5
-position = Vector2(493, 565)
+position = Vector2(925, 531)
+footstep_stream = ExtResource("19_step_a")
+footstep_stream_alt_a = ExtResource("20_step_b")
+footstep_stream_alt_b = ExtResource("21_step_c")
+
+[node name="Day1ProtestCrowd" parent="." unique_id=1125317576 instance=ExtResource("18_occupation_crowd")]
+position = Vector2(2697, 570)
+
+[node name="Day1SeedlessRally" parent="." unique_id=558007822 instance=ExtResource("25_seedless_rally")]
+position = Vector2(6130, 607)
+dialogue_path = NodePath("../CinematicDialogue")
+player_path = NodePath("../Player")
+camera_path = NodePath("../HorizontalCamera")
+camera_capture_path = NodePath("../Day1SeedlessCameraCapture")
+broadcast_exit_path = NodePath("../BroadcastRoomExit")
 
 [node name="PavementBirdFlock" parent="." unique_id=1586639623 instance=ExtResource("9_birds")]
-position = Vector2(1367, 502.00003)
+position = Vector2(1229, 549)
 scale = Vector2(0.76674, 0.76674)
 
 [node name="PavementBirdFlock2" parent="." unique_id=704823514 instance=ExtResource("9_birds")]
-position = Vector2(1495, 502.00003)
+position = Vector2(1541, 546)
 scale = Vector2(0.76674, 0.76674)
 flight_offset = Vector2(456.33, -360)
 
-[node name="Backdrop" type="ColorRect" parent="." unique_id=932147515]
-z_index = -10
-offset_left = -789.0
-offset_top = -522.0
-offset_right = 10378.0
-offset_bottom = 1014.0
-mouse_filter = 2
-color = Color(0.09019608, 0.12941177, 0.16862746, 1)
+[node name="CinematicDialogue" parent="." unique_id=721616771 instance=ExtResource("11_dialogue")]
+characters_per_second = 24.0
+punctuation_pause = 0.14
+
+[node name="Day1CameraCapture" parent="." unique_id=1040020295 instance=ExtResource("15_camera_capture")]
+
+[node name="Day1SeedlessCameraCapture" parent="." unique_id=1162424644 instance=ExtResource("26_seedless_capture")]
+
+[node name="Day1StreetAtmosphere" parent="." unique_id=505124906 instance=ExtResource("22_atmosphere")]
+camera_capture_path = NodePath("../Day1CameraCapture")
+secondary_camera_capture_path = NodePath("../Day1SeedlessCameraCapture")
+
+[node name="LeafDriftFirstTree" parent="." unique_id=504898832 instance=ExtResource("23_leaves")]
+position = Vector2(300, 42)
+
+[node name="LeafDriftSmokingTree" parent="." unique_id=661329150 instance=ExtResource("23_leaves")]
+position = Vector2(1820, 30)
+
+[node name="LeafDriftSeedlessStage" parent="." unique_id=1961398008 instance=ExtResource("23_leaves")]
+position = Vector2(5550, 34)
+
+[node name="LeafDriftGateTree" parent="." unique_id=900354530 instance=ExtResource("23_leaves")]
+position = Vector2(8100, 38)
+
+[node name="DustMotesAlley" parent="." unique_id=1904424107 instance=ExtResource("24_dust")]
+position = Vector2(1050, 445)
+
+[node name="DustMotesDepot" parent="." unique_id=121359184 instance=ExtResource("24_dust")]
+position = Vector2(4700, 430)
+
+[node name="SmokingCivilianEncounter" parent="." unique_id=2069990641 instance=ExtResource("12_bark")]
+z_index = 4
+position = Vector2(1820, 579)
+dialogue_path = NodePath("../CinematicDialogue")
+
+[node name="OppositionPeaceEncounter" parent="." unique_id=485290908 instance=ExtResource("12_bark")]
+position = Vector2(8010, 607)
+dialogue_path = NodePath("../CinematicDialogue")
+speaker_name = "Opposition"
+dialogue_text = "All we want is peace…!"
+hold_seconds = 1.25
+visual_texture = ExtResource("28_opposition_male")
+visual_position = Vector2(0, -130)
+visual_scale = Vector2(0.72, 0.72)
+visual_flip_h = true
+
+[node name="CheckpointConfrontation" parent="." unique_id=1366208169 instance=ExtResource("14_checkpoint")]
+z_index = -1
+position = Vector2(3300, 607)
+dialogue_path = NodePath("../CinematicDialogue")
+player_path = NodePath("../Player")
+camera_path = NodePath("../HorizontalCamera")
+camera_capture_path = NodePath("../Day1CameraCapture")
+post_event_spawn_path = NodePath("../PostEventSpawn")
+escape_barrier_path = NodePath("../PostEventRouteBarricade")
+post_event_conversation_path = NodePath("../ProduceStallGossip")
+
+[node name="PostEventSpawn" type="Node2D" parent="." unique_id=2051721093]
+position = Vector2(4300, 567)
+
+[node name="ProduceStallGossip" parent="." unique_id=1138830903 instance=ExtResource("17_gossip")]
+position = Vector2(4490, 607)
+dialogue_path = NodePath("../CinematicDialogue")
+
+[node name="PostEventRouteBarricade" type="Node2D" parent="." unique_id=1707786493]
+z_index = 6
+position = Vector2(4150, 607)
+
+[node name="Visual" type="Sprite2D" parent="PostEventRouteBarricade" unique_id=1302959561]
+z_index = -2
+texture_filter = 1
+position = Vector2(-74.00001, -69)
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("16_barricade")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="PostEventRouteBarricade" unique_id=416812468]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PostEventRouteBarricade/StaticBody2D" unique_id=1694707810]
+position = Vector2(0, -185)
+shape = SubResource("RectangleShape_post_event_barrier")
+disabled = true
+
+[node name="BroadcastRoomExit" type="Area2D" parent="." unique_id=2116345699]
+position = Vector2(8790, 470)
+collision_layer = 0
+script = ExtResource("27_broadcast_exit")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BroadcastRoomExit" unique_id=1678445888]
+shape = SubResource("RectangleShape_broadcast_exit")
 
 [node name="GroundCollision" type="StaticBody2D" parent="." unique_id=1608886863]
 position = Vector2(1609, 607)
