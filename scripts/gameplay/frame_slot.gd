@@ -197,10 +197,7 @@ func _refresh_visual() -> void:
 	if current_action != null and current_action.scene_image != null:
 		scene_image.texture = _build_panned_scene_texture(current_action.scene_image)
 		scene_image.visible = true
-		# Always caption the scene, even over a photo — some placeholder scenes
-		# currently share the exact same image (e.g. Licensing Seeds and Arrest),
-		# so the name is the only way to tell them apart once dropped in a frame.
-		scene_label.visible = true
+		scene_label.visible = false
 	else:
 		scene_image.texture = null
 		scene_image.visible = false

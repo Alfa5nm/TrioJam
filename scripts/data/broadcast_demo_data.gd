@@ -127,9 +127,20 @@ static func seedless_fruit_report() -> BroadcastReport:
 	# frame, same as Report 1's soldier/civilian. Order carries the story here
 	# too: order_sensitive below means {soldier, opposition} and
 	# {opposition, soldier} in the same scene are different, recognized answers.
-	var soldier := _character(&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1))
-	var civilian := _character(&"civilian", "Civilian", Color(0.243, 0.761, 0.91, 1))
-	var opposition := _character(&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1))
+	var soldier := _character(
+		&"soldier", "Soldier", Color(0.714, 0.275, 0.310, 1),
+		"res://assets/art/ui/broadcast/portrait_soldier.png"
+	)
+	# Distinct from Report 1's &"civilian" (a different-looking character) —
+	# kept as its own id/art on purpose rather than reusing that one.
+	var civilian := _character(
+		&"civilian_customer", "Civilian", Color(0.243, 0.761, 0.91, 1),
+		"res://assets/art/ui/broadcast/portrait_civilian_customer.png"
+	)
+	var opposition := _character(
+		&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1),
+		"res://assets/art/ui/broadcast/portrait_opposition_group.png"
+	)
 
 	# Shared cause — identical handshake photo for both routes.
 	var licensing_seeds := _action(
@@ -141,6 +152,49 @@ static func seedless_fruit_report() -> BroadcastReport:
 	# Shared outcome action — same "arrest" photo op and same [soldier, opposition]
 	# order for both routes; cause/conflict alone discriminate truthful vs propaganda.
 	var arrest := _action(&"arrest", "Arrest", "res://assets/art/ui/broadcast/scene_arrest.png", 2)
+
+	# Full-frame character art layered over each scene's photo. Licensing and
+	# Arrest are order_sensitive with two slots, so each character has a
+	# [1st placed, 2nd placed] pose pair; Protest/Happy cap at 1 character
+	# so there's only ever one pose per character.
+	licensing_seeds.character_overlays = {
+		soldier.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_licensing1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_licensing2.png"),
+		],
+		opposition.id: [
+			load("res://assets/art/ui/broadcast/character_oppo_licensing1.png"),
+			load("res://assets/art/ui/broadcast/character_oppo_licensing2.png"),
+		],
+		civilian.id: [
+			load("res://assets/art/ui/broadcast/character_cust_licensing1.png"),
+			load("res://assets/art/ui/broadcast/character_cust_licensing2.png"),
+		],
+	}
+	protest.character_overlays = {
+		soldier.id: load("res://assets/art/ui/broadcast/character_soldier_protest.png"),
+		opposition.id: load("res://assets/art/ui/broadcast/character_oppo_protest.png"),
+		civilian.id: load("res://assets/art/ui/broadcast/character_cust_protest.png"),
+	}
+	happy.character_overlays = {
+		soldier.id: load("res://assets/art/ui/broadcast/character_soldier_feedback.png"),
+		opposition.id: load("res://assets/art/ui/broadcast/character_oppo_feedback.png"),
+		civilian.id: load("res://assets/art/ui/broadcast/character_cust_feedback.png"),
+	}
+	arrest.character_overlays = {
+		soldier.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_arrest1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_arrest2.png"),
+		],
+		opposition.id: [
+			load("res://assets/art/ui/broadcast/character_oppo_arrest1.png"),
+			load("res://assets/art/ui/broadcast/character_oppo_arrest2.png"),
+		],
+		civilian.id: [
+			load("res://assets/art/ui/broadcast/character_cust_arrest1.png"),
+			load("res://assets/art/ui/broadcast/character_cust_arrest2.png"),
+		],
+	}
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true
@@ -222,16 +276,62 @@ static func day1_reports() -> Array[BroadcastReport]:
 ## automatically. Wire it in with load_report(BroadcastDemoData.bombing_report())
 ## wherever it belongs in the actual game flow.
 static func bombing_report() -> BroadcastReport:
-	var suspicious_individual := _character(&"suspicious_individual", "Suspicious Individual", Color(0.55, 0.53, 0.58, 1))
-	var civilians := _character(&"civilians", "Civilians", Color(0.243, 0.761, 0.91, 1))
-	var opposition := _character(&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1))
-	var soldiers := _character(&"soldiers", "Soldiers", Color(0.714, 0.275, 0.310, 1))
+	var suspicious_individual := _character(
+		&"suspicious_individual", "Suspicious Individual", Color(0.55, 0.53, 0.58, 1),
+		"res://assets/art/ui/broadcast/portrait_suspicious_individual.png"
+	)
+	var civilians := _character(
+		&"civilians", "Civilians", Color(0.243, 0.761, 0.91, 1),
+		"res://assets/art/ui/broadcast/portrait_civilians.png"
+	)
+	var opposition := _character(
+		&"opposition", "Opposition", Color(0.62, 0.42, 0.78, 1),
+		"res://assets/art/ui/broadcast/portrait_opposition_group.png"
+	)
+	var soldiers := _character(
+		&"soldiers", "Soldiers", Color(0.714, 0.275, 0.310, 1),
+		"res://assets/art/ui/broadcast/portrait_soldiers.png"
+	)
 
 	var planting_bomb := _action(&"planting_bomb", "Planting Bomb Scene", "res://assets/art/ui/broadcast/scene_planting_bomb.png", 1)
 	var peace_rally_victims := _action(&"peace_rally_victims", "Peace Rally Victims", "res://assets/art/ui/broadcast/scene_peace_rally_victims.png", 1)
 	# Order matters here — the scene literally asks "Who is Helping Who?": the
 	# first character placed is the one doing the helping, the second is who's helped.
 	var helping := _action(&"helping", "Who is Helping Who?", "res://assets/art/ui/broadcast/scene_helping.png", 2)
+
+	# Full-frame character art layered over each scene's photo. Bomb and Rally
+	# cap at 1 character so there's only ever one pose per character; Helping is
+	# order_sensitive with two slots, so each character has a [helper, helped] pair.
+	planting_bomb.character_overlays = {
+		suspicious_individual.id: load("res://assets/art/ui/broadcast/character_sus_bomb.png"),
+		opposition.id: load("res://assets/art/ui/broadcast/character_oppo_bomb.png"),
+		soldiers.id: load("res://assets/art/ui/broadcast/character_soldier_bomb.png"),
+		civilians.id: load("res://assets/art/ui/broadcast/character_civilian_bomb.png"),
+	}
+	peace_rally_victims.character_overlays = {
+		suspicious_individual.id: load("res://assets/art/ui/broadcast/character_sus_rally.png"),
+		civilians.id: load("res://assets/art/ui/broadcast/character_civilian_rally.png"),
+		opposition.id: load("res://assets/art/ui/broadcast/character_oppo_rally.png"),
+		soldiers.id: load("res://assets/art/ui/broadcast/character_soldier_rally.png"),
+	}
+	helping.character_overlays = {
+		suspicious_individual.id: [
+			load("res://assets/art/ui/broadcast/character_sus_help1.png"),
+			load("res://assets/art/ui/broadcast/character_sus_help2.png"),
+		],
+		civilians.id: [
+			load("res://assets/art/ui/broadcast/character_civilian_help1.png"),
+			load("res://assets/art/ui/broadcast/character_civilian_help2.png"),
+		],
+		opposition.id: [
+			load("res://assets/art/ui/broadcast/character_oppo_help1.png"),
+			load("res://assets/art/ui/broadcast/character_oppo_help2.png"),
+		],
+		soldiers.id: [
+			load("res://assets/art/ui/broadcast/character_soldier_help1.png"),
+			load("res://assets/art/ui/broadcast/character_soldier_help2.png"),
+		],
+	}
 
 	var truthful := BroadcastSequence.new()
 	truthful.order_sensitive = true
@@ -242,7 +342,7 @@ static func bombing_report() -> BroadcastReport:
 	truthful.outcome_characters = [opposition, civilians]
 	truthful.outcome_action = helping
 	truthful.reaction_lines = [
-		"This is going too far. I'm going to tell lies about this murderous being",
+		"This has been going too far. I'm not going to tell lies for this murderous being.",
 		"I can't exactly tell their name… But this is good enough.",
 		"I'm not going to let this pass.",
 	]

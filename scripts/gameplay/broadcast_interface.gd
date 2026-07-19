@@ -16,7 +16,11 @@ const PROPAGANDA_RESPONSE: Array[String] = [
 	"This will cause a huge conflict...",
 	"...I have to be okay with this.",
 ]
-const DISABLED_MODULATE := Color(0.55, 0.58, 0.62, 0.48)
+## Dim but still clearly visible — the button art is mostly dark background,
+## so the old near-transparent value (0.48 alpha) made it look like an empty
+## void instead of an unlit sign.
+const DISABLED_MODULATE := Color(0.55, 0.58, 0.62, 0.85)
+const GLOW_MODULATE := Color(1.25, 1.28, 1.4, 1)
 const MC_NEUTRAL := preload("res://assets/art/ui/broadcast_v2/interrogation/mc-neutral.png")
 const MC_DIRTY := preload("res://assets/art/ui/broadcast_v2/interrogation/mc-dirty.png")
 const MC_STUNNED := MC_NEUTRAL
@@ -60,6 +64,9 @@ var _playback_owners: Array[int] = []
 var _typing_response := false
 var _skip_response := false
 var _editing_enabled := false
+## Loops while the button is ready to press, gently brightening it above full
+## white so the neon sign art actually reads as lit rather than just undimmed.
+var _broadcast_glow_tween: Tween
 var _awaiting_name := false
 var _name_line_ready := false
 var _elapsed := 0.0
@@ -757,11 +764,35 @@ func _on_slot_composition_changed(_slot: FrameSlot) -> void:
 
 func _update_broadcast_button() -> void:
 	var ready := cause_slot.is_filled() and conflict_slot.is_filled() and outcome_slot.is_filled()
-	broadcast_button.disabled = not ready or not _editing_enabled
-	broadcast_button.modulate = Color.WHITE if ready and _editing_enabled else DISABLED_MODULATE
+	var active := ready and _editing_enabled
+	broadcast_button.disabled = not active
+	if active:
+		_start_broadcast_glow()
+	else:
+		_stop_broadcast_glow()
 	# The authored button plate already contains the label. Leaving the Godot
 	# button text empty prevents a second word from covering the painted one.
 	broadcast_button.text = ""
+
+
+## Slow brightness pulse so the neon sign art visibly reads as "lit" once the
+## report is ready to broadcast, instead of just sitting at flat full white.
+func _start_broadcast_glow() -> void:
+	if _broadcast_glow_tween != null and _broadcast_glow_tween.is_valid():
+		return
+	broadcast_button.modulate = Color.WHITE
+	_broadcast_glow_tween = create_tween().set_loops()
+	_broadcast_glow_tween.tween_property(broadcast_button, "modulate", GLOW_MODULATE, 0.9) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_broadcast_glow_tween.tween_property(broadcast_button, "modulate", Color.WHITE, 0.9) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _stop_broadcast_glow() -> void:
+	if _broadcast_glow_tween != null and _broadcast_glow_tween.is_valid():
+		_broadcast_glow_tween.kill()
+	_broadcast_glow_tween = null
+	broadcast_button.modulate = DISABLED_MODULATE
 
 
 func _set_editing_enabled(enabled: bool) -> void:
