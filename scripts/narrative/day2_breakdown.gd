@@ -6,8 +6,11 @@ signal ending_finished
 
 @export var instant_mode := false
 @export_range(0.1, 2.0, 0.05) var timing_scale := 1.0
+@export var play_on_ready := true
+@export var auto_transition_to_day3 := true
 
 var _skip_requested := false
+var _advance_requested := false
 var _typing := false
 
 @onready var cg: TextureRect = $CG
@@ -28,15 +31,18 @@ func _ready() -> void:
 	_set_loop(breathing, true)
 	ambience.play()
 	ending_started.emit()
-	call_deferred(&"_run_sequence")
+	if play_on_ready:
+		call_deferred(&"_run_sequence")
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"interact") or (
 		event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
 	):
 		if _typing:
 			_skip_requested = true
+		else:
+			_advance_requested = true
 		get_viewport().set_input_as_handled()
 
 
@@ -54,6 +60,8 @@ func _run_sequence() -> void:
 	await _line("….", 0.7)
 	await _line("I need to go.", 0.9)
 	ending_finished.emit()
+	if not auto_transition_to_day3:
+		return
 	var session := get_node_or_null("/root/GameSession")
 	if session != null:
 		session.complete_day2()
@@ -66,6 +74,9 @@ func _run_sequence() -> void:
 
 
 func _show_breakdown() -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.play_cue(&"end_day3", 0.7, true)
 	breathing.play()
 	particles.emitting = true
 	var tween := create_tween().set_parallel(true)
@@ -76,6 +87,9 @@ func _show_breakdown() -> void:
 
 
 func _hide_breakdown() -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.stop_cue(0.65)
 	particles.emitting = false
 	breathing.stop()
 	var tween := create_tween().set_parallel(true)
@@ -89,6 +103,7 @@ func _line(text: String, hold: float) -> void:
 	caption.text = text
 	caption.visible_characters = 0
 	_skip_requested = false
+	_advance_requested = false
 	_typing = true
 	if instant_mode:
 		caption.visible_characters = -1
@@ -98,13 +113,25 @@ func _line(text: String, hold: float) -> void:
 				caption.visible_characters = -1
 				break
 			caption.visible_characters = index + 1
-			if index % 3 == 0 and not text.substr(index, 1).strip_edges().is_empty():
-				blip.pitch_scale = randf_range(0.86, 0.96)
+			if index % 4 == 0 and not text.substr(index, 1).strip_edges().is_empty():
+				blip.pitch_scale = randf_range(0.96, 0.99)
 				blip.play()
 			await get_tree().create_timer(_duration(0.047)).timeout
 	_typing = false
-	await get_tree().create_timer(_duration(hold)).timeout
+	await _wait_for_advance(hold)
 	caption_panel.visible = false
+
+
+func _wait_for_advance(seconds: float) -> void:
+	if instant_mode:
+		await get_tree().process_frame
+		return
+	var elapsed := 0.0
+	var duration := _duration(seconds)
+	while elapsed < duration and not _advance_requested:
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+	_advance_requested = false
 
 
 func _set_loop(player: AudioStreamPlayer, enabled: bool) -> void:
@@ -118,3 +145,7 @@ func _set_loop(player: AudioStreamPlayer, enabled: bool) -> void:
 
 func _duration(seconds: float) -> float:
 	return maxf(seconds * timing_scale, 0.001)
+
+
+func get_pause_objective() -> String:
+	return "Process what happened, then prepare the Day 2 broadcast."

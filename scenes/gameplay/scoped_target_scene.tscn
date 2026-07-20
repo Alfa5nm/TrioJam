@@ -60,6 +60,11 @@ texture_filter = 1
 texture = ExtResource("3_background")
 centered = false
 
+[node name="DeskOccluders" type="Sprite2D" parent="." unique_id=1182983387]
+texture_filter = 1
+texture = ExtResource("5_desks")
+centered = false
+
 [node name="Occupants" type="Node2D" parent="." unique_id=440802894]
 
 [node name="Typist" type="AnimatedSprite2D" parent="Occupants" unique_id=1919999336]
@@ -81,12 +86,6 @@ scale = Vector2(0.75, 0.75)
 texture_filter = 1
 position = Vector2(1100, 445)
 scale = Vector2(0.75, 0.75)
-
-[node name="DeskOccluders" type="Sprite2D" parent="." unique_id=1182983387]
-z_index = 4
-texture_filter = 1
-texture = ExtResource("5_desks")
-centered = false
 
 [node name="GlassTint" type="Node2D" parent="." unique_id=375795113]
 z_index = 5
@@ -112,11 +111,11 @@ centered = false
 
 [node name="Wind" type="AudioStreamPlayer" parent="." unique_id=1319795871]
 stream = ExtResource("4_wind")
-volume_db = -21.0
+volume_db = 2.0
 
 [node name="Tension" type="AudioStreamPlayer" parent="." unique_id=319822184]
 stream = ExtResource("8_tension")
-volume_db = -16.0
+volume_db = -12.0
 
 [node name="SniperShot" type="AudioStreamPlayer" parent="." unique_id=7711323]
 stream = ExtResource("9_shot")
@@ -159,16 +158,15 @@ mouse_filter = 2
 script = ExtResource("2_reticle")
 
 [node name="Brief" type="Label" parent="ScopeUI" unique_id=1359027186]
-offset_left = 32.0
+offset_left = 36.0
 offset_top = 24.0
-offset_right = 655.0
+offset_right = 659.0
 offset_bottom = 56.0
 theme_override_colors/font_color = Color(0.9, 0.94, 0.9, 0.92)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.86)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 18
-text = "IDENTIFY  //  SILVER-HAIRED OFFICIAL  //  BALCONY"
 
 [node name="Instructions" type="Label" parent="ScopeUI" unique_id=376175363]
 anchors_preset = 1
@@ -191,10 +189,10 @@ horizontal_alignment = 2
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -8.0
-offset_top = -3.0
-offset_right = 3.0
-offset_bottom = -3.0
+offset_left = 1.0
+offset_top = 2.0
+offset_right = 12.0
+offset_bottom = 2.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

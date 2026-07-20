@@ -21,7 +21,7 @@ func _run() -> void:
 		await process_frame
 
 	var crowd := level.get_node_or_null("Day1ProtestCrowd") as Day1OccupationStandoff
-	_check(crowd != null and crowd.position.distance_to(Vector2(2780, 607)) < 1.0, "standoff occupies the marked street segment")
+	_check(crowd != null and crowd.position.distance_to(Vector2(2746, 563)) < 1.0, "standoff occupies the polished street alignment")
 	var protesters: Array[Sprite2D] = []
 	var soldiers: Array[Sprite2D] = []
 	if crowd != null:

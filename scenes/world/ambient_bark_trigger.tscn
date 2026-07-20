@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://esmmwp6yd7np"]
 
 [ext_resource type="Script" uid="uid://bjx1xy43knkh6" path="res://scripts/world/ambient_bark_trigger.gd" id="1_script"]
-[ext_resource type="AudioStream" uid="uid://cpgtg4dn24i6f" path="res://assets/audio/ui/coarse-civilian-blip.wav" id="2_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="2_blip"]
 [ext_resource type="Texture2D" uid="uid://qt2ddd4a2rcb" path="res://assets/art/Day1 Scene 1/encounters/smoking-civilian.png" id="3_ldrvt"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape_trigger"]

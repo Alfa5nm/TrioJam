@@ -29,6 +29,7 @@ var _containment_started := false
 var _containment_complete := false
 var _blockade_pending := false
 var _bomb_armed := false
+var _bomb_warning_boost_db := 0.0
 var _previous_camera_target: Node2D
 var _previous_camera_offset := Vector2.ZERO
 var _previous_camera_zoom := Vector2.ONE
@@ -77,6 +78,7 @@ var _previous_camera_zoom := Vector2.ONE
 @onready var tinnitus: AudioStreamPlayer = $Audio/Tinnitus
 @onready var rally_ambience: AudioStreamPlayer = $Audio/RallyAmbience
 @onready var rally_music: AudioStreamPlayer = $Audio/RallyMusic
+@onready var reporter_sfx: AudioStreamPlayer = $Audio/ReporterSFX
 @onready var panic_ambience: AudioStreamPlayer = $Audio/PanicAmbience
 @onready var aftermath_rumble: AudioStreamPlayer = $Audio/AftermathRumble
 @onready var explosion_flash: ColorRect = $ScreenFX/ExplosionFlash
@@ -115,12 +117,17 @@ func _ready() -> void:
 	containment_trigger.body_entered.connect(_on_containment_entered)
 	blockade_trigger.body_entered.connect(_on_blockade_entered)
 	exit_trigger.body_entered.connect(_on_exit_entered)
+	overlay.line_started.connect(_on_overlay_line_started)
 	_set_loop(rally_ambience, true)
 	_set_loop(rally_music, true)
+	_set_loop(reporter_sfx, true)
 	_set_loop(panic_ambience, true)
 	_set_loop(aftermath_rumble, true)
 	_set_loop(distant_sirens, true)
 	rally_ambience.play()
+	# Kept muted for existing scene contracts; the authored Rally cue starts
+	# audibly through MusicDirector after the explosion.
+	rally_music.volume_db = -40.0
 	rally_music.play()
 	var session := get_node_or_null("/root/GameSession")
 	if session != null and session.broadcast_context != &"day2_story":
@@ -161,6 +168,7 @@ func start_rally_sequence() -> void:
 	await _say("MC", "Well… Let’s pull my camera out. It might be worth shooting….", mc_anchor, 0.8)
 	player.play_interaction()
 	await _wait(0.35)
+	reporter_sfx.play()
 	await overlay.show_frame(&"peace_leader_opening", PODIUM_CG, [
 		_beat(&"Peace Leader", "Thank you for coming.", &"bottom", Color(0.78, 0.94, 1), 0.65),
 		_beat(&"Peace Leader", "Some of you were told not to stand beside one another. Some of you were told that the person beside you wants your family dead.", &"bottom", Color(0.78, 0.94, 1), 0.9),
@@ -179,9 +187,9 @@ func start_rally_sequence() -> void:
 	])
 	await overlay.show_frame(&"peace_leader_warning", PODIUM_CG, [
 		_beat(&"Peace Leader", "I ask the government to meet us without soldiers between us. I ask the Opposition to enter that meeting without weapons behind its back.", &"bottom", Color(0.78, 0.94, 1), 0.9),
-		_beat(&"MC", "The beeping… it’s getting louder…", &"bottom", Color(0.78, 0.91, 1), 0.65),
+		_beat(&"MC", "The beeping… it’s getting louder…", &"bottom", Color(1.0, 0.82, 0.24), 0.65),
 		_beat(&"Peace Leader", "There will be no victory if half the country must be buried beneath it.", &"bottom", Color(0.78, 0.94, 1), 0.8),
-		_beat(&"MC", "Wait…!", &"bottom", Color(0.78, 0.91, 1), 0.35),
+		_beat(&"MC", "Wait…!", &"bottom", Color(1.0, 0.82, 0.24), 0.35),
 	], true, false)
 	await _detonate()
 
@@ -190,6 +198,7 @@ func _detonate() -> void:
 	state = State.EXPLOSION
 	_bomb_armed = false
 	bomb_beep.stop()
+	reporter_sfx.stop()
 	explosion_started.emit()
 	explosion.play()
 	explosion_flash.modulate.a = 1.0
@@ -229,6 +238,9 @@ func _detonate() -> void:
 	tinnitus.play()
 	aftermath_rumble.play()
 	await _wait(0.42)
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.play_cue(&"rally_music", 0.35)
 	panic_ambience.play()
 	stress_vignette.modulate.a = 0.72
 	state = State.ESCAPE
@@ -269,14 +281,22 @@ func _start_blockade() -> void:
 	_blockade_pending = false
 	state = State.BLOCKADE
 	_lock_player()
-	await _focus(blockade_focus)
+	# The blockade is a horizontal confrontation on the same pavement as the
+	# player. Preserve the gameplay camera's street-height framing while panning
+	# across to the soldiers; centering on the marker's Y position made the
+	# camera climb and crop the actors' feet out of frame.
+	await _focus_on_street(blockade_focus)
 	mc_anchor.global_position = player.global_position + Vector2(0, -185)
 	await _say("MC", "Are you serious?! There’s people fucking dying here! Let us out!", mc_anchor, 0.85)
 	await _say("Soldier", "I understand but the culprit might be here!", soldier_anchor, 0.75)
 	mc_anchor.global_position = player.global_position + Vector2(0, -185)
 	await _say("MC", "(Ain’t no fucking way this is actually real.)", mc_anchor, 0.7)
 	await _play_shove_reaction()
-	await _focus(stage_focus)
+	# The MC turns back toward the injured leader as his call cuts through the
+	# confrontation. Pan down to the actual crouched sprite, not the old podium
+	# focus marker, so both the leader and his overhead bark remain in frame.
+	player.animated_sprite.flip_h = true
+	await _focus_injured_leader()
 	await _say("Opposition", "STOP!", leader_anchor, 0.55)
 	await _say("Opposition", "DO NOT FIGHT THEM! Listen to me! The explosion wants us frightened. Do not give it what it wants!", leader_anchor, 0.95)
 	await _say("Opposition", "Move the children and the injured through the eastern passage! Do not push!", leader_anchor, 0.85)
@@ -309,19 +329,45 @@ func _play_shove_reaction() -> void:
 	var soldier_a_origin := soldier_a.position
 	var soldier_b_origin := soldier_b.position
 	var tween := create_tween()
+	var camera_origin := camera.offset
+	var shake := create_tween()
+	for shake_offset in [Vector2(4, -2), Vector2(-5, 2), Vector2(6, 1), Vector2(-4, -2), Vector2(5, 2), Vector2(-6, 1), Vector2(4, -1), Vector2(-3, 2), Vector2(3, -1), Vector2.ZERO]:
+		shake.tween_property(camera, "offset", camera_origin + shake_offset, _duration(0.085)).set_trans(Tween.TRANS_SINE)
+	shake.tween_property(camera, "offset", camera_origin, _duration(0.14)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	# Lunge, struggle, then recoil while the line splits enough to expose the
 	# eastern passage. The player remains locked until the leader finishes.
-	tween.tween_property(civilian, "position:x", civilian_origin.x + 44.0, _duration(0.16)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(soldier_a, "position:x", soldier_a_origin.x + 14.0, _duration(0.16))
-	for direction in [-1.0, 1.0, -1.0, 1.0]:
-		tween.tween_property(civilian, "rotation", direction * 0.055, _duration(0.055))
-		tween.parallel().tween_property(soldier_a, "rotation", -direction * 0.035, _duration(0.055))
-	tween.tween_property(civilian, "position", civilian_origin + Vector2(-76.0, 2.0), _duration(0.22)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(civilian, "rotation", -0.13, _duration(0.18))
-	tween.parallel().tween_property(soldier_a, "position", soldier_a_origin + Vector2(62.0, 0.0), _duration(0.3))
-	tween.parallel().tween_property(soldier_b, "position", soldier_b_origin + Vector2(94.0, 0.0), _duration(0.3))
-	tween.parallel().tween_property(soldier_a, "rotation", 0.0, _duration(0.2))
+	tween.tween_property(civilian, "position:x", civilian_origin.x + 44.0, _duration(0.22)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(soldier_a, "position:x", soldier_a_origin.x + 14.0, _duration(0.22))
+	var struggle_directions := [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0]
+	for index in struggle_directions.size():
+		var direction: float = struggle_directions[index]
+		tween.tween_property(civilian, "rotation", direction * 0.06, _duration(0.075))
+		tween.parallel().tween_property(civilian, "position:x", civilian_origin.x + 44.0 + direction * 5.0, _duration(0.075))
+		tween.parallel().tween_property(soldier_a, "rotation", -direction * 0.04, _duration(0.075))
+	tween.tween_interval(_duration(0.16))
+	tween.tween_property(civilian, "position", civilian_origin + Vector2(-76.0, 2.0), _duration(0.3)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(civilian, "rotation", -0.13, _duration(0.24))
+	tween.parallel().tween_property(soldier_a, "position", soldier_a_origin + Vector2(62.0, 0.0), _duration(0.38))
+	tween.parallel().tween_property(soldier_b, "position", soldier_b_origin + Vector2(94.0, 0.0), _duration(0.38))
+	tween.parallel().tween_property(soldier_a, "rotation", 0.0, _duration(0.25))
 	await tween.finished
+	if shake.is_running():
+		await shake.finished
+	camera.offset = camera_origin
+
+
+func _focus_injured_leader() -> void:
+	var current_target := camera.target
+	if current_target == null or not is_instance_valid(current_target):
+		current_target = blockade_focus
+		camera.target = current_target
+	var leader_offset := Vector2(0.0, -130.0)
+	var offset_while_panning := crouched_leader.global_position - current_target.global_position + leader_offset
+	var pan := create_tween()
+	pan.tween_property(camera, "framing_offset", offset_while_panning, _duration(0.65)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	await pan.finished
+	camera.target = crouched_leader
+	camera.framing_offset = leader_offset
 
 
 func _start_crowd_dispersal() -> void:
@@ -349,21 +395,33 @@ func _finish_day2_world() -> void:
 
 func _run_bomb_beeps() -> void:
 	var interval := 1.2
-	var loudness := -18.0
+	var loudness := 2.0
+	bomb_beep.pitch_scale = 0.88
+	bomb_beep.volume_db = loudness
+	# The authored source contains 1.72 seconds of export silence.
+	bomb_beep.play(1.72)
 	while _bomb_armed:
 		bomb_beep.pitch_scale = remap(interval, 0.24, 1.2, 1.35, 0.88)
-		bomb_beep.volume_db = loudness
-		bomb_beep.play()
+		bomb_beep.volume_db = minf(10.0, loudness + _bomb_warning_boost_db)
 		await _wait(interval)
 		interval = maxf(0.24, interval * 0.79)
-		loudness = minf(-4.0, loudness + 1.8)
+		loudness = minf(10.0, loudness + 1.8)
+
+
+func _on_overlay_line_started(_speaker: StringName, text: String) -> void:
+	if text.begins_with("The beeping"):
+		_bomb_warning_boost_db = 8.0
+		bomb_beep.volume_db = minf(10.0, bomb_beep.volume_db + 8.0)
+	elif text.begins_with("Wait"):
+		_bomb_warning_boost_db = 10.0
+		bomb_beep.volume_db = minf(10.0, bomb_beep.volume_db + 2.0)
 
 
 func _reveal_bomb_planting() -> void:
 	soldier_reveal_started.emit()
 	var duck := create_tween().set_parallel(true)
 	duck.tween_property(rally_ambience, "volume_db", -29.0, _duration(0.45))
-	duck.tween_property(rally_music, "volume_db", -32.0, _duration(0.45))
+	duck.tween_property(reporter_sfx, "volume_db", -24.0, _duration(0.45))
 	# The standing guard is replaced in-place by the authored kneeling poses.
 	await _focus_with_zoom(soldier_focus, Vector2(1.25, 1.25), 0.55)
 	suspicious_worker.visible = false
@@ -378,6 +436,7 @@ func _reveal_bomb_planting() -> void:
 	metal_latch.play()
 	await _wait(0.3)
 	arming_click.play()
+	_bomb_warning_boost_db = 0.0
 	_bomb_armed = true
 	bomb_armed.emit()
 	_run_bomb_beeps()
@@ -406,6 +465,13 @@ func _say(speaker: String, text: String, anchor: Node2D, hold: float) -> void:
 func _focus(target: Node2D) -> void:
 	camera.target = target
 	camera.framing_offset = Vector2(0, -210)
+	await _wait(0.38)
+
+
+func _focus_on_street(target: Node2D) -> void:
+	var gameplay_y := player.global_position.y + _previous_camera_offset.y
+	camera.target = target
+	camera.framing_offset = Vector2(0.0, gameplay_y - target.global_position.y)
 	await _wait(0.38)
 
 
@@ -475,3 +541,26 @@ func _wait(seconds: float) -> void:
 
 func _duration(seconds: float) -> float:
 	return maxf(seconds * timing_scale, 0.001)
+
+
+func get_pause_objective() -> String:
+	match state:
+		State.ARRIVAL:
+			return "Approach the Peace Rally."
+		State.FREE_ROAM:
+			return "Move right and investigate the rally."
+		State.RALLY, State.SUSPICION:
+			return "Observe the rally and locate the source of the beeping."
+		State.EXPLOSION:
+			return "Survive the blast."
+		State.ESCAPE:
+			if not _containment_complete:
+				return "Move right and find a way out of the blast area."
+			return "Reach the soldiers blocking the eastern exit."
+		State.BLOCKADE:
+			return "Confront the soldiers and help the civilians escape."
+		State.RESCUE:
+			return "Record the rescue and the injured Peace Leader."
+		State.EXIT:
+			return "Leave the rally and prepare the bombing report."
+	return "Continue through the Peace Rally."

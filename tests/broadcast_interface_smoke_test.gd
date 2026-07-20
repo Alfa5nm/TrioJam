@@ -44,6 +44,10 @@ func _run() -> void:
 	_check(ui.conversation_scroll.visible and ui.conversation_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "left-panel conversation history is scrollable")
 	_check(ui.tv_power.stream != null and ui.tv_hum.stream != null, "CRT power and ambience cues are assigned")
 	_check(ui.eject_sound.stream != null and ui.button_sound.stream != null, "desk hardware cues are assigned")
+	_check(ui.eject_sound.stream.resource_path.ends_with("polaroid-eject-fast.ogg") and ui.eject_sound.stream.get_length() < 0.5, "Polaroid ejection uses the tightly trimmed supplied camera-print sound")
+	_check(ui.scene_frame.ejection_time_scale <= 0.72 and SceneFrame.POLAROID_CLEAR_SECONDS < 0.52 and SceneFrame.POLAROID_SETTLE_SECONDS < 0.16, "Polaroid print and settle motion is synchronized and faster")
+	_check(ui.blip.stream.resource_path.ends_with("dialogue-blip-soft.ogg") and ui.blip.volume_db <= -12.0, "MC interrogation dialogue uses the softened low-frequency blip")
+	_check(ui.government_blip.volume_db <= -15.0 and BroadcastInterface.GOVERNMENT_BLIP_STRIDE > BroadcastInterface.MC_BLIP_STRIDE, "Government interrogation blips are quieter and less frequent than the MC")
 	_check(ui.scene_frame.shred_sound.stream != null and ui.scene_frame.shred_sound.bus == &"SFX", "shred cue is assigned to the SFX bus")
 	_check(ui.cause_slot.frame_place_sound.stream != null and ui.cause_slot.character_place_sound.stream != null, "frame-drop cues are assigned")
 	_check((ui.get_node("DeskRoot/GeneratedConsole") as TextureRect).texture.resource_path.ends_with("broadcast-console-base-v4.png"), "desk uses the decomposed hardware-free base plate")
@@ -59,6 +63,7 @@ func _run() -> void:
 	ui._type_dialogue(skip_text)
 	await process_frame
 	_check(ui._typing_response, "long transcript line begins typewriter playback")
+	_check(ui.government_blip.pitch_scale >= BroadcastInterface.GOVERNMENT_BLIP_PITCH.x and ui.government_blip.pitch_scale <= BroadcastInterface.GOVERNMENT_BLIP_PITCH.y, "Government interrogation blip uses its restrained lower register")
 	ui._on_continue_pressed()
 	while ui._typing_response:
 		await process_frame

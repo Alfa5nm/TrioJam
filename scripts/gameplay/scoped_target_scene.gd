@@ -11,9 +11,9 @@ signal resolution_sequence_finished
 const OCCUPANT_SHEET := preload("res://assets/art/Scene 2/office-occupants-v2.png")
 const CELL_SIZE := Vector2(384, 384)
 const WRONG_TARGET_LINES := [
-	"Not this one.",
-	"AGHH... not this one either.",
-	"Not the guy I want dead today.",
+	"No, not this one.",
+	"ARGGH... not this one either.",
+	"Not the one I want dead today.",
 ]
 
 var resolved := false
@@ -100,7 +100,6 @@ func attempt_shot_at(screen_position: Vector2) -> bool:
 		_show_scope_dialogue(response)
 		_play_rejection_feedback()
 	else:
-		_show_scope_dialogue("Steady. Identify a person before firing.")
 		_play_rejection_feedback()
 	return false
 
@@ -134,8 +133,7 @@ func _show_scope_dialogue(response: String) -> void:
 func _play_resolution_sequence() -> void:
 	if dialogue.is_presenting:
 		dialogue.hide_immediately()
-	await dialogue.show_line_at("...", Vector2(640, 650), 0.7, true)
-	await dialogue.show_line_at("I should do it.", Vector2(640, 650), 0.9, true)
+	await dialogue.show_line_at("I’m doing the right thing.", Vector2(640, 650), 1.0, true)
 	if not is_inside_tree():
 		return
 	var ambience_fade := create_tween().set_parallel(true)
@@ -202,3 +200,9 @@ func _set_looping(stream: AudioStream, enabled: bool) -> void:
 
 func _duration(seconds: float) -> float:
 	return maxf(seconds * cinematic_timing_scale, 0.001)
+
+
+func get_pause_objective() -> String:
+	if resolved:
+		return "Review what happened and continue to the Broadcast Room."
+	return "Aim at the checkpoint and document the assigned target."

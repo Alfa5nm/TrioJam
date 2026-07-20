@@ -4,7 +4,7 @@ extends Area2D
 signal proximity_changed(interaction: StairwellInteraction, active: bool)
 signal activated(interaction: StairwellInteraction)
 
-@export var prompt_text := "E  INTERACT"
+@export var prompt_text := "E / SPACE  INTERACT"
 @export_multiline var message_text := ""
 @export var completes_scene := false
 

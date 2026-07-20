@@ -15,6 +15,8 @@ func _run() -> void:
 	session.broadcast_context = &"day3_complete"
 	session.day3_resolution = &"shoot"
 	session.last_completed_day3_route = &"shoot"
+	var route_player: AudioStreamPlayer = session.start_day3_route_music(&"shoot", 0.0)
+	_check(route_player != null and route_player.playing, "route music is active before returning to the menu")
 	var packed := load("res://scenes/menu/main_menu.tscn") as PackedScene
 	_check(packed != null, "main menu scene loads")
 	if packed == null:
@@ -23,6 +25,7 @@ func _run() -> void:
 	var menu := packed.instantiate() as MainMenu
 	root.add_child(menu)
 	await process_frame
+	_check(not route_player.playing, "main menu stops persistent Day 3 route music before its own score plays")
 	_check(menu.has_node("BackdropParallax/Image"), "parallax artwork layer exists")
 	_check((menu.get_node("BackdropParallax/Image") as TextureRect).texture.resource_path.ends_with("main-menu-shoot-ending.png"), "completed SHOOT route selects the supplied bad-ending backdrop")
 	_check(menu.has_node("TitleLogo"), "supplied title treatment exists")

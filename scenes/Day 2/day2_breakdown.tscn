@@ -3,10 +3,10 @@
 [ext_resource type="Script" path="res://scripts/narrative/day2_breakdown.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/art/Day 2 Side Scroll/cg/mc-breakdown.png" id="2_cg"]
 [ext_resource type="Texture2D" path="res://assets/art/Day1 Scene 1/particles/dust-mote.svg" id="3_particle"]
-[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="4_font"]
+[ext_resource type="FontFile" uid="uid://24x7g0emsjib" path="res://assets/fonts/Newsreader.ttf" id="4_font"]
 [ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/tense-ambience.wav" id="5_ambience"]
 [ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/mc-heavy-breathing.wav" id="6_breath"]
-[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="7_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="7_blip"]
 
 [sub_resource type="ParticleProcessMaterial" id="Particles_red"]
 emission_shape = 3
@@ -21,11 +21,7 @@ scale_max = 0.65
 color = Color(1, 0.05, 0.25, 0.56)
 
 [sub_resource type="StyleBoxFlat" id="Caption_style"]
-bg_color = Color(0.006, 0.008, 0.024, 0.9)
-border_width_top = 2
-border_color = Color(0.92, 0.08, 0.26, 0.9)
-shadow_color = Color(0, 0, 0, 0.75)
-shadow_size = 8
+bg_color = Color(0, 0, 0, 0)
 
 [node name="Day2Breakdown" type="Control"]
 layout_mode = 3
@@ -81,26 +77,32 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -156.0
+offset_left = 90.0
+offset_top = -220.0
+offset_right = -90.0
+offset_bottom = -35.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("Caption_style")
 
 [node name="Margin" type="MarginContainer" parent="CaptionPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 110
-theme_override_constants/margin_top = 25
-theme_override_constants/margin_right = 110
-theme_override_constants/margin_bottom = 25
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
 
 [node name="Caption" type="Label" parent="CaptionPanel/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.9, 1, 1)
+theme_override_colors/font_color = Color(0.96, 0.96, 0.99, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.98)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
 theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_offset_y = 3
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 27
+theme_override_font_sizes/font_size = 31
 text = "Narration"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -118,5 +120,5 @@ bus = &"SFX"
 
 [node name="Blip" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("7_blip")
-volume_db = -12.0
+volume_db = -10.0
 bus = &"UI"

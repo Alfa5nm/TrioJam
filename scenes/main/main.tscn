@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bcqv7ohsbm8oi"]
 
 [ext_resource type="Texture2D" uid="uid://ds4hfctt1wpa2" path="res://assets/Scene01 Assets/Rooftop Flight Scene.png" id="2_ouso4"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="2_shell_diffuse"]
-[ext_resource type="Texture2D" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell-normal.png" id="2_shell_normal"]
-[ext_resource type="Script" path="res://scripts/world/parallax_plane.gd" id="2_shell_parallax"]
+[ext_resource type="Texture2D" uid="uid://u86ktm3db4dt" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell.png" id="2_shell_diffuse"]
+[ext_resource type="Texture2D" uid="uid://cbj8qkq0j46nb" path="res://assets/art/Scene 0/stairwell_layers_true_transparency/layer_01_background_shell-normal.png" id="2_shell_normal"]
+[ext_resource type="Script" uid="uid://bo0n7xhh2y2jn" path="res://scripts/world/parallax_plane.gd" id="2_shell_parallax"]
 [ext_resource type="Texture2D" uid="uid://kqvsal0c6mtl" path="res://assets/art/environment/1.png" id="3_raeie"]
 [ext_resource type="Texture2D" uid="uid://bnko0rgw3yyd3" path="res://assets/art/environment/3.png" id="4_hxu8e"]
 [ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="4_player"]
@@ -11,13 +11,17 @@
 [ext_resource type="Script" uid="uid://bom8bjet8anif" path="res://scripts/world/rooftop_stairwell.gd" id="5_world"]
 [ext_resource type="Texture2D" uid="uid://dae85sfwnsddh" path="res://assets/art/environment/2.png" id="6_ou6is"]
 [ext_resource type="AudioStream" uid="uid://b50heltxk18m2" path="res://assets/audio/foley/concrete-stairwell-step.ogg" id="10_steps"]
-[ext_resource type="AudioStream" uid="uid://d2r2k6e3mtc4y" path="res://assets/audio/ambience/stairwell-room.mp3" id="11_room"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/alex_jauk-eerie-atmosphere-ambience-372558.mp3" id="11_room"]
 [ext_resource type="AudioStream" uid="uid://cgqp5ciql3hl4" path="res://assets/audio/ambience/stairwell-electrical.mp3" id="12_electrical"]
 [ext_resource type="AudioStream" uid="uid://dxhtalj0e16ch" path="res://assets/audio/foley/concrete-stairwell-step-02.ogg" id="13_steps_alt_a"]
 [ext_resource type="AudioStream" uid="uid://dcata4pu80ced" path="res://assets/audio/foley/concrete-stairwell-step-03.ogg" id="14_steps_alt_b"]
 [ext_resource type="PackedScene" path="res://scenes/ui/cinematic_dialogue.tscn" id="16_dialogue"]
 [ext_resource type="Script" uid="uid://65l7s84nd6ut" path="res://scripts/world/cinematic_camera.gd" id="18_camera"]
 [ext_resource type="Script" uid="uid://cx4xqtcohlqpt" path="res://scripts/world/spectrum_light_flicker.gd" id="29_flicker"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_background_shell"]
+diffuse_texture = ExtResource("2_shell_diffuse")
+normal_texture = ExtResource("2_shell_normal")
 
 [sub_resource type="Shader" id="Shader_volumetric_beam"]
 code = "shader_type canvas_item;
@@ -33,10 +37,6 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_volumetric_beam"]
 shader = SubResource("Shader_volumetric_beam")
-
-[sub_resource type="CanvasTexture" id="CanvasTexture_background_shell"]
-diffuse_texture = ExtResource("2_shell_diffuse")
-normal_texture = ExtResource("2_shell_normal")
 
 [sub_resource type="Gradient" id="Gradient_warm_light"]
 offsets = PackedFloat32Array(0, 0.62, 1)
@@ -89,7 +89,7 @@ position = Vector2(638.5, 364.25)
 scale = Vector2(0.7661483, 0.77630186)
 texture = ExtResource("2_ouso4")
 
-[node name="Layer01BackgroundShell" type="Sprite2D" parent="."]
+[node name="Layer01BackgroundShell" type="Sprite2D" parent="." unique_id=1769483405]
 visible = false
 z_index = -30
 position = Vector2(642, 360.75)
@@ -176,25 +176,24 @@ beam_paths = Array[NodePath]([NodePath("../LandingLightBeam")])
 base_energy = 0.62
 minimum_energy = 0.18
 
-[node name="railing" type="Sprite2D" parent="."]
+[node name="railing" type="Sprite2D" parent="." unique_id=117117495]
 visible = false
 z_index = 20
 
-[node name="UpperLandingFrontRail" type="Sprite2D" parent="."]
+[node name="UpperLandingFrontRail" type="Sprite2D" parent="." unique_id=1497988946]
 visible = false
 z_index = 20
 
-[node name="UpperFlightForegroundRail" type="Sprite2D" parent="."]
+[node name="UpperFlightForegroundRail" type="Sprite2D" parent="." unique_id=900588824]
 visible = false
 z_index = 20
 
-[node name="UpperFlightFascia" type="Sprite2D" parent="."]
+[node name="UpperFlightFascia" type="Sprite2D" parent="." unique_id=1251912110]
 visible = false
-z_index = 0
 
 [node name="Player" parent="." unique_id=1107255841 instance=ExtResource("4_player")]
 z_index = 10
-position = Vector2(259, 460)
+position = Vector2(233, 562)
 footstep_stream = ExtResource("10_steps")
 footstep_stream_alt_a = ExtResource("13_steps_alt_a")
 footstep_stream_alt_b = ExtResource("14_steps_alt_b")
@@ -208,13 +207,13 @@ target_path = NodePath("../Player")
 
 [node name="RoomTone" type="AudioStreamPlayer" parent="Audio" unique_id=48822973]
 stream = ExtResource("11_room")
-volume_db = -13.0
+volume_db = 4.0
 bus = &"Ambience"
 
 [node name="Electrical" type="AudioStreamPlayer2D" parent="Audio" unique_id=547964766]
-position = Vector2(1078, 108)
+position = Vector2(1026, 151)
 stream = ExtResource("12_electrical")
-volume_db = -8.0
+volume_db = 15.834
 max_distance = 1050.0
 attenuation = 1.7
 bus = &"Electrical"
@@ -330,7 +329,7 @@ theme_override_styles/panel = SubResource("Prompt_panel")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 1)
 theme_override_font_sizes/font_size = 16
-text = "E  ENTER ROOFTOP"
+text = "E / SPACE  ENTER ROOFTOP"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -348,6 +347,7 @@ mouse_filter = 2
 color = Color(0.008, 0.012, 0.02, 1)
 
 [node name="CinematicDialogue" parent="." unique_id=883177381 instance=ExtResource("16_dialogue")]
+speaker_offset = Vector2(0, -250)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=483172450]
 collision_layer = 3

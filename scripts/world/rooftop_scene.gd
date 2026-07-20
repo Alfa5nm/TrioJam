@@ -38,7 +38,7 @@ func _ready() -> void:
 func _play_rooftop_intro() -> void:
 	player.controls_enabled = false
 	await get_tree().create_timer(0.7).timeout
-	await dialogue.show_line("I can do it.", 0.95, player, true)
+	await dialogue.show_line("I can finally fulfill what I’ve dreamt of these past years. I can… I can finally get my revenge.", 1.8, player, true)
 	if is_inside_tree() and not plan_executed:
 		player.controls_enabled = true
 
@@ -85,8 +85,6 @@ func execute_plan() -> void:
 	reveal.tween_property(fade, "modulate:a", 0.0, 0.48).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await reveal.finished
 	await player.execute_plan_finished
-	await dialogue.show_line("...", 0.75, player, true)
-	await dialogue.show_line("Should I do it?", 1.05, player, true)
 	if auto_advance_to_scope:
 		_advance_to_scope()
 
@@ -129,3 +127,11 @@ func _set_stream_loop(audio_stream: AudioStream, enabled: bool) -> void:
 		(audio_stream as AudioStreamMP3).loop = enabled
 	elif audio_stream is AudioStreamOggVorbis:
 		(audio_stream as AudioStreamOggVorbis).loop = enabled
+
+
+func get_pause_objective() -> String:
+	if plan_executed:
+		return "Prepare to document the checkpoint incident."
+	if execute_available:
+		return "Use the rooftop vantage point."
+	return "Cross the rooftop and find a clear view."

@@ -40,7 +40,9 @@ func _ready() -> void:
 
 func _play_day_zero_intro() -> void:
 	player.controls_enabled = false
-	await dialogue.show_line("...Can I do it?", 1.05, player, true)
+	await dialogue.show_line("…", 0.7, player, true)
+	await dialogue.show_line("…I can’t even remember the last time I felt the autonomy of my own actions.", 1.55, player, true)
+	await dialogue.show_line("This… feels good.", 1.0, player, true)
 	if is_inside_tree() and not _transitioning:
 		player.controls_enabled = true
 
@@ -147,3 +149,11 @@ func _set_stream_loop(audio_stream: AudioStream, enabled: bool) -> void:
 		(audio_stream as AudioStreamMP3).loop = enabled
 	elif audio_stream is AudioStreamOggVorbis:
 		(audio_stream as AudioStreamOggVorbis).loop = enabled
+
+
+func get_pause_objective() -> String:
+	if _transitioning:
+		return "Enter the rooftop."
+	if upper_route_active:
+		return "Climb the upper flight and reach the rooftop door."
+	return "Climb the stairwell to the upper landing."

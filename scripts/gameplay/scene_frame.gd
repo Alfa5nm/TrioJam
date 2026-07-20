@@ -6,6 +6,11 @@ signal footage_ejected(action: ActionDef)
 
 @export_range(0.0, 4.0, 0.05) var ejection_time_scale := 1.0
 
+const POLAROID_CLEAR_SECONDS := 0.40
+const POLAROID_SCALE_SECONDS := 0.22
+const POLAROID_FADE_SECONDS := 0.06
+const POLAROID_SETTLE_SECONDS := 0.12
+
 var current_action: ActionDef
 var interaction_enabled := true
 var _available_actions: Array[ActionDef] = []
@@ -292,17 +297,17 @@ func _eject_polaroid(action: ActionDef) -> void:
 		return
 	var clearance_target := Vector2(70, -83) + Vector2(stack_index * 3.0, 0.0)
 	var tween := create_tween().set_parallel()
-	tween.tween_property(card, "position", clearance_target, 0.52 * ejection_time_scale).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(card, "rotation", deg_to_rad(0.6), 0.52 * ejection_time_scale).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(card, "scale", Vector2.ONE, 0.28 * ejection_time_scale).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(card, "modulate:a", 1.0, 0.08 * ejection_time_scale)
+	tween.tween_property(card, "position", clearance_target, POLAROID_CLEAR_SECONDS * ejection_time_scale).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "rotation", deg_to_rad(0.6), POLAROID_CLEAR_SECONDS * ejection_time_scale).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(card, "scale", Vector2.ONE, POLAROID_SCALE_SECONDS * ejection_time_scale).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "modulate:a", 1.0, POLAROID_FADE_SECONDS * ejection_time_scale)
 	await tween.finished
 	if not is_instance_valid(card):
 		return
 	card.reparent(front_ejection_layer, true)
 	var settle := create_tween().set_parallel()
-	settle.tween_property(card, "position", settle_position, 0.16 * ejection_time_scale).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	settle.tween_property(card, "rotation", settle_rotation, 0.16 * ejection_time_scale).set_trans(Tween.TRANS_SINE)
+	settle.tween_property(card, "position", settle_position, POLAROID_SETTLE_SECONDS * ejection_time_scale).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	settle.tween_property(card, "rotation", settle_rotation, POLAROID_SETTLE_SECONDS * ejection_time_scale).set_trans(Tween.TRANS_SINE)
 	await settle.finished
 	if is_instance_valid(card):
 		card.mouse_filter = Control.MOUSE_FILTER_STOP if interaction_enabled else Control.MOUSE_FILTER_IGNORE

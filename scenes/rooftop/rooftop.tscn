@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://d1ycax0g8c2gt" path="res://scripts/world/rooftop_scene.gd" id="1_world"]
 [ext_resource type="Texture2D" uid="uid://dg2fpac31khpi" path="res://assets/art/Scene 1/Rooftop Scene.png" id="2_rooftop"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="3_player"]
 [ext_resource type="AudioStream" uid="uid://cpa4bx6r6nlcy" path="res://assets/audio/foley/concrete-rooftop-step.ogg" id="4_steps"]
 [ext_resource type="AudioStream" uid="uid://bosn5re1epywh" path="res://assets/audio/foley/bag-search-cue.ogg" id="5_bag"]
 [ext_resource type="AudioStream" uid="uid://dflk26a2rrgv4" path="res://assets/audio/foley/sniper-assemble-cue.ogg" id="6_rifle"]
@@ -43,12 +43,16 @@ bg_color = Color(0.02, 0.024, 0.043, 0.9)
 border_width_top = 1
 border_color = Color(0.88, 0.7, 0.48, 0.6)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f27j2"]
+size = Vector2(20, 167.2561)
+
 [node name="Rooftop" type="Node2D" unique_id=1908834530]
 script = ExtResource("1_world")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1693162448]
 z_index = -20
 texture_filter = 1
+position = Vector2(3.9999998, 0)
 scale = Vector2(0.76555, 0.76555)
 texture = SubResource("CanvasTexture_rooftop")
 centered = false
@@ -95,12 +99,12 @@ target_path = NodePath("../Player")
 
 [node name="Wind" type="AudioStreamPlayer" parent="Audio" unique_id=84623803]
 stream = ExtResource("7_wind")
-volume_db = -22.0
+volume_db = 4.0
 
 [node name="Birds" type="AudioStreamPlayer2D" parent="Audio" unique_id=163795536]
-position = Vector2(1080, 230)
+position = Vector2(605, 345)
 stream = ExtResource("8_birds")
-volume_db = -10.0
+volume_db = 6.5
 max_distance = 1350.0
 attenuation = 1.35
 
@@ -132,7 +136,7 @@ theme_override_styles/panel = SubResource("Prompt_panel")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.82, 1)
 theme_override_font_sizes/font_size = 17
-text = "E  EXECUTE PLAN"
+text = "E / SPACE  EXECUTE PLAN"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -163,9 +167,9 @@ vertical_alignment = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
+offset_left = -1300.0
 offset_top = -4.0
-offset_right = 8.0
+offset_right = -1300.0
 offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -174,3 +178,12 @@ color = Color(0.008, 0.012, 0.022, 1)
 
 [node name="CinematicDialogue" parent="." unique_id=378317120 instance=ExtResource("11_dialogue")]
 speaker_offset = Vector2(0, -290)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=252746987]
+position = Vector2(1272, 576)
+collision_layer = 3
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1436684894]
+position = Vector2(1.4622803, -3.2561035)
+shape = SubResource("RectangleShape2D_f27j2")

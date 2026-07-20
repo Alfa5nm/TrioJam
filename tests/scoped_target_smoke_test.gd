@@ -60,12 +60,12 @@ func _run() -> void:
 	_check(not scene.attempt_shot_at(Vector2(500, 390)), "clerk is rejected as a non-target")
 	_check(not scene.attempt_shot_at(Vector2(760, 390)), "copier employee is rejected as a non-target")
 	_check(wrong_responses.size() == 3, "wrong-target feedback fires for each office worker")
-	_check(wrong_responses == ["Not this one.", "AGHH... not this one either.", "Not the guy I want dead today."], "wrong occupants receive the deterministic three-line rejection cycle")
+	_check(wrong_responses == ["No, not this one.", "ARGGH... not this one either.", "Not the one I want dead today."], "wrong occupants receive the revised three-line rejection cycle")
 	_check(scene.off_target_error.playing, "wrong occupant plays the off-target error cue")
 	_check(not scene.resolved, "wrong targets do not resolve the scene")
 	var errors_before_empty := scene.off_target_error.get_playback_position()
 	_check(not scene.attempt_shot_at(Vector2(20, 690)), "empty space does not resolve the scene")
-	_check(scene.dialogue.line.text == "Steady. Identify a person before firing.", "empty-space guidance uses the hovering dialogue bubble")
+	_check(scene.dialogue.line.text == "Not the one I want dead today.", "empty-space clicks add no dialogue outside the revised script")
 	_check(scene.wrong_shots == 3, "empty-space clicks do not count as wrong occupants")
 	_check(scene.off_target_error.get_playback_position() >= errors_before_empty, "empty-space click does not restart the error cue")
 
@@ -76,6 +76,7 @@ func _run() -> void:
 	_check(scene.reticle.confirmed, "correct-shot confirmation remains visible through the reticle")
 	_check(scene.shots_taken == 5 and scene.wrong_shots == 3, "shot accounting distinguishes empty space from failed identifications")
 	await scene.resolution_sequence_finished
+	_check(scene.dialogue.line.text == "I’m doing the right thing.", "correct target resolves with the revised commitment line")
 	_check(scene.sniper_shot.playing, "sniper report is synchronized after the commitment line")
 	_check(scene.glass_shatter.playing, "glass impact follows the rifle report")
 	_check(scene.fade.modulate.a > 0.95, "correct shot resolves to black before the desk transition")

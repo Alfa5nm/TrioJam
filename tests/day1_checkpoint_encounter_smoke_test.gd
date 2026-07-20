@@ -56,11 +56,16 @@ func _run() -> void:
 	encounter.cinematic_timing_scale = 0.01
 	var beats: Array[String] = []
 	var camera_lines: Array[String] = []
+	var chaotic_active_at_capture_start := [false]
 	encounter.dialogue_beat_started.connect(func(speaker_name: String, text: String):
 		beats.append(speaker_name + "|" + text)
 	)
 	camera_capture.line_started.connect(func(speaker_name: String, text: String, phase: StringName):
 		camera_lines.append(String(phase) + "|" + speaker_name + "|" + text)
+	)
+	camera_capture.capture_started.connect(func():
+		var director := root.get_node_or_null("MusicDirector")
+		chaotic_active_at_capture_start[0] = director != null and director.current_cue() == &"chaotic_music"
 	)
 	root.add_child(level)
 	for _frame in 5:
@@ -121,8 +126,15 @@ func _run() -> void:
 	_check(dialogue.characters_per_second <= 24.0 and soldier_bubble_color.r > 0.9 and soldier_bubble_color.g < 0.4, "world Soldier bubbles are slower and red")
 	_check(civilian_bubble_color.is_equal_approx(Color.WHITE), "world Civilian bubbles remain white")
 	dialogue._configure_standard_line()
-	_check(camera_capture.gunshot.stream != null and camera_capture.camera_click.stream != null and camera_capture.scuffle.stream != null and camera_capture.running.stream != null and camera_capture.breathing.stream != null, "requested camera, struggle, gunshot, escape, and breathing sounds are assigned")
+	_check(camera_capture.gunshot.stream != null and camera_capture.camera_click.stream != null and camera_capture.scuffle.stream != null and camera_capture.running.stream != null and camera_capture.body_fall.stream != null and camera_capture.breathing.stream != null, "requested camera, struggle, gunshot, body fall, escape, and breathing sounds are assigned")
+	_check(camera_capture.running.stream.resource_path.ends_with("running-on-concrete.mp3"), "Day 1 cutscene escape uses the supplied concrete-running cue")
+	_check(camera_capture.body_fall.stream.resource_path.ends_with("body-fall.mp3"), "Day 1 civilian collapse uses the supplied body-fall cue")
 	_check(camera_capture.blip.stream != null and camera_capture.blip.bus == &"UI" and camera_capture.tense.bus == &"Ambience", "generated blip and tense background audio use the correct buses")
+	var music_director := root.get_node_or_null("MusicDirector")
+	_check(chaotic_active_at_capture_start[0], "chaotic score starts with the camera draw")
+	_check(music_director != null and music_director.current_cue().is_empty() and not music_director.active_player().playing, "chaotic score finishes with the cutscene before street dialogue resumes")
+	_check(not camera_capture.tense.playing and camera_capture.crowd.volume_db <= -14.0, "redundant ambience stays beneath the chaotic score")
+	_check(camera_capture.gunshot.volume_db <= -3.0 and camera_capture.scuffle.volume_db <= -12.0, "essential impacts remain readable without overpowering the score")
 	_check(encounter.aftermath_staged and encounter.get_node("Aftermath").visible and encounter.get_node("Aftermath/Blood").visible, "camera exit reveals the crowd and blood aftermath")
 	_check(encounter.escape_staged and player.global_position.distance_to(escape_spawn.global_position) < 1.0, "black-screen escape respawns the player at the grain depot")
 	_check(escape_barrier.visible and not barrier_shape.disabled, "post-event barricade visibly and physically closes the route behind the player")

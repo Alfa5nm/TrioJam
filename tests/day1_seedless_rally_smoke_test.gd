@@ -46,11 +46,10 @@ func _run() -> void:
 	var left_guard := rally.get_node("Stage/LeftGuard") as Sprite2D
 	var right_guard := rally.get_node("Stage/RightGuard") as Sprite2D
 	var representative := rally.get_node("Stage/Representative") as Sprite2D
-	var podium := rally.get_node("Stage/PodiumForeground") as Polygon2D
 	_check(not left_guard.flip_h and right_guard.flip_h, "stage guards face inward toward the representative")
 	_check(representative.texture.resource_path.contains("seedless-campaign-representative"), "supplied representative stands at the podium")
-	_check(representative.position.y <= -300.0, "representative upper body remains visible above the podium")
-	_check(podium.texture != null and podium.polygon.size() == 4 and podium.z_index > representative.z_index, "podium foreground occludes the representative correctly")
+	_check(representative.position.distance_to(Vector2(5, -280)) < 1.0, "representative is aligned with the supplied stage artwork")
+	_check(rally.get_node_or_null("Stage/PodiumForeground") == null and rally.get_node_or_null("CampaignPlacard") == null, "generated podium overlays do not obscure the supplied environment art")
 	var ambience := rally.get_node("CrowdAmbience") as AudioStreamPlayer2D
 	_check(ambience.stream != null and ambience.playing and ambience.bus == &"Ambience", "localized rally protest ambience is active")
 

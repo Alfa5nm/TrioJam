@@ -57,7 +57,7 @@ func _capture() -> void:
 	root.add_child(finale)
 	await process_frame
 	finale.credits.visible = true
-	finale.credits_text.text = "Oroboros Route\n\nAND NOW, TODAY'S NEWS\n\nDesign and Lead Artist — Tasnuva (Raye)\n\nAudio Design, Level Design, Side-Scroll Technical Lead, E2E Polish — Farid\n\nBroadcast UI Interface Mechanics and Routing Mechanics — Akib"
+	finale.credits_text.text = "Oroboros Route\n\n" + "\n".join(Day3Finale.CREDITS)
 	finale.credits_text.position.y = 295.0
 	finale.credits_hint.modulate.a = 1.0
 	for frame in 4:

@@ -54,14 +54,13 @@ func _run() -> void:
 	var broadcast_exit := level.get_node("BroadcastRoomExit") as Day1BroadcastRoomExit
 	var trigger := rally.get_node("Trigger") as Area2D
 	var customers := rally.get_node("CustomerQueue").get_children()
-	var placard := rally.get_node("CampaignPlacard/Text") as Label
 
 	_check(trigger.position.distance_to(Vector2(-760, -120)) < 1.0, "invisible rally trigger sits on the player’s route")
 	_check(customers.size() >= 2, "the authored civilians form the Seedless customer queue")
 	_check(customers.all(func(node: Node) -> bool:
 		return node is Sprite2D and (node as Sprite2D).texture != null
 	), "customer queue uses supplied transparent NPC artwork")
-	_check(placard.text == "TO A SEEDLESS,\nCONVENIENT FUTURE", "bright campaign placard uses the requested wording")
+	_check(rally.get_node_or_null("CampaignPlacard") == null, "generated campaign placard no longer obscures the supplied rally artwork")
 	_check(not broadcast_exit.is_armed and broadcast_exit.position.distance_to(Vector2(8790, 470)) < 1.0, "Broadcast Room door remains inactive before recording")
 
 	var world_lines: Array[String] = []

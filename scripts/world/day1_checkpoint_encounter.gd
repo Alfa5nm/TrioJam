@@ -81,6 +81,9 @@ func start_sequence() -> void:
 	mc_dialogue_anchor.global_position = _player.global_position + Vector2(0.0, -205.0)
 	await _say("MC", "(...Something tells me this is going to escalate. I’ll get my camera out.)", mc_dialogue_anchor, 0.8)
 
+	# The chaotic score starts on the exact frame the MC pulls out the camera,
+	# rather than arriving later during the aftermath.
+	_camera_capture.start_chaotic_score(true)
 	_player.play_interaction()
 	await _wait(0.42)
 	await _camera_capture.begin_capture()

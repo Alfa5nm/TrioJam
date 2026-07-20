@@ -23,17 +23,21 @@ func _run() -> void:
 
 	_check(not scene.bedroom.visible, "civilian accusations begin on a pure black screen")
 	var dialogue_style := scene.dialogue_panel.get_theme_stylebox("panel") as StyleBoxFlat
-	_check(dialogue_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.96)), "epilogue dialogue uses the navy backdrop")
-	_check(dialogue_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "epilogue dialogue uses the neon-blue outline")
+	_check(is_zero_approx(dialogue_style.bg_color.a), "epilogue CG subtitles have no dialogue box")
 	_check(scene.dialogue_label.get_theme_color("font_color") == Color.WHITE, "epilogue dialogue text remains white")
 	_check(scene.dialogue_label.get_theme_font("font").resource_path.ends_with("Newsreader.ttf"), "epilogue dialogue uses the newsletter font")
+	_check(scene.dialogue_label.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, "epilogue subtitles use the Day 1 ending's centered composition")
 	_check(scene.has_node("DialoguePanel/Margin/Layout/SpeakerLabel") and scene.speaker_label.text == "Civilian 1", "first civilian dialogue displays its requested header")
 	_check(scene.dialogue_label.text == "They murdered him!", "first accusation is exact")
 	scene._request_advance()
 	_check(scene._civilian_index == 0 and scene._hold_active, "first civilian cry cannot advance during its mandatory hold")
 	await create_timer(0.02).timeout
-	scene._request_advance()
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	scene._input(click)
 	_check(scene.dialogue_label.text == "You believe everything they show you!", "second civilian cry follows the first hold")
+	_check(scene._civilian_index == 1, "full-screen mouse click advances the boxless epilogue subtitle")
 	_check(scene.speaker_label.text == "Civilian 2", "second civilian header advances with its dialogue")
 	await create_timer(0.02).timeout
 	scene._request_advance()
@@ -71,8 +75,9 @@ func _run() -> void:
 	scene._request_advance()
 	_check(scene._closing and scene.curtains.visible and scene.curtains.is_playing(), "advancing from silence starts on the curtain-pull illustration")
 	await create_timer(0.12).timeout
-	_check(scene._finished and scene.dialogue_label.text == "I have to work tomorrow...", "final line appears after the curtains fully close")
-	_check(scene.curtains.frame == 1 and scene.curtains.sprite_frames.get_frame_texture(&"close", scene.curtains.frame) == Day0Epilogue.CURTAIN_ENDING, "curtain-ending illustration remains on screen for the final line")
+	_check(scene._finished and scene.dialogue_label.text == "I have work tomorrow.", "corrected final line appears after the curtains fully close")
+	_check(is_equal_approx(scene.bedroom_fade.modulate.a, 1.0), "curtain ending fades fully to black before the final line")
+	_check(scene.curtains.frame == 1 and scene.curtains.sprite_frames.get_frame_texture(&"close", scene.curtains.frame) == Day0Epilogue.CURTAIN_ENDING, "curtain-ending illustration completes before the blackout")
 	_check(not scene._transition_started, "tests can disable the automatic Day 1 handoff")
 
 	scene.queue_free()

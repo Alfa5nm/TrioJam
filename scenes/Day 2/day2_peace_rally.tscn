@@ -18,9 +18,9 @@
 [ext_resource type="Script" uid="uid://svsun0obexan" path="res://scripts/world/day2_dispersal_actor.gd" id="16_dispersal"]
 [ext_resource type="Texture2D" uid="uid://bhhuehv56y1gg" path="res://assets/art/Day1 Scene 1/particles/leaf-particle.svg" id="18_leaf"]
 [ext_resource type="Texture2D" uid="uid://dbahr6xw8obhx" path="res://assets/art/Day1 Scene 1/particles/dust-mote.svg" id="19_dust"]
-[ext_resource type="AudioStream" uid="uid://d2aath1mvhbe5" path="res://assets/audio/ambience/day1/angry-crowd-70647.mp3" id="20_crowd"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/scripted/Crowd.mp3" id="20_crowd"]
 [ext_resource type="AudioStream" uid="uid://cuqs7i3p2p6mw" path="res://assets/audio/day1/cutscene/crowd-panic.wav" id="21_panic"]
-[ext_resource type="AudioStream" uid="uid://ml2uc4gqgshh" path="res://assets/audio/day2/bomb-beep.wav" id="22_beep"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/scripted/Beep.wav" id="22_beep"]
 [ext_resource type="AudioStream" uid="uid://conalkiiwkfp5" path="res://assets/audio/day2/explosion-layered.wav" id="23_explosion"]
 [ext_resource type="AudioStream" uid="uid://dx6y7bb0yf037" path="res://assets/audio/day2/tinnitus.wav" id="24_tinnitus"]
 [ext_resource type="AudioStream" uid="uid://0dmo0gu5a0hl" path="res://assets/audio/day2/aftermath-rumble.wav" id="25_rumble"]
@@ -44,6 +44,7 @@
 [ext_resource type="AudioStream" uid="uid://c6n2mffvffyn" path="res://assets/audio/day3/sfx/radio-click.wav" id="43_arm"]
 [ext_resource type="AudioStream" uid="uid://bn7fb0gt6hwad" path="res://assets/audio/day3/ambience/emergency-siren.wav" id="44_siren"]
 [ext_resource type="AudioStream" uid="uid://c2hbvip01oww" path="res://assets/audio/day1/cutscene/tense-ambience.wav" id="45_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/scripted/Reporter_SFX.wav" id="47_reporter"]
 [ext_resource type="Texture2D" uid="uid://bj8r45oe6p6um" path="res://assets/art/Day1 Scene 1/npcs/r4c1-anti-seedless-protester-a.png" id="46_anti_seedless_a"]
 
 [sub_resource type="RectangleShape2D" id="Shape_ground"]
@@ -286,7 +287,7 @@ shape = SubResource("Shape_border")
 collision_layer = 2
 
 [node name="Shape" type="CollisionShape2D" parent="Collision/EastBlockade" unique_id=1545591920]
-position = Vector2(3045, 455)
+position = Vector2(2845, 455)
 shape = SubResource("Shape_border")
 
 [node name="Player" parent="." unique_id=324047577 instance=ExtResource("4_player")]
@@ -629,16 +630,21 @@ punctuation_pause = 0.15
 
 [node name="RallyAmbience" type="AudioStreamPlayer" parent="Audio" unique_id=151748463]
 stream = ExtResource("20_crowd")
-volume_db = -22.0
+volume_db = -10.0
 bus = &"Ambience"
 
 [node name="RallyMusic" type="AudioStreamPlayer" parent="Audio" unique_id=2011713015]
 stream = ExtResource("45_music")
 volume_db = -25.0
 
+[node name="ReporterSFX" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("47_reporter")
+volume_db = -8.0
+bus = &"SFX"
+
 [node name="PanicAmbience" type="AudioStreamPlayer" parent="Audio" unique_id=321533748]
 stream = ExtResource("21_panic")
-volume_db = -13.0
+volume_db = -9.0
 bus = &"Ambience"
 
 [node name="BombBeep" type="AudioStreamPlayer2D" parent="Audio" unique_id=535190908]
@@ -674,12 +680,11 @@ bus = &"SFX"
 
 [node name="DistantSirens" type="AudioStreamPlayer" parent="Audio" unique_id=981104517]
 stream = ExtResource("44_siren")
-volume_db = -24.0
+volume_db = -20.0
 bus = &"Ambience"
 
 [node name="Explosion" type="AudioStreamPlayer" parent="Audio" unique_id=790868255]
 stream = ExtResource("23_explosion")
-volume_db = -2.0
 bus = &"SFX"
 
 [node name="Tinnitus" type="AudioStreamPlayer" parent="Audio" unique_id=474762164]
@@ -689,7 +694,7 @@ bus = &"SFX"
 
 [node name="AftermathRumble" type="AudioStreamPlayer" parent="Audio" unique_id=1620864742]
 stream = ExtResource("25_rumble")
-volume_db = -17.0
+volume_db = -13.0
 bus = &"Ambience"
 
 [node name="Particles" type="Node2D" parent="." unique_id=132388820]

@@ -44,37 +44,17 @@ polygon = PackedVector2Array(-132, -8, 132, -8, 132, 18, -132, 18)
 [sub_resource type="OccluderPolygon2D" id="DoorOccluder"]
 polygon = PackedVector2Array(-42, -190, 42, -190, 42, 190, -42, 190)
 
-[sub_resource type="StyleBoxFlat" id="CGTopPanel"]
-bg_color = Color(0.055, 0.025, 0.07, 0.93)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.92, 0.18, 0.25, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 24.0
-content_margin_top = 16.0
-content_margin_right = 24.0
-content_margin_bottom = 16.0
+[sub_resource type="StyleBoxEmpty" id="CGTopPanel"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
 
-[sub_resource type="StyleBoxFlat" id="CGBottomPanel"]
-bg_color = Color(0.025, 0.075, 0.16, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.25, 0.72, 1, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 24.0
-content_margin_top = 16.0
-content_margin_right = 24.0
-content_margin_bottom = 16.0
+[sub_resource type="StyleBoxEmpty" id="CGBottomPanel"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
 
 [sub_resource type="RectangleShape2D" id="FloorShape"]
 size = Vector2(1280, 48)
@@ -265,6 +245,8 @@ bark_font_size = 24
 bark_long_font_size = 22
 bark_characters_per_line = 44.0
 bark_line_height = 28.0
+company_representative_text_color = Color(1, 0.32, 0.36, 1)
+company_representative_border_color = Color(0.95, 0.18, 0.2, 0.98)
 
 [node name="Audio" type="Node" parent="." unique_id=401936344]
 
@@ -322,7 +304,7 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 22
-text = "E  CONTINUE"
+text = "E / SPACE  CONTINUE"
 horizontal_alignment = 1
 
 [node name="Fade" type="ColorRect" parent="HUD" unique_id=156362055]
@@ -388,12 +370,19 @@ theme_override_styles/panel = SubResource("CGTopPanel")
 [node name="Text" type="RichTextLabel" parent="CGOverlay/TopDialogue"]
 layout_mode = 2
 theme_override_colors/default_color = Color(1, 0.32, 0.36, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.98)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
 theme_override_fonts/normal_font = ExtResource("6_font")
-theme_override_font_sizes/normal_font_size = 23
+theme_override_font_sizes/normal_font_size = 27
 text = "Government dialogue"
 fit_content = false
 scroll_active = false
 autowrap_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="BottomDialogue" type="PanelContainer" parent="CGOverlay"]
 visible = false
@@ -406,9 +395,16 @@ theme_override_styles/panel = SubResource("CGBottomPanel")
 [node name="Text" type="RichTextLabel" parent="CGOverlay/BottomDialogue"]
 layout_mode = 2
 theme_override_colors/default_color = Color(0.86, 0.94, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.98)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
 theme_override_fonts/normal_font = ExtResource("6_font")
-theme_override_font_sizes/normal_font_size = 22
+theme_override_font_sizes/normal_font_size = 26
 text = "MC dialogue"
 fit_content = false
 scroll_active = false
 autowrap_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1

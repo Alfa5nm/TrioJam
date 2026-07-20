@@ -36,6 +36,9 @@ func _check_route_combination(checkpoint_route: StringName, seedless_route: Stri
 	var ending := packed.instantiate() as Day1EndingController
 	ending.instant_mode = true
 	ending.auto_transition_to_day2 = false
+	var ending_dialogue := ending.get_node("CinematicDialogue") as CinematicDialogue
+	ending_dialogue.instant_mode = true
+	ending_dialogue.timing_scale = 0.01
 	root.add_child(ending)
 	for _frame in 12:
 		await process_frame
@@ -43,7 +46,34 @@ func _check_route_combination(checkpoint_route: StringName, seedless_route: Stri
 	_check(ending.seedless_route == seedless_route, "seedless route is read for %s/%s" % [checkpoint_route, seedless_route])
 	_check(ending.truth_background.visible == (checkpoint_route == &"truthful"), "truth background visibility follows Report 1")
 	_check(ending.propaganda_background.visible == (checkpoint_route == &"propaganda"), "propaganda background visibility follows Report 1")
+	_check_background_join(ending.get_node("HomeStreet") as Sprite2D, ending.get_node("MiddleStreet") as Sprite2D, "home and middle street")
+	_check_background_join(ending.get_node("MiddleStreet") as Sprite2D, ending.truth_background, "middle street and route aftermath")
+	_check_background_join(ending.truth_background, ending.get_node("DepotStreet") as Sprite2D, "route aftermath and depot street")
+	_check((ending.get_node("DepotStreet") as Sprite2D).modulate.is_equal_approx(Color(0.9, 0.9, 0.9, 1.0)), "brighter depot source is exposure-matched to its neighbors")
+	var npc_texture := load("res://assets/art/Day1 Scene 1/npcs/r1c3-occupation-protester-b.png") as Texture2D
+	var npc_anchor_y := ending._dialogue_anchor_y(npc_texture, -118.0, 0.62)
+	_check(npc_anchor_y > -240.0 and npc_anchor_y < -150.0, "NPC dialogue anchor is derived from the visible head instead of padded texture height")
 	_check(ending.selected_report2_narration() == (Day1EndingController.TRUTH_REPORT_2 if seedless_route == &"truthful" else Day1EndingController.PROPAGANDA_REPORT_2), "Report 2 selects only the closing narration")
+	var narration_lines := ending._ending_narration_lines()
+	_check(narration_lines.has(Day1EndingController.COMMON_FRUIT) == (seedless_route == &"propaganda"), "fruit-is-sweet narration is exclusive to Report 2 propaganda")
+	var conversations: Array[Day1OptionalConversation] = []
+	for child in ending.get_children():
+		if child is Day1OptionalConversation:
+			conversations.append(child as Day1OptionalConversation)
+	_check(conversations.size() == 2, "ending route creates two proximity-triggered conversations")
+	var locked_conversations := conversations.filter(func(conversation: Day1OptionalConversation): return conversation.locks_player_movement)
+	_check(locked_conversations.size() == (1 if checkpoint_route == &"truthful" else 0), "only the truthful elderly conversation is configured to lock movement")
+	if checkpoint_route == &"truthful":
+		var elderly_conversation := locked_conversations[0] as Day1OptionalConversation
+		_check(elderly_conversation.position.is_equal_approx(Day1EndingController.TRUTH_ELDERLY_TRIGGER_POSITION), "elderly trigger begins farther left and closer to the NPC")
+		_check(elderly_conversation.facing_actor != null and not elderly_conversation.facing_actor.flip_h, "elderly civilian begins facing right toward the approaching MC")
+	if checkpoint_route == &"propaganda":
+		var gossip := conversations.filter(func(conversation: Day1OptionalConversation): return conversation.dialogue_lines == Day1EndingController.PROPAGANDA_ARGUMENT_LINES)[0] as Day1OptionalConversation
+		_check(is_equal_approx(gossip.hold_seconds, 0.75), "gossip ladies use the requested faster autoplay hold")
+		if seedless_route == &"truthful":
+			await _check_auto_conversation(gossip, ending.player, false, "gossip ladies")
+	elif seedless_route == &"truthful":
+		await _check_auto_conversation(locked_conversations[0], ending.player, true, "elderly civilian")
 	_check(ending.get_node("Audio/Night").stream != null, "night ambience is assigned")
 	_check(ending.get_node("Audio/Route").stream != null, "route ambience is assigned")
 	_check(ending.get_tree().get_nodes_in_group(&"__unused_day1_group").is_empty(), "ending initializes without hidden group dependencies")
@@ -54,6 +84,24 @@ func _check_route_combination(checkpoint_route: StringName, seedless_route: Stri
 	_check(light_count >= 3, "night scene creates localized shadow-casting lights")
 	ending.queue_free()
 	await process_frame
+
+
+func _check_auto_conversation(conversation: Day1OptionalConversation, player: Player, should_lock: bool, description: String) -> void:
+	var finished := [false]
+	conversation.conversation_finished.connect(func(): finished[0] = true)
+	player.controls_enabled = true
+	conversation._on_body_entered(player)
+	await process_frame
+	_check(conversation.has_triggered, "%s conversation starts automatically on proximity" % description)
+	_check(player.controls_enabled != should_lock, "%s movement lock matches its authored behavior" % description)
+	if should_lock and conversation.facing_actor != null:
+		_check(player.animated_sprite.flip_h and not conversation.facing_actor.flip_h, "%s poses the MC and elderly civilian facing each other" % description)
+	var frames := 0
+	while not finished[0] and frames < 180:
+		await process_frame
+		frames += 1
+	_check(finished[0], "%s autoplay reaches its final line" % description)
+	_check(player.controls_enabled, "%s leaves player controls enabled after completion" % description)
 
 
 func _check_day1_broadcast_context() -> void:
@@ -110,6 +158,13 @@ func _check_session_api() -> void:
 	_check(_session.get_day1_report_route(&"day1_seedless_fruit") == &"propaganda", "Report 2 route persists independently")
 	_session.complete_day1()
 	_check(_session.checkpoint == "day2", "completing Day 1 arms the Day 2 checkpoint")
+
+
+func _check_background_join(left: Sprite2D, right: Sprite2D, label: String) -> void:
+	var left_edge := left.position.x + left.texture.get_width() * absf(left.scale.x) * 0.5
+	var right_edge := right.position.x - right.texture.get_width() * absf(right.scale.x) * 0.5
+	_check(right_edge <= left_edge + 0.5, "%s has no exposed gap" % label)
+	_check(left.scale.is_equal_approx(Vector2(0.820404, 0.820404)) and right.scale.is_equal_approx(Vector2(0.820404, 0.820404)), "%s uses consistent undistorted scale" % label)
 
 
 func _check(condition: bool, description: String) -> void:

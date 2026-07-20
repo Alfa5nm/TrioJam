@@ -1,8 +1,8 @@
-[gd_scene format=3 uid="uid://cgkg5xa3pthl3"]
+[gd_scene format=4 uid="uid://cgkg5xa3pthl3"]
 
 [ext_resource type="PackedScene" uid="uid://cb5fpug80bsle" path="res://scenes/player/player.tscn" id="1_ivuku"]
+[ext_resource type="Script" uid="uid://lhu24v1wf0ij" path="res://scripts/world/day1_environment_tilemap.gd" id="3_tilemap_compat"]
 [ext_resource type="TileSet" uid="uid://bqdy8aldwhhph" path="res://assets/art/Day1 Scene 1/day1_scene1_tileset.tres" id="3_vqx22"]
-[ext_resource type="Script" path="res://scripts/world/day1_environment_tilemap.gd" id="3_tilemap_compat"]
 [ext_resource type="Texture2D" uid="uid://d04gvf07ibnqd" path="res://assets/art/Day1 Scene 1/1.png" id="4_h8sci"]
 [ext_resource type="Script" uid="uid://c25tbf4uysgff" path="res://scripts/world/day1_horizontal_camera.gd" id="4_p8uy5"]
 [ext_resource type="Texture2D" uid="uid://dxgwid4pipjqv" path="res://assets/art/Day1 Scene 1/2.png" id="5_p1cur"]
@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/day1_seedless_camera_capture.tscn" id="26_seedless_capture"]
 [ext_resource type="Script" uid="uid://crqrwnmxams7r" path="res://scripts/world/day1_broadcast_room_exit.gd" id="27_broadcast_exit"]
 [ext_resource type="Texture2D" uid="uid://bj8r45oe6p6um" path="res://assets/art/Day1 Scene 1/npcs/r4c1-anti-seedless-protester-a.png" id="28_opposition_male"]
+[ext_resource type="Script" path="res://scripts/world/day1_scene_music.gd" id="30_music"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape_post_event_barrier"]
 size = Vector2(64, 370)
@@ -38,6 +39,7 @@ size = Vector2(150, 320)
 
 [node name="SideScrollDay1" type="Node2D" unique_id=2040803725]
 position = Vector2(-2, 0)
+script = ExtResource("30_music")
 
 [node name="EnvironmentTileMap" type="TileMapLayer" parent="." unique_id=761435807]
 texture_filter = 2
@@ -112,7 +114,7 @@ footstep_stream_alt_a = ExtResource("20_step_b")
 footstep_stream_alt_b = ExtResource("21_step_c")
 
 [node name="Day1ProtestCrowd" parent="." unique_id=1125317576 instance=ExtResource("18_occupation_crowd")]
-position = Vector2(2780, 607)
+position = Vector2(2746, 563)
 
 [node name="Day1SeedlessRally" parent="." unique_id=558007822 instance=ExtResource("25_seedless_rally")]
 position = Vector2(6130, 607)

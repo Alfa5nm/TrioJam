@@ -6,7 +6,7 @@ signal line_finished(text: String)
 
 @export_range(8.0, 80.0, 1.0) var characters_per_second := 32.0
 @export_range(0.0, 1.0, 0.01) var punctuation_pause := 0.12
-@export_range(0.01, 0.25, 0.01) var blip_interval := 0.055
+@export_range(0.01, 0.25, 0.01) var blip_interval := 0.11
 @export_range(0.01, 1.0, 0.01) var timing_scale := 1.0
 @export var instant_mode := false
 @export var speaker_offset := Vector2(0.0, -205.0)
@@ -21,6 +21,8 @@ signal line_finished(text: String)
 @export_range(18, 34, 1) var bark_long_font_size := 25
 @export_range(24.0, 64.0, 1.0) var bark_characters_per_line := 32.0
 @export_range(22.0, 42.0, 1.0) var bark_line_height := 31.0
+@export var company_representative_text_color := Color(0.42, 0.94, 1.0, 1.0)
+@export var company_representative_border_color := Color(0.1, 0.78, 0.94, 0.98)
 
 const PANEL_HORIZONTAL_PADDING := 48.0
 const PANEL_VERTICAL_PADDING := 20.0
@@ -54,10 +56,11 @@ const SOLDIER_BORDER_COLOR := Color(0.95, 0.18, 0.2, 0.98)
 const CIVILIAN_TEXT_COLOR := Color(1.0, 1.0, 1.0, 1.0)
 const CIVILIAN_BORDER_COLOR := Color(0.82, 0.92, 1.0, 0.98)
 const MC_TEXT_COLOR := Color(0.78, 0.91, 1.0, 1.0)
-const REPRESENTATIVE_TEXT_COLOR := Color(0.42, 0.94, 1.0, 1.0)
-const REPRESENTATIVE_BORDER_COLOR := Color(0.1, 0.78, 0.94, 0.98)
 const OPPOSITION_TEXT_COLOR := Color(1.0, 0.78, 0.32, 1.0)
 const OPPOSITION_BORDER_COLOR := Color(0.94, 0.52, 0.12, 0.98)
+const GOVERNMENT_COMMAND_TEXT_COLOR := Color(1.0, 0.24, 0.29, 1.0)
+const GOVERNMENT_COMMAND_BG_COLOR := Color(0.16, 0.012, 0.028, 0.96)
+const GOVERNMENT_COMMAND_BORDER_COLOR := Color(0.96, 0.12, 0.2, 0.98)
 
 @onready var dialogue: Control = $Dialogue
 @onready var bubble: Control = $Dialogue/Bubble
@@ -86,7 +89,7 @@ func _ready() -> void:
 	speaker_label.visible = false
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not is_presenting:
 		return
 	if event.is_action_pressed(&"interact") or (
@@ -132,6 +135,16 @@ func show_line(text: String, hold_seconds := 1.15, speaker: Node2D = null, manua
 
 func show_line_at(text: String, screen_position: Vector2, hold_seconds := 1.15, manual_advance := false) -> void:
 	_configure_standard_line(text)
+	_speaker = null
+	_screen_anchor = screen_position
+	_uses_screen_anchor = true
+	_uses_parallax_anchor = false
+	await _show_line(text, hold_seconds, manual_advance)
+
+
+func show_government_command_at(text: String, screen_position: Vector2, hold_seconds := 1.15, manual_advance := false) -> void:
+	_configure_standard_line(text)
+	_apply_government_command_style()
 	_speaker = null
 	_screen_anchor = screen_position
 	_uses_screen_anchor = true
@@ -292,7 +305,7 @@ func _play_blip() -> void:
 	if now - _last_blip_time < blip_interval:
 		return
 	_last_blip_time = now
-	blip.pitch_scale = randf_range(0.96, 1.035)
+	blip.pitch_scale = randf_range(0.985, 1.015)
 	blip.play()
 
 
@@ -406,8 +419,8 @@ func _apply_speaker_style(speaker_name: String) -> void:
 			border_color = CIVILIAN_BORDER_COLOR
 			_bubble_horizontal_bias = 64.0
 		"REP", "Company Representative":
-			text_color = REPRESENTATIVE_TEXT_COLOR
-			border_color = REPRESENTATIVE_BORDER_COLOR
+			text_color = company_representative_text_color
+			border_color = company_representative_border_color
 		"Farmers", "Opposition Volunteer", "Opposition":
 			text_color = OPPOSITION_TEXT_COLOR
 			border_color = OPPOSITION_BORDER_COLOR
@@ -434,6 +447,18 @@ func _reset_speaker_style() -> void:
 	if _default_panel_style != null:
 		panel.add_theme_stylebox_override(&"panel", _default_panel_style.duplicate())
 	tail.color = _default_tail_color
+
+
+func _apply_government_command_style() -> void:
+	line.add_theme_color_override(&"font_color", GOVERNMENT_COMMAND_TEXT_COLOR)
+	if _default_panel_style != null:
+		var command_style := _default_panel_style.duplicate() as StyleBoxFlat
+		command_style.bg_color = GOVERNMENT_COMMAND_BG_COLOR
+		command_style.border_color = GOVERNMENT_COMMAND_BORDER_COLOR
+		command_style.shadow_color = Color(0.96, 0.03, 0.1, 0.34)
+		command_style.shadow_size = 11
+		panel.add_theme_stylebox_override(&"panel", command_style)
+	tail.color = GOVERNMENT_COMMAND_BG_COLOR
 
 
 func _wait(seconds: float) -> void:

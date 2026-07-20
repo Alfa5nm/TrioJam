@@ -20,7 +20,7 @@ func set_unlocked(value: bool) -> void:
 	_unlocked = value
 	door.color = Color("4bcf7d") if value else Color("b6464f")
 	if _player_nearby:
-		prompt.text = "E  ENTER NEWSROOM" if value else "COLLECT BOTH REPORTS"
+		prompt.text = "E / SPACE  ENTER NEWSROOM" if value else "COLLECT BOTH REPORTS"
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -32,7 +32,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player:
 		_player_nearby = true
-		prompt.text = "E  ENTER NEWSROOM" if _unlocked else "COLLECT BOTH REPORTS"
+		prompt.text = "E / SPACE  ENTER NEWSROOM" if _unlocked else "COLLECT BOTH REPORTS"
 		prompt.visible = true
 
 

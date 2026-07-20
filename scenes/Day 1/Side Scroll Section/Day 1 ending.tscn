@@ -35,7 +35,8 @@ mouse_filter = 2
 color = Color(0.018, 0.027, 0.065, 1)
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=245537069]
-color = Color(0.56, 0.6, 0.74, 1)
+rotation = -0.0004969365
+color = Color(0.2592019, 0.28961453, 0.40644044, 1)
 
 [node name="HomeStreet" type="Sprite2D" parent="." unique_id=1910762201]
 z_index = -4
@@ -45,26 +46,27 @@ texture = ExtResource("6_home")
 
 [node name="MiddleStreet" type="Sprite2D" parent="." unique_id=1568629056]
 z_index = -4
-position = Vector2(2054, 386)
-scale = Vector2(0.818146, 0.818146)
+position = Vector2(2054, 385)
+scale = Vector2(0.820404, 0.820404)
 texture = ExtResource("3_street")
 
 [node name="Day1EndingPropaganda" type="Sprite2D" parent="." unique_id=1605237532]
 z_index = -4
-position = Vector2(3418, 420)
-scale = Vector2(0.815979, 0.707492)
+position = Vector2(3418, 385)
+scale = Vector2(0.820404, 0.820404)
 texture = ExtResource("4_propaganda")
 
 [node name="Day1EndingTruth" type="Sprite2D" parent="." unique_id=452605443]
 z_index = -4
-position = Vector2(3423.25, 424.5)
-scale = Vector2(0.817175, 0.706695)
+position = Vector2(3418, 385)
+scale = Vector2(0.820404, 0.820404)
 texture = ExtResource("5_truth")
 
 [node name="DepotStreet" type="Sprite2D" parent="." unique_id=1738998387]
+modulate = Color(0.9, 0.9, 0.9, 1)
 z_index = -4
-position = Vector2(4769, 375)
-scale = Vector2(0.813397, 0.860786)
+position = Vector2(4769, 385)
+scale = Vector2(0.820404, 0.820404)
 texture = ExtResource("2_depot")
 
 [node name="GroundCollision" type="StaticBody2D" parent="." unique_id=1137928104]
@@ -76,13 +78,13 @@ shape = SubResource("GroundShape")
 
 [node name="Player" parent="." unique_id=647046154 instance=ExtResource("7_player")]
 z_index = 8
-position = Vector2(3878, 613)
+position = Vector2(4452, 613)
 footstep_stream = ExtResource("8_step_a")
 footstep_stream_alt_a = ExtResource("9_step_b")
 footstep_stream_alt_b = ExtResource("10_step_c")
 
 [node name="HorizontalCamera" type="Camera2D" parent="." unique_id=1283453973]
-position = Vector2(-626, 174)
+position = Vector2(-619, 177)
 zoom = Vector2(1.5, 1.5)
 position_smoothing_enabled = true
 position_smoothing_speed = 5.5
@@ -97,18 +99,17 @@ punctuation_pause = 0.16
 [node name="Audio" type="Node" parent="." unique_id=144195839]
 
 [node name="Night" type="AudioStreamPlayer" parent="Audio" unique_id=1217738028]
-volume_db = -12.0
+volume_db = 0.985
 bus = &"Ambience"
 
 [node name="Route" type="AudioStreamPlayer2D" parent="Audio" unique_id=1121675377]
 position = Vector2(3320, 540)
-volume_db = -15.0
+volume_db = -5.0
 max_distance = 1900.0
 attenuation = 0.45
 bus = &"Ambience"
 
 [node name="Room" type="AudioStreamPlayer" parent="Audio" unique_id=1180701540]
-volume_db = -12.0
 bus = &"Ambience"
 
 [node name="Door" type="AudioStreamPlayer" parent="Audio" unique_id=1339307915]
@@ -134,7 +135,7 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_fonts/font = ExtResource("13_font")
 theme_override_font_sizes/font_size = 24
-text = "E  TALK"
+text = "E / SPACE  TALK"
 horizontal_alignment = 1
 
 [node name="Fade" type="ColorRect" parent="EndingUI" unique_id=1994902243]
@@ -204,16 +205,17 @@ vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1903514651]
-position = Vector2(4018.0002, 461.00003)
+position = Vector2(4585, 460)
 rotation = 0.0024509754
 collision_layer = 3
 collision_mask = 3
 
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=153912474]
+position = Vector2(-3733.9473, 26.151878)
+rotation = -0.18427265
+scale = Vector2(1.0000001, 1.0000001)
+polygon = PackedVector2Array(-11.53772, -10.2561035, -12.53772, -150.2561, 12.46228, -150.2561, 15.46228, 25.743896, -12.53772, 19.743896, -13.53772, -17.256104)
+
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=935624561]
 rotation = -0.18052092
-polygon = PackedVector2Array(12.7265625, -386.86304, 144.60767, -363.12756, 32.325684, 221.22412, -92.03613, 200.87402)
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D/CollisionPolygon2D" unique_id=153912474]
-position = Vector2(-3278.0137, -614.35016)
-rotation = -0.0037517399
 polygon = PackedVector2Array(12.7265625, -386.86304, 144.60767, -363.12756, 32.325684, 221.22412, -92.03613, 200.87402)

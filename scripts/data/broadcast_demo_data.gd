@@ -67,7 +67,7 @@ static func checkpoint_killing_report() -> BroadcastReport:
 		"He died at the scene as bystanders were ordered away.",
 		"The government calls it an arrest, and the street calls it murder.",
 	]
-	truthful.broadcast_line_frames = [-1, 0, 0, 1, 1, 2, 2, -1]
+	truthful.broadcast_line_frames = [-1, 0, 0, 1, 1, 2, 2, 2]
 
 	var propaganda := BroadcastSequence.new()
 	propaganda.order_sensitive = true

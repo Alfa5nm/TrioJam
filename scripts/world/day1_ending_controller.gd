@@ -16,9 +16,10 @@ const TRUTH_AMBIENCE := preload("res://assets/audio/day1/ending/truth-memorial.w
 const PROPAGANDA_AMBIENCE := preload("res://assets/audio/day1/ending/propaganda-patrol.wav")
 const ROOM_PULSE := preload("res://assets/audio/day1/ending/room-pulse.wav")
 const DOOR_LATCH := preload("res://assets/audio/day1/ending/door-latch.wav")
-const BLIP := preload("res://assets/audio/day1/cutscene/tense-dialogue-blip.wav")
+const BLIP := preload("res://assets/audio/ui/dialogue-blip-soft.ogg")
 const LEAF_ZONE := preload("res://scenes/world/day1_leaf_drift_zone.tscn")
 const DUST_ZONE := preload("res://scenes/world/day1_dust_mote_zone.tscn")
+const TRUTH_ELDERLY_TRIGGER_POSITION := Vector2(2210, 545)
 
 const TRUTH_PROTEST_LINES: Array[String] = [
 	"He was unarmed!",
@@ -63,6 +64,9 @@ var _door_available := false
 var _door_used := false
 var _prompt_sources := 0
 var _player_dialogue_anchor: Node2D
+var _opaque_top_cache: Dictionary = {}
+var _narration_typing := false
+var _skip_narration := false
 
 @onready var player: Player = $Player
 @onready var horizontal_camera: Day1HorizontalCamera = $HorizontalCamera
@@ -107,6 +111,17 @@ func _ready() -> void:
 	_start_opening.call_deferred()
 
 
+func _input(event: InputEvent) -> void:
+	var dialogue_skip_pressed: bool = event.is_action_pressed(&"interact") or event.is_action_pressed(&"ui_accept") or (
+		event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+	)
+	if not _narration_typing or not dialogue_skip_pressed:
+		return
+	_skip_narration = true
+	narration.visible_characters = -1
+	get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if _door_available and not _door_used and not interaction_locked and event.is_action_pressed(&"interact"):
 		get_viewport().set_input_as_handled()
@@ -135,6 +150,13 @@ func selected_report2_narration() -> String:
 	return TRUTH_REPORT_2 if seedless_route == TRUTHFUL else PROPAGANDA_REPORT_2
 
 
+func _ending_narration_lines() -> Array[String]:
+	var lines: Array[String] = [COMMON_HUNGER, selected_report2_narration()]
+	if seedless_route == PROPAGANDA:
+		lines.append(COMMON_FRUIT)
+	return lines
+
+
 func _start_opening() -> void:
 	sequence_started = true
 	# Let the horizontal camera snap from its scene-origin default to the player
@@ -151,13 +173,14 @@ func _setup_route_npcs() -> void:
 		var protester := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r1c3-occupation-protester-b.png", Vector2(3190, 605), Vector2(0.62, 0.62), false)
 		var soldier := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r2c1-seedless-representative-guard-a.png", Vector2(3350, 605), Vector2(0.68, 0.68), true)
 		_add_conversation(Vector2(3270, 545), ["Opposition", "Soldier", "Opposition"], TRUTH_PROTEST_LINES, [protester, soldier, protester])
-		var elderly := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r3c1-seedless-campaign-representative.png", Vector2(2290, 605), Vector2(0.62, 0.62), true)
-		_add_conversation(Vector2(2290, 545), ["Elderly Civilian", "MC", "Elderly Civilian", "Elderly Civilian"], TRUTH_ELDERLY_LINES, [elderly, _player_dialogue_anchor, elderly, elderly])
+		var elderly := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r3c1-seedless-campaign-representative.png", Vector2(2290, 605), Vector2(0.62, 0.62), false)
+		var elderly_sprite := elderly.get_parent().get_child(0) as Sprite2D
+		_add_conversation(TRUTH_ELDERLY_TRIGGER_POSITION, ["Elderly Civilian", "MC", "Elderly Civilian", "Elderly Civilian"], TRUTH_ELDERLY_LINES, [elderly, _player_dialogue_anchor, elderly, elderly], 1.0, true, elderly_sprite)
 		_spawn_route_particles(Vector2(3250, 470), Color(1.0, 0.48, 0.24, 0.55), true)
 	else:
 		var civilian_one := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r2c3-gossiping-gal-a.png", Vector2(3260, 605), Vector2(0.65, 0.65), false)
 		var civilian_two := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r2c4-gossiping-gal-b.png", Vector2(3390, 605), Vector2(0.65, 0.65), true)
-		_add_conversation(Vector2(3325, 545), ["Civilian One", "Civilian Two", "Civilian One", "Civilian Two"], PROPAGANDA_ARGUMENT_LINES, [civilian_one, civilian_two, civilian_one, civilian_two])
+		_add_conversation(Vector2(3325, 545), ["Civilian One", "Civilian Two", "Civilian One", "Civilian Two"], PROPAGANDA_ARGUMENT_LINES, [civilian_one, civilian_two, civilian_one, civilian_two], 0.75)
 		var bystander := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r1c3-occupation-protester-b.png", Vector2(2280, 605), Vector2(0.62, 0.62), false)
 		var supporter := _spawn_npc("res://assets/art/Day1 Scene 1/npcs/r1c1-smoking-civilian.png", Vector2(2420, 605), Vector2(0.62, 0.62), true)
 		_add_conversation(Vector2(2350, 545), ["Bystander", "Government Supporter"], PROPAGANDA_WITNESS_LINES, [bystander, supporter])
@@ -177,22 +200,58 @@ func _spawn_npc(path: String, position_value: Vector2, scale_value: Vector2, fli
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	anchor.add_child(sprite)
 	var dialogue_anchor := Node2D.new()
-	dialogue_anchor.position = Vector2(0, -265)
+	dialogue_anchor.position = Vector2(0.0, _dialogue_anchor_y(sprite.texture, sprite.position.y, scale_value.y))
 	anchor.add_child(dialogue_anchor)
 	return dialogue_anchor
 
 
-func _add_conversation(position_value: Vector2, names: Array[String], lines: Array[String], anchors: Array[Node2D]) -> void:
+func _dialogue_anchor_y(texture: Texture2D, sprite_y: float, sprite_scale_y: float) -> float:
+	if texture == null:
+		return -205.0
+	var cache_key := texture.resource_path
+	var opaque_top := int(_opaque_top_cache.get(cache_key, -1))
+	if opaque_top < 0:
+		opaque_top = _find_opaque_top(texture)
+		_opaque_top_cache[cache_key] = opaque_top
+	var centered_top := float(opaque_top) - texture.get_height() * 0.5
+	# The dialogue tail should finish just above the visible hair/head rather
+	# than at a shared height derived from the padded 384 px source cell.
+	return sprite_y + centered_top * absf(sprite_scale_y) - 8.0
+
+
+func _find_opaque_top(texture: Texture2D) -> int:
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return 0
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			if image.get_pixel(x, y).a > 0.08:
+				return y
+	return 0
+
+
+func _add_conversation(
+		position_value: Vector2,
+		names: Array[String],
+		lines: Array[String],
+		anchors: Array[Node2D],
+		hold_seconds := 1.0,
+		locks_player_movement := false,
+		facing_actor: Sprite2D = null
+	) -> void:
 	var conversation := Day1OptionalConversation.new()
 	conversation.position = position_value
 	conversation.configure(dialogue, names, lines, anchors)
+	conversation.hold_seconds = hold_seconds
+	conversation.locks_player_movement = locks_player_movement
+	if facing_actor != null:
+		conversation.configure_facing(facing_actor)
 	var shape := CollisionShape2D.new()
 	var rectangle := RectangleShape2D.new()
 	rectangle.size = Vector2(360, 190)
 	shape.position = Vector2(0, -80)
 	shape.shape = rectangle
 	conversation.add_child(shape)
-	conversation.prompt_changed.connect(_on_prompt_changed)
 	add_child(conversation)
 
 
@@ -210,12 +269,12 @@ func _setup_door() -> void:
 	door_area.body_entered.connect(func(body: Node):
 		if body is Player and not _door_used:
 			_door_available = true
-			_on_prompt_changed(true, "E  ENTER")
+			_on_prompt_changed(true, "E / SPACE  ENTER")
 	)
 	door_area.body_exited.connect(func(body: Node):
 		if body is Player:
 			_door_available = false
-			_on_prompt_changed(false, "E  ENTER")
+			_on_prompt_changed(false, "E / SPACE  ENTER")
 	)
 	add_child(door_area)
 
@@ -239,11 +298,14 @@ func _start_door_sequence() -> void:
 	var cover := create_tween()
 	cover.tween_property(fade, "modulate:a", 1.0, _duration(0.75))
 	await cover.finished
-	night_audio.stop()
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.stop_cue(0.65)
+	night_audio.volume_db = -40.0
+	night_audio.play()
 	route_audio.stop()
-	await _show_black_narration(COMMON_HUNGER)
-	await _show_black_narration(selected_report2_narration())
-	await _show_black_narration(COMMON_FRUIT)
+	for narration_line in _ending_narration_lines():
+		await _show_black_narration(narration_line)
 	await _show_final_art()
 
 
@@ -261,6 +323,9 @@ func _show_black_narration(text: String) -> void:
 
 
 func _show_final_art() -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.play_cue(&"end_day12", 0.8, true)
 	room_audio.play()
 	final_image.texture = FINAL_ART
 	final_image.visible = true
@@ -289,6 +354,8 @@ func _show_final_art() -> void:
 	vignette.visible = false
 	red_drift.emitting = false
 	room_audio.stop()
+	if music_director != null:
+		music_director.stop_cue(0.75)
 	await _show_black_narration(FINAL_QUESTION)
 	ending_finished.emit()
 	var session := get_node_or_null("/root/GameSession")
@@ -303,20 +370,26 @@ func _show_final_art() -> void:
 func _type_text(text: String, speed: float) -> void:
 	narration.text = text
 	narration.visible_characters = 0
+	_narration_typing = not instant_mode
+	_skip_narration = false
 	if instant_mode:
 		narration.visible_characters = -1
 		await get_tree().process_frame
 		return
 	for index in text.length():
+		if _skip_narration:
+			break
 		narration.visible_characters = index + 1
 		var character := text.substr(index, 1)
-		if not character.strip_edges().is_empty() and index % 3 == 0:
-			text_blip.pitch_scale = randf_range(0.94, 1.03)
+		if not character.strip_edges().is_empty() and index % 4 == 0:
+			text_blip.pitch_scale = randf_range(0.985, 1.015)
 			text_blip.play()
 		var delay := 1.0 / speed
 		if character in ".,!?…":
 			delay += 0.08
 		await get_tree().create_timer(delay).timeout
+	narration.visible_characters = -1
+	_narration_typing = false
 
 
 func _setup_audio() -> void:
@@ -328,8 +401,11 @@ func _setup_audio() -> void:
 	for audio in [night_audio, route_audio, room_audio]:
 		if audio.stream is AudioStreamWAV:
 			(audio.stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
-	night_audio.play()
+	night_audio.stop()
 	route_audio.play()
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.play_cue(&"night_ambient", 0.8)
 
 
 func _setup_lighting() -> void:
@@ -415,3 +491,13 @@ func _wait(seconds: float) -> void:
 
 func _duration(seconds: float) -> float:
 	return 0.001 if instant_mode else seconds
+
+
+func get_pause_objective() -> String:
+	if _door_used:
+		return "Witness the consequences of your Day 1 reports."
+	if sequence_started:
+		return "Listen to your thoughts before continuing home."
+	if _door_available:
+		return "Enter the apartment through the nearby door."
+	return "Walk left through the night street and return home."

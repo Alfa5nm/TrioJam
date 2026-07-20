@@ -44,6 +44,7 @@ var resolution := DEFAULT_RESOLUTION
 var profile_path := PROFILE_PATH
 var settings_path := SETTINGS_PATH
 var pending_broadcast_package: BroadcastPackage
+var pending_broadcast_packages: Dictionary = {}
 var broadcast_context: StringName = &"day0"
 var day0_rooftop_route: StringName = &""
 var day1_checkpoint_route: StringName = &""
@@ -53,19 +54,39 @@ var day3_briefing_complete := false
 var day3_resolution: StringName = &""
 var last_completed_day3_route: StringName = &""
 var day3_debug_route_override: StringName = &""
+var current_objective := ""
+var current_objective_scene := ""
 var _day3_route_music_player: AudioStreamPlayer
 var _day3_route_music_route: StringName = &""
 
 
 func set_pending_broadcast(report_id: StringName, sequence: BroadcastSequence) -> void:
-	pending_broadcast_package = BroadcastPackage.from_sequence(report_id, sequence)
+	set_pending_broadcast_package(BroadcastPackage.from_sequence(report_id, sequence))
+
+
+func set_pending_broadcast_package(package: BroadcastPackage) -> void:
+	if package == null or package.report_id == &"":
+		return
+	pending_broadcast_package = package
+	pending_broadcast_packages[package.report_id] = package
+
+
+func get_pending_broadcast_package(report_id: StringName) -> BroadcastPackage:
+	var package = pending_broadcast_packages.get(report_id)
+	if package is BroadcastPackage:
+		return package
+	if pending_broadcast_package != null and pending_broadcast_package.report_id == report_id:
+		return pending_broadcast_package
+	return null
 
 
 func clear_pending_broadcast() -> void:
 	pending_broadcast_package = null
+	pending_broadcast_packages.clear()
 
 
 func begin_day1_broadcast() -> void:
+	clear_pending_broadcast()
 	broadcast_context = &"day1"
 	day1_checkpoint_route = &""
 	day1_seedless_route = &""
@@ -125,6 +146,7 @@ func begin_day2() -> void:
 
 
 func begin_day2_broadcast() -> void:
+	clear_pending_broadcast()
 	broadcast_context = &"day2"
 	checkpoint = "broadcast"
 	save_profile()
@@ -163,8 +185,7 @@ func mark_day3_briefing_complete() -> void:
 
 
 func has_complete_day3_report_history() -> bool:
-	return _effective_day0_route() != &"" \
-		and day1_checkpoint_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
+	return day1_checkpoint_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
 		and day1_seedless_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA] \
 		and day2_bombing_route in [ROUTE_TRUTHFUL, ROUTE_PROPAGANDA]
 
@@ -180,12 +201,12 @@ func resolve_day3_route() -> StringName:
 	if not has_complete_day3_report_history():
 		return &""
 	var truthful_reports := 0
-	for report_route in [_effective_day0_route(), day1_checkpoint_route, day1_seedless_route, day2_bombing_route]:
+	for report_route in [day1_checkpoint_route, day1_seedless_route, day2_bombing_route]:
 		if report_route == ROUTE_TRUTHFUL:
 			truthful_reports += 1
-	# Four reports now determine the finale. A strict truthful majority refuses
-	# the order; a two-two tie resolves to SHOOT under government pressure.
-	return DAY3_NOT_SHOOT if truthful_reports >= 3 else DAY3_SHOOT
+	# Day 0 does not influence the finale. A two-out-of-three truthful majority
+	# across the two Day 1 reports and the Day 2 bombing report refuses the order.
+	return DAY3_NOT_SHOOT if truthful_reports >= 2 else DAY3_SHOOT
 
 
 func set_day3_resolution(route: StringName) -> void:
@@ -208,25 +229,38 @@ func has_completed_day3_route(route: StringName) -> bool:
 	return last_completed_day3_route == route
 
 
-func start_day3_route_music(route: StringName) -> AudioStreamPlayer:
+func start_day3_route_music(route: StringName, fade_seconds := 3.5) -> AudioStreamPlayer:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		_day3_route_music_route = route
+		var cue := &"day3_not_shoot" if route == DAY3_NOT_SHOOT else &"day3_shoot"
+		return music_director.play_cue(cue, fade_seconds)
 	_ensure_day3_route_music_player()
 	if _day3_route_music_player.playing and _day3_route_music_route == route:
 		return _day3_route_music_player
 	_day3_route_music_route = route
 	_day3_route_music_player.stop()
+	var target_volume := -10.5
 	if route == DAY3_NOT_SHOOT:
 		_day3_route_music_player.stream = load("res://assets/audio/day3/music/credits-song-for-my-death.mp3")
-		_day3_route_music_player.volume_db = -36.0
-		create_tween().tween_property(_day3_route_music_player, "volume_db", -10.5, 3.5)
 	else:
 		_day3_route_music_player.stream = load("res://assets/audio/day3/music/credits-song-final-boss.mp3")
-		_day3_route_music_player.volume_db = -36.0
-		create_tween().tween_property(_day3_route_music_player, "volume_db", -16.0, 3.5)
+		target_volume = -16.0
+	if _day3_route_music_player.stream is AudioStreamMP3:
+		(_day3_route_music_player.stream as AudioStreamMP3).loop = true
+	_day3_route_music_player.volume_db = -36.0 if fade_seconds > 0.0 else target_volume
 	_day3_route_music_player.play()
+	if fade_seconds > 0.0:
+		create_tween().tween_property(_day3_route_music_player, "volume_db", target_volume, fade_seconds)
 	return _day3_route_music_player
 
 
 func stop_day3_route_music(fade_seconds := 0.0) -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.stop_cue(fade_seconds)
+		_day3_route_music_route = &""
+		return
 	if not is_instance_valid(_day3_route_music_player) or not _day3_route_music_player.playing:
 		return
 	if fade_seconds <= 0.0:
@@ -242,6 +276,9 @@ func stop_day3_route_music(fade_seconds := 0.0) -> void:
 
 
 func get_day3_route_music_player() -> AudioStreamPlayer:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		return music_director.active_player()
 	_ensure_day3_route_music_player()
 	return _day3_route_music_player
 
@@ -269,6 +306,64 @@ func _ready() -> void:
 	load_profile()
 	load_settings()
 	apply_settings()
+
+
+func set_current_objective(objective: String) -> void:
+	current_objective = objective.strip_edges()
+	var scene := get_tree().current_scene
+	current_objective_scene = scene.scene_file_path if scene != null else ""
+
+
+func clear_current_objective() -> void:
+	current_objective = ""
+	current_objective_scene = ""
+
+
+func get_current_objective(scene_path := "") -> String:
+	var active_path: String = scene_path
+	if active_path.is_empty() and get_tree().current_scene != null:
+		active_path = get_tree().current_scene.scene_file_path
+	if not current_objective.is_empty() and current_objective_scene == active_path:
+		return current_objective
+	return _default_objective_for_scene(active_path)
+
+
+func _default_objective_for_scene(scene_path: String) -> String:
+	match scene_path:
+		"res://scenes/main/main.tscn":
+			return "Find a way into the broadcast building."
+		"res://scenes/rooftop/rooftop.tscn":
+			return "Reach the rooftop and find a clear view."
+		"res://scenes/gameplay/scoped_target_scene.tscn":
+			return "Document the checkpoint incident."
+		"res://scenes/gameplay/broadcast_interface.tscn":
+			return "Assemble and submit today's report."
+		"res://scenes/gameplay/news_broadcast.tscn":
+			return "Watch the report air."
+		"res://scenes/narrative/day0_epilogue.tscn":
+			return "Leave the building and continue to Day 1."
+		"res://scenes/Day 1/Side Scroll Section/Side_Scroll Day 1.tscn":
+			return "Reach the grain depot and document what happens."
+		"res://scenes/Day 1/Side Scroll Section/Day 1 ending.tscn":
+			return "Return home through the night streets."
+		"res://scenes/Day 2/day2_peace_rally.tscn":
+			return "Investigate the rally and find a safe way through."
+		"res://scenes/Day 2/day2_breakdown.tscn":
+			return "Record the consequences of the rally bombing."
+		"res://scenes/Day 3/day3_stairwell.tscn":
+			return "Climb to the guarded briefing room."
+		"res://scenes/Day 3/day3_stairwell_return.tscn":
+			return "Continue upstairs to the rooftop."
+		"res://scenes/Day 3/day3_briefing_room.tscn":
+			return "Approach the table and hear the assignment."
+		"res://scenes/Day 3/day3_rooftop.tscn":
+			return "Reach the firing position."
+		"res://scenes/Day 3/day3_scope_scene.tscn":
+			return "Follow the order—or refuse."
+		"res://scenes/Day 3/day3_finale.tscn":
+			return "Face the consequences of your reports."
+		_:
+			return "Continue forward."
 
 
 func validate_player_name(raw_name: String) -> bool:
@@ -302,6 +397,7 @@ func start_new_game(raw_name: String) -> bool:
 	day3_briefing_complete = false
 	day3_resolution = &""
 	day3_debug_route_override = &""
+	clear_pending_broadcast()
 	save_profile()
 	return true
 
@@ -317,6 +413,7 @@ func begin_day_zero() -> void:
 	day3_briefing_complete = false
 	day3_resolution = &""
 	day3_debug_route_override = &""
+	clear_pending_broadcast()
 	save_profile()
 
 

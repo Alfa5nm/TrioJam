@@ -22,7 +22,7 @@ const BEDROOM_LINES := [
 	"The guilt I felt for the unrest wouldn't even compare to the sense of apathy I felt for killing that person.",
 	"...",
 ]
-const FINAL_LINE := "I have to work tomorrow..."
+const FINAL_LINE := "I have work tomorrow."
 
 @export var instant_mode := false
 @export_range(0.01, 1.0, 0.01) var timing_scale := 1.0
@@ -62,7 +62,13 @@ func _ready() -> void:
 	_set_loop(ambience)
 	_set_loop(music)
 	ambience.play()
+	# Retain the legacy scene channel as a muted compatibility heartbeat; the
+	# persistent director owns the audible authored score.
+	music.volume_db = -40.0
 	music.play()
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.play_cue(&"end_day12")
 	dialogue_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_present_civilian_line()
 
@@ -75,16 +81,16 @@ func _process(delta: float) -> void:
 		_type_accumulator -= 0.034
 		_visible_count += 1
 		dialogue_label.visible_characters = _visible_count
-		if _visible_count % 2 == 0 and _visible_count <= dialogue_label.text.length():
+		if _visible_count % 4 == 0 and _visible_count <= dialogue_label.text.length():
 			var character := dialogue_label.text.substr(_visible_count - 1, 1)
 			if not character.strip_edges().is_empty():
-				blip.pitch_scale = randf_range(0.91, 1.06)
+				blip.pitch_scale = randf_range(0.98, 1.02)
 				blip.play()
 		if _visible_count >= dialogue_label.text.length():
 			_finish_typing()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"interact") or (
 		event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
 	):
@@ -128,14 +134,14 @@ func _enter_bedroom() -> void:
 	curtain_particles.emitting = true
 	curtain_particles.restart()
 	speaker_label.visible = false
-	bedroom_fade.modulate.a = 1.0
+	bedroom_fade.modulate = Color.WHITE
 	dialogue_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	dialogue_panel.offset_left = -500.0
 	dialogue_panel.offset_top = -180.0
 	dialogue_panel.offset_right = 500.0
 	dialogue_panel.offset_bottom = -26.0
 	var reveal := create_tween()
-	reveal.tween_property(bedroom_fade, "modulate:a", 0.0, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	reveal.tween_property(bedroom_fade, "modulate:a", 0.0, _duration(0.9)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_present_bedroom_line()
 
 
@@ -194,12 +200,27 @@ func _on_curtain_frame_changed() -> void:
 func _on_curtains_closed() -> void:
 	if not _closing:
 		return
+	var blackout := create_tween()
+	blackout.tween_property(bedroom_fade, "modulate:a", 1.0, _duration(0.65)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await blackout.finished
+	if not is_inside_tree():
+		return
+	bedroom_fade.modulate.a = 1.0
 	_closing = false
 	_finished = true
+	dialogue_panel.set_anchors_preset(Control.PRESET_CENTER)
+	dialogue_panel.offset_left = -550.0
+	dialogue_panel.offset_top = -90.0
+	dialogue_panel.offset_right = 550.0
+	dialogue_panel.offset_bottom = 90.0
+	speaker_label.visible = false
 	dialogue_panel.visible = true
 	dialogue_label.text = FINAL_LINE
 	dialogue_label.visible_characters = -1
 	advance_prompt.visible = false
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.stop_cue(0.75)
 	epilogue_finished.emit()
 	if auto_advance_to_day1:
 		_advance_to_day1.call_deferred()

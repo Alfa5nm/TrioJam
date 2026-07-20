@@ -5,8 +5,12 @@ var observed_lines: Array[String] = []
 var cg_visible_by_line := {}
 var cg_texture_by_line := {}
 var bubble_x_by_line := {}
+var bark_color_by_line := {}
+var bark_border_by_line := {}
 var cg_placement_by_line := {}
 var cg_color_by_line := {}
+var cg_style_by_line := {}
+var cg_position_by_line := {}
 var approached := false
 var retreated := false
 
@@ -32,7 +36,10 @@ func _run() -> void:
 		cg_texture_by_line[text] = room.cg_image.texture
 		cg_placement_by_line[text] = placement
 		var label: RichTextLabel = room.cg_top_text if placement == &"top" else room.cg_bottom_text
+		var panel: PanelContainer = room.cg_top_panel if placement == &"top" else room.cg_bottom_panel
 		cg_color_by_line[text] = label.get_theme_color("default_color")
+		cg_style_by_line[text] = panel.get_theme_stylebox(&"panel")
+		cg_position_by_line[text] = panel.position
 	)
 	var dialogue := room.get_node("CinematicDialogue") as CinematicDialogue
 	dialogue.instant_mode = true
@@ -42,6 +49,10 @@ func _run() -> void:
 		cg_visible_by_line[text] = room.cg_overlay.visible
 		cg_texture_by_line[text] = room.cg_image.texture
 		bubble_x_by_line[text] = dialogue.bubble.position.x
+		bark_color_by_line[text] = dialogue.line.get_theme_color(&"font_color")
+		var panel_style := dialogue.panel.get_theme_stylebox(&"panel") as StyleBoxFlat
+		if panel_style:
+			bark_border_by_line[text] = panel_style.border_color
 	)
 	root.add_child(room)
 	var frames := 0
@@ -70,6 +81,7 @@ func _run() -> void:
 	_check(cg_placement_by_line.get("…It’s a call to action") == &"top", "government gun-case dialogue is positioned at the top")
 	var government_cg_color: Color = cg_color_by_line.get("…It’s a call to action", Color.WHITE)
 	_check(government_cg_color.r > 0.9 and government_cg_color.g < 0.5, "government CG dialogue is red")
+	_check(cg_style_by_line.get("Now. Which side are you on?") is StyleBoxEmpty, "earlier briefcase CG remains boxless")
 	room._play_second_exchange()
 	frames = 0
 	while not room._exit_armed and frames < 300:
@@ -92,18 +104,51 @@ func _run() -> void:
 		_check(cg_texture_by_line.get(stress_line) == stressed_cg, "stressed-MC art remains active for: " + stress_line)
 	_check(cg_placement_by_line.get("Why the Peace Leader? He rejected violence.") == &"bottom", "stressed-CG MC dialogue stays in the lower comic panel")
 	_check(cg_placement_by_line.get("That is not for you to be concerned about. Please take the gun, and do fulfil your final duty.") == &"top", "stressed-CG government dialogue stays in the upper comic panel")
+	var stressed_government_line := "That is not for you to be concerned about. Please take the gun, and do fulfil your final duty."
+	var stressed_mc_line := "Why the Peace Leader? He rejected violence."
+	_check(cg_style_by_line.get(stressed_government_line) is StyleBoxFlat, "stressed-CG government dialogue uses a framed dialogue box")
+	_check(cg_style_by_line.get(stressed_mc_line) is StyleBoxFlat, "stressed-CG MC dialogue uses a framed dialogue box")
+	var government_position: Vector2 = cg_position_by_line.get(stressed_government_line, Vector2.ZERO)
+	var mc_position: Vector2 = cg_position_by_line.get(stressed_mc_line, Vector2.ZERO)
+	_check(government_position.x > 500.0 and government_position.y < 80.0, "stressed-CG government box sits toward the upper-right")
+	_check(mc_position.x < 100.0 and mc_position.y > 450.0, "stressed-CG MC box sits toward the lower-left")
 	_check(observed_lines.has("We have become more efficient, yet the leader is still alive."), "briefing preserves the Suit opening line")
+	var regular_government_line := "We have become more efficient, yet the leader is still alive."
+	var regular_government_color: Color = bark_color_by_line.get(regular_government_line, Color.WHITE)
+	var regular_government_border: Color = bark_border_by_line.get(regular_government_line, Color.WHITE)
+	_check(regular_government_color.r > 0.9 and regular_government_color.g < 0.5, "regular Government Man dialogue text is red")
+	_check(regular_government_border.r > 0.9 and regular_government_border.g < 0.5, "regular Government Man dialogue border is red")
 	_check(observed_lines.has(". . .No fucking way. You’re telling me to kill?!"), "briefing preserves the authored panic line")
 	_check(observed_lines.has("You don’t have time. Go now, or we will decide for you."), "briefing preserves the final ultimatum")
 	_check(room.get_node("Suit").scale.x < 0.0, "representative placeholder faces the player")
 	_check(absf(room.get_node("Suit").scale.x) >= 0.89, "representative placeholder is scaled to the room proportions")
 	_check(room.player.presentation_scale >= 1.4, "MC is scaled to the room proportions")
 	_check(dialogue.bark_width >= 540.0 and dialogue.bark_characters_per_line >= 44.0, "Day 3 uses wider readable world bubbles")
+	_check(room.cg_top_panel.get_theme_stylebox(&"panel") is StyleBoxFlat and room.cg_bottom_panel.get_theme_stylebox(&"panel") is StyleBoxFlat, "stressed briefing CG retains its speaker-specific dialogue boxes")
+	_check(room.cg_top_text.get_theme_constant(&"outline_size") >= 4 and room.cg_bottom_text.get_theme_constant(&"outline_size") >= 4, "briefing CG dialogue retains a readable outline")
+	room._layout_cg_panel(room.cg_bottom_panel, room.cg_bottom_text, "A deliberately long stressed-MC line that must remain readable without returning to a dialogue box.", &"bottom")
+	_check(room.cg_bottom_panel.size.x >= 680.0 and room.cg_bottom_text.horizontal_alignment == HORIZONTAL_ALIGNMENT_LEFT, "stressed-MC dialogue box wraps safely in its lower-left slot")
 	_check(room.get_node("Audio/HVAC").bus == &"Ambience", "briefing HVAC is routed through Ambience")
 	_check(room.get_node("Audio/Fluorescent").bus == &"Electrical", "fluorescent hum is routed through Electrical")
 	_check(room.get_node_or_null("TableLightOccluder") is LightOccluder2D and room.get_node_or_null("DoorLightOccluder") is LightOccluder2D, "briefing room lights cast against table and doorway occluders")
 	_check((room.get_node("Dust") as CPUParticles2D).amount >= 48 and room.get_node_or_null("DoorMotes") is CPUParticles2D, "briefing room has layered atmospheric particles")
 	_check((room.get_node("Audio/Heartbeat") as AudioStreamPlayer).stream.resource_path.ends_with("heartbeat-realistic.wav"), "briefing uses the licensed realistic heartbeat")
+	dialogue.instant_mode = false
+	room.timing_scale = 1.0
+	var skip_test_text := "This cutscene line should complete immediately when the player skips its typewriter animation."
+	room._show_cg_dialogue("MC", skip_test_text, &"bottom", 0.05)
+	await process_frame
+	var skip_event := InputEventAction.new()
+	skip_event.action = &"interact"
+	skip_event.pressed = true
+	room._input(skip_event)
+	_check(room.cg_bottom_text.visible_characters == -1, "E or Space completes the active cutscene dialogue line")
+	_check(room._cg_dialogue_active, "completing a line does not skip the remaining autoplay hold")
+	frames = 0
+	while room._cg_dialogue_active and frames < 30:
+		await process_frame
+		frames += 1
+	_check(not room._cg_dialogue_active, "cutscene dialogue continues autoplay after a skipped typewriter reveal")
 	room.queue_free()
 	await process_frame
 	session.profile_path = old_profile

@@ -36,7 +36,7 @@ func _ready() -> void:
 	plan_prompt.visible = false
 	completion.visible = false
 	verdict_overlay.visible = false
-	$HUD/PlanPrompt/Label.text = "E  FACE THE CHOICE"
+	$HUD/PlanPrompt/Label.text = "E / SPACE  FACE THE CHOICE"
 	_start_loop(wind)
 	_start_loop(birds)
 	fade.modulate.a = 1.0
@@ -140,3 +140,13 @@ func _commit_route_after_hold() -> void:
 		transition_service.transition_to(destination, false)
 	else:
 		get_tree().change_scene_to_file(destination)
+
+
+func get_pause_objective() -> String:
+	if verdict_overlay.visible:
+		return "Face the choice determined by your reports."
+	if plan_executed:
+		return "Wait for the final order."
+	if execute_available:
+		return "Confront the final choice at the firing position."
+	return "Cross the rooftop and reach the firing position."

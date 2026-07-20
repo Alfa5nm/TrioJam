@@ -30,7 +30,7 @@ func _ready() -> void:
 	flash.modulate.a = 0.0
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not active:
 		return
 	if event.is_action_pressed(&"interact") or (
@@ -102,8 +102,8 @@ func _show_caption(speaker: StringName, text: String, placement: StringName, col
 				break
 			caption_text.visible_characters = index + 1
 			var character := text.substr(index, 1)
-			if not character.strip_edges().is_empty() and index % 3 == 0:
-				blip.pitch_scale = randf_range(0.92, 1.07)
+			if not character.strip_edges().is_empty() and index % 4 == 0:
+				blip.pitch_scale = randf_range(0.98, 1.02)
 				blip.play()
 			await get_tree().create_timer(_duration(1.0 / characters_per_second)).timeout
 	_typing = false

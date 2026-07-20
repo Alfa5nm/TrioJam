@@ -30,6 +30,10 @@ var _settings_open := false
 
 
 func _ready() -> void:
+	# The menu owns its own background score. Clear any persistent finale lane so
+	# returning through credits, the pause menu, or a direct scene change cannot
+	# leave a route song playing underneath it.
+	_session().stop_day3_route_music(0.0)
 	_apply_completed_route_backdrop()
 	settings_dim.visible = false
 	settings_panel.visible = false
@@ -52,7 +56,6 @@ func _ready() -> void:
 	%NewGameButton.grab_focus()
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-
 
 func _apply_completed_route_backdrop() -> void:
 	var session := _session()

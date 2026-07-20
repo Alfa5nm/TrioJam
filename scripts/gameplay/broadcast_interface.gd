@@ -29,6 +29,10 @@ const MC_RESOLVED_TALK := MC_DIRTY
 const GOVERNMENT_SILHOUETTE := preload("res://assets/art/ui/broadcast_v2/interrogation/government.png")
 const BROADCAST_FONT := preload("res://assets/fonts/Basic-Regular.ttf")
 const NEWSLETTER_FONT := preload("res://assets/fonts/Newsreader.ttf")
+const MC_BLIP_STRIDE := 5
+const GOVERNMENT_BLIP_STRIDE := 6
+const MC_BLIP_PITCH := Vector2(0.98, 1.02)
+const GOVERNMENT_BLIP_PITCH := Vector2(0.70, 0.74)
 
 @export var instant_mode := false
 @export var use_news_broadcast_scene := true
@@ -46,6 +50,7 @@ var _playback_is_recap := false
 var _mission_response: Array[String] = []
 var _mission_response_index := 0
 var _pending_sequence: BroadcastSequence
+var _pending_package: BroadcastPackage
 var _pending_result := ResolutionResult.INVALID
 ## How many genuine mismatches (matches neither truthful nor propaganda) the
 ## player has made on the currently loaded report. Selects which entry of
@@ -63,6 +68,7 @@ var _chain_mission_lines: Array[String] = []
 var _chain_mission_index := 0
 var _chain_pending_sequence: BroadcastSequence
 var _chain_pending_report: BroadcastReport
+var _chain_pending_package: BroadcastPackage
 ## Parallel to _playback_lines during a combined recap: index into _chain_results
 ## (or -1 for bridge/opening lines) so each line can restore its own frame art.
 var _playback_owners: Array[int] = []
@@ -121,6 +127,9 @@ var _is_day2_context := false
 
 
 func _ready() -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		music_director.play_cue(&"broadcast_gameplay")
 	var session := get_node_or_null("/root/GameSession")
 	if session != null:
 		session.save_checkpoint("broadcast")
@@ -613,10 +622,13 @@ func _type_dialogue(text: String) -> void:
 			if _transcript_follow_latest and index % 4 == 0:
 				_scroll_transcript_to_latest.call_deferred()
 			var character := text.substr(index, 1)
-			if not character.strip_edges().is_empty() and index % 2 == 0:
-				var speaker := _playback_speakers[_playback_index] if _playback_index < _playback_speakers.size() else &"mc"
-				var player := government_blip if speaker == &"government" else blip
-				player.pitch_scale = randf_range(0.95, 1.045)
+			var speaker := _current_speaker if not _current_speaker.is_empty() else &"mc"
+			var government_speaking := speaker == &"government"
+			var blip_stride := GOVERNMENT_BLIP_STRIDE if government_speaking else MC_BLIP_STRIDE
+			if index % blip_stride == 0 and not character.strip_edges().is_empty() and character not in ".,…!?—–-":
+				var player := government_blip if government_speaking else blip
+				var pitch_range := GOVERNMENT_BLIP_PITCH if government_speaking else MC_BLIP_PITCH
+				player.pitch_scale = randf_range(pitch_range.x, pitch_range.y)
 				player.play()
 			await get_tree().create_timer(0.032).timeout
 	# Always leave both representations fully revealed. This makes the first
@@ -872,6 +884,7 @@ func _start_mission_response(lines: Array[String], result: ResolutionResult, seq
 	_mission_response_index = 0
 	_pending_result = result
 	_pending_sequence = sequence
+	_pending_package = BroadcastPackage.from_shots(report.report_id, sequence.headline, _current_shots()) if sequence != null else null
 	_set_editing_enabled(false)
 	%Directive.visible = false
 	continue_button.visible = true
@@ -897,12 +910,17 @@ func _finish_mission_response() -> void:
 	desk_continue_button.disabled = true
 	if _pending_result == ResolutionResult.PROPAGANDA_ACCEPTED and _pending_sequence != null:
 		var accepted := _pending_sequence
+		var accepted_package := _pending_package
 		var session := get_node_or_null("/root/GameSession")
 		if session != null:
-			session.set_pending_broadcast(report.report_id, accepted)
+			if accepted_package != null and session.has_method(&"set_pending_broadcast_package"):
+				session.set_pending_broadcast_package(accepted_package)
+			else:
+				session.set_pending_broadcast(report.report_id, accepted)
 			if report.report_id == &"day0_rooftop_killing" and session.has_method(&"set_day0_report_route"):
 				session.set_day0_report_route(&"propaganda")
 		_pending_sequence = null
+		_pending_package = null
 		_set_phase(Phase.NEWS_HANDOFF)
 		if use_news_broadcast_scene:
 			var transition_service := get_node_or_null("/root/SceneTransition")
@@ -912,6 +930,7 @@ func _finish_mission_response() -> void:
 		_start_playback(accepted)
 		return
 	_pending_sequence = null
+	_pending_package = null
 	speech_bubble.visible = false
 	%Directive.visible = true
 	continue_button.visible = false
@@ -945,6 +964,7 @@ func _on_chain_broadcast_pressed(sequence: BroadcastSequence) -> void:
 func _start_chain_mismatch() -> void:
 	_chain_pending_sequence = null
 	_chain_pending_report = report
+	_chain_pending_package = null
 	broadcast_resolved.emit(null, false)
 	_begin_chain_response([_next_mistake_hint()])
 
@@ -952,6 +972,7 @@ func _start_chain_mismatch() -> void:
 func _start_chain_mission_response(sequence: BroadcastSequence) -> void:
 	_chain_pending_sequence = sequence
 	_chain_pending_report = report
+	_chain_pending_package = BroadcastPackage.from_shots(report.report_id, sequence.headline, _current_shots())
 	broadcast_resolved.emit(sequence, true)
 	if sequence.reaction_lines.is_empty():
 		_finish_chain_mission_response()
@@ -981,8 +1002,10 @@ func _finish_chain_mission_response() -> void:
 	desk_continue_button.disabled = true
 	var sequence := _chain_pending_sequence
 	var finishing_report := _chain_pending_report
+	var package := _chain_pending_package
 	_chain_pending_sequence = null
 	_chain_pending_report = null
+	_chain_pending_package = null
 	if sequence == null or sequence.broadcast_lines.is_empty():
 		# No-match, or a matched-but-non-airing route (e.g. a refusal) — try again.
 		speech_bubble.visible = false
@@ -992,7 +1015,10 @@ func _finish_chain_mission_response() -> void:
 		_set_editing_enabled(true)
 		return
 	_record_story_route(finishing_report, sequence)
-	_chain_results.append({"report": finishing_report, "sequence": sequence})
+	var session := get_node_or_null("/root/GameSession")
+	if session != null and package != null and session.has_method(&"set_pending_broadcast_package"):
+		session.set_pending_broadcast_package(package)
+	_chain_results.append({"report": finishing_report, "sequence": sequence, "package": package})
 	if _chain_index + 1 < _report_chain.size():
 		_load_next_chain_report()
 	elif (_is_day1_context or _is_day2_context) and use_news_broadcast_scene:
@@ -1039,11 +1065,36 @@ func _apply_chain_recap_visuals(owner_index: int) -> void:
 		return
 	var entry: Dictionary = _chain_results[owner_index]
 	var sequence: BroadcastSequence = entry["sequence"]
+	var package: BroadcastPackage = entry.get("package") as BroadcastPackage
 	var shots := sequence.shots()
+	if package != null:
+		shots = _shots_from_package(entry["report"], package)
 	for index in _slots.size():
-		var action := shots[index].action
-		if action != null and action.scene_image != null:
-			_slots[index].show_scene_reveal(action.scene_image)
+		_slots[index].place(shots[index])
+		_slots[index].set_interaction_enabled(false)
+
+
+func _current_shots() -> Array[ShotElement]:
+	return [cause_slot.current_shot(), conflict_slot.current_shot(), outcome_slot.current_shot()]
+
+
+func _shots_from_package(source_report: BroadcastReport, package: BroadcastPackage) -> Array[ShotElement]:
+	var shots: Array[ShotElement] = []
+	for index in package.action_ids.size():
+		var action: ActionDef = null
+		for candidate in source_report.available_actions:
+			if candidate.id == package.action_ids[index]:
+				action = candidate
+				break
+		var characters: Array[CharacterDef] = []
+		if index < package.character_ids.size():
+			for character_id in package.character_ids[index]:
+				for candidate in source_report.characters:
+					if candidate.id == character_id:
+						characters.append(candidate)
+						break
+		shots.append(ShotElement.new(characters, action))
+	return shots
 
 
 func _record_story_route(solved_report: BroadcastReport, solved_sequence: BroadcastSequence) -> void:
@@ -1116,3 +1167,20 @@ func _find_character(id: StringName) -> CharacterDef:
 		if character.id == id:
 			return character
 	return null
+
+
+func get_pause_objective() -> String:
+	match phase:
+		Phase.FADE_IN, Phase.TV_BOOT:
+			return "Wait for the broadcast terminal to initialize."
+		Phase.INTERROGATION, Phase.NAME_ENTRY:
+			return "Answer the government representative."
+		Phase.DESK_REVEAL:
+			return "Review the footage delivered to your desk."
+		Phase.EDITING:
+			return "Build a three-frame report and submit the broadcast."
+		Phase.RESPONSE:
+			return "Read the response to your submitted report."
+		Phase.NEWS_HANDOFF:
+			return "Watch the completed report go live."
+	return "Complete today's broadcast."

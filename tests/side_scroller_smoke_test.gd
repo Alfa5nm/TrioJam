@@ -16,13 +16,25 @@ func _run() -> void:
 		return
 
 	var level := packed_scene.instantiate()
-	level.get_node("CinematicDialogue").instant_mode = true
+	var intro_lines: Array[String] = []
+	var intro_dialogue := level.get_node("CinematicDialogue") as CinematicDialogue
+	intro_dialogue.instant_mode = true
+	intro_dialogue.line_started.connect(func(text: String) -> void: intro_lines.append(text))
 	root.add_child(level)
 	for _frame in 90:
 		await physics_frame
 
 	var player := level.get_node("Player") as Player
 	var camera := level.get_node("CinematicCamera") as CinematicCamera
+	_check(_action_has_key(&"move_left", KEY_A) and _action_has_key(&"move_left", KEY_LEFT), "move left accepts A and the Left arrow")
+	_check(_action_has_key(&"move_right", KEY_D) and _action_has_key(&"move_right", KEY_RIGHT), "move right accepts D and the Right arrow")
+	_check(_action_has_key(&"interact", KEY_E) and _action_has_key(&"interact", KEY_SPACE), "confirm and interaction accept E and Space")
+	_check(_action_has_key(&"jump", KEY_W) and not _action_has_key(&"jump", KEY_SPACE), "jump retains W without conflicting with Space confirm")
+	_check(level.get_node("HUD/DoorPrompt/Label").text == "E / SPACE  ENTER ROOFTOP", "Day Zero prompt advertises both confirm keys")
+	_check(intro_lines == ["…", "…I can’t even remember the last time I felt the autonomy of my own actions.", "This… feels good."], "Day Zero stairwell intro uses the revised script in exact order")
+	var player_screen_position := level.get_viewport().get_canvas_transform() * player.global_position
+	var dialogue_bubble_bottom := intro_dialogue.bubble.position.y + intro_dialogue.bubble.size.y
+	_check(player_screen_position.y - dialogue_bubble_bottom >= 240.0, "Day Zero dialogue bubble clears the MC's head with comfortable spacing")
 	_check(level.get_node("MoodGrade") is CanvasModulate, "stairwell receives the dull Day Zero grade")
 	_check(level.get_node("CinematicDialogue").chapter_title.text.is_empty(), "Scene0 no longer contains a DAY ZERO chapter card")
 	_check(is_equal_approx(player.move_speed, 260.0), "stairwell traversal uses the faster 260 px/s movement")
@@ -43,10 +55,13 @@ func _run() -> void:
 	_check(player.animated_sprite.scale.x >= 0.6, "character scale matches the stairwell architecture")
 	_check(player.footstep_stream != null, "stairwell concrete footstep is assigned")
 	_check(player.footstep_stream_alt_a != null and player.footstep_stream_alt_b != null, "stairwell footsteps rotate through three samples")
-	_check(level.get_node("Audio/RoomTone").playing, "interior room tone loops")
+	var overall_ambience := level.get_node("Audio/RoomTone") as AudioStreamPlayer
+	_check(overall_ambience.playing, "eerie overall ambience starts with the scene")
+	_check(overall_ambience.stream.resource_path.ends_with("alex_jauk-eerie-atmosphere-ambience-372558.mp3"), "Day Zero uses the supplied eerie ambience track")
+	_check(overall_ambience.stream is AudioStreamMP3 and (overall_ambience.stream as AudioStreamMP3).loop, "eerie overall ambience loops continuously")
 	_check(level.get_node("Audio/Electrical").playing, "electrical ambience loops from the landing fixture")
 	_check(level.get_node("Audio/Electrical").bus == &"Electrical", "electrical fixture is routed through the analyzed flicker bus")
-	var lower_room_tone_db: float = level.get_node("Audio/RoomTone").volume_db
+	var lower_room_tone_db: float = overall_ambience.volume_db
 	var lower_surface := level.get_node("Line2DFloorToMidflightCollider/StaticBody2D/CollisionPolygon2D") as CollisionPolygon2D
 	var upper_surface := level.get_node("Line2DFloorToMidflightCollider2/StaticBody2D/CollisionPolygon2D") as CollisionPolygon2D
 	var lower_highlight := level.get_node("StairHighlights/LowerRoute") as Node2D
@@ -117,7 +132,7 @@ func _run() -> void:
 	await physics_frame
 	_check(not level.upper_route_active, "fall recovery resets the staircase phase")
 	_check(not lower_surface.disabled and upper_surface.disabled, "fall recovery restores the lower route")
-	_check(player.global_position.distance_to(Vector2(259.0, 462.0)) < 40.0, "fall recovery returns the player to the entrance")
+	_check(player.global_position.distance_to(level._spawn_position) < 40.0, "fall recovery returns the player to the recorded entrance spawn")
 
 	level.queue_free()
 	for _frame in 4:
@@ -133,3 +148,11 @@ func _check(condition: bool, description: String) -> void:
 	else:
 		failures += 1
 		push_error("FAIL: " + description)
+
+
+func _action_has_key(action: StringName, expected_keycode: int) -> bool:
+	for event in InputMap.action_get_events(action):
+		var key_event := event as InputEventKey
+		if key_event != null and (key_event.physical_keycode == expected_keycode or key_event.keycode == expected_keycode):
+			return true
+	return false

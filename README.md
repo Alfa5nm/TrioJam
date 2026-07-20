@@ -6,8 +6,8 @@ Godot 4 narrative side-scroller for a three-person game-jam team.
 
 The current main scene is a cinematic 2.5D fire-exit stairwell based on the team's layout sketch.
 
-- Move with `A` and `D`.
-- Press `E` near the hose cabinet or doors to interact.
+- Move with `A` and `D`, or the Left and Right arrow keys.
+- Press `E` or `Space` to confirm and interact.
 - Press `R` at any time to restart.
 
 The scene includes switchback stair collisions, cinematic camera framing, foreground parallax, generated environment and character art, an animated four-frame walk cycle, normal maps, dynamic practical lights, ambient dust, contextual UI, interaction beats, and fall recovery.

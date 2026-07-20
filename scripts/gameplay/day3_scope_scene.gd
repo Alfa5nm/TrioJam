@@ -107,7 +107,7 @@ func _play_scope_intro() -> void:
 	await dialogue.show_line_at("At least… in this path, I get to live.", Vector2(640, 650), 0.85, true)
 	gun_cg.visible = false
 	pre_scope_black.visible = true
-	await dialogue.show_line_at("Fire.", Vector2(640, 650), 0.75, true)
+	await dialogue.show_government_command_at("Fire.", Vector2(640, 650), 0.75, true)
 	if is_inside_tree():
 		pre_scope.visible = false
 		aim_enabled = true
@@ -189,3 +189,11 @@ func _set_looping(stream: AudioStream, enabled: bool) -> void:
 
 func _duration(seconds: float) -> float:
 	return maxf(seconds * cinematic_timing_scale, 0.001)
+
+
+func get_pause_objective() -> String:
+	if resolved:
+		return "Face the consequences of the shot."
+	if aim_enabled:
+		return "Aim at the Peace Leader and fire."
+	return "Listen to the final command."

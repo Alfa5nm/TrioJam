@@ -117,6 +117,17 @@ func _check_chain_flow() -> void:
 	ui.outcome_slot.place(ShotElement.new(report1.truthful_sequence.outcome_characters, report1.truthful_sequence.outcome_action))
 	ui._on_broadcast_pressed()
 	_advance_through_response(ui)
+	var session := root.get_node("GameSession")
+	var report1_package: BroadcastPackage = session.get_pending_broadcast_package(report1.report_id)
+	var expected_report1_cause_ids := _ordered_ids(report1.truthful_sequence.cause_characters)
+	_check(report1_package != null, "accepted Report 1 stores its player-built frame package for the news scene")
+	_check(
+		report1_package != null
+			and report1_package.character_ids[0].size() == expected_report1_cause_ids.size()
+			and report1_package.character_ids[0][0] == expected_report1_cause_ids[0]
+			and report1_package.character_ids[0][1] == expected_report1_cause_ids[1],
+		"stored Report 1 package preserves character placement order"
+	)
 	_check(ui.report == report2, "solving report 1 auto-advances to report 2 instead of airing early")
 	_check(not (ui._playback_active and ui._playback_is_recap), "no recap has started yet with a report still unsolved")
 
@@ -132,6 +143,8 @@ func _check_chain_flow() -> void:
 	ui._on_broadcast_pressed()
 	_check(ui._chain_mission_lines[0] == report2.truthful_sequence.reaction_lines[0], "report 2's truthful reaction lines play before the combined recap")
 	_advance_through_response(ui)
+	var report2_package: BroadcastPackage = session.get_pending_broadcast_package(report2.report_id)
+	_check(report2_package != null, "accepted Report 2 stores its player-built frame package for the news scene")
 	_check(ui._playback_active and ui._playback_is_recap, "solving the final report starts the combined recap")
 	_check(ui.dialogue_label.text.begins_with("And now, for Today's News."), "combined recap opens with the Today's News line")
 

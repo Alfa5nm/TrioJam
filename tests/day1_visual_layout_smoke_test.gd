@@ -28,7 +28,8 @@ func _run() -> void:
 	var dialogue := level.get_node("CinematicDialogue") as CinematicDialogue
 	var encounter := level.get_node("CheckpointConfrontation") as Day1CheckpointEncounter
 	var broadcast_exit := level.get_node("BroadcastRoomExit") as Day1BroadcastRoomExit
-	_check(rally.get_node("Stage/PodiumForeground").z_index > rally.get_node("Stage/Representative").z_index, "podium renders in front of representative")
+	var representative := rally.get_node("Stage/Representative") as Sprite2D
+	_check(representative.position.distance_to(Vector2(5, -280)) < 1.0 and rally.get_node_or_null("Stage/PodiumForeground") == null, "representative aligns cleanly with the supplied stage artwork")
 	capture._apply_caption_style("Soldier", &"frame_1")
 	_check(capture.caption_panel.anchor_right <= 0.521 and capture.caption.get_theme_color(&"font_color").r > 0.9, "Soldier comic panel occupies the red left slot")
 	capture._apply_caption_style("Civilian", &"frame_2")

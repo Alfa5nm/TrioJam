@@ -1,8 +1,8 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/narrative/day3_finale.gd" id="1_script"]
-[ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/gunshot.wav" id="2_gunshot"]
-[ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/body-fall.wav" id="3_fall"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/pistol-shot.mp3" id="2_gunshot"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/body-fall.mp3" id="3_fall"]
 [ext_resource type="AudioStream" path="res://assets/audio/day3/sfx/radio-click.wav" id="4_radio"]
 [ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/crowd-shock.wav" id="5_crowd"]
 [ext_resource type="AudioStream" path="res://assets/audio/day3/ambience/emergency-siren.wav" id="6_siren"]
@@ -11,7 +11,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/day3/music/death-stinger.wav" id="9_death"]
 [ext_resource type="AudioStream" path="res://assets/audio/day3/music/shoot-stinger.wav" id="10_shoot"]
 [ext_resource type="PackedScene" path="res://scenes/ui/day3_tv_broadcast.tscn" id="11_tv"]
-[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="12_dialogue_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="12_dialogue_blip"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/main-menu-title-screen.png" id="13_credits_backdrop"]
 [ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="14_credits_font"]
 
@@ -26,6 +26,12 @@ code = "shader_type canvas_item;\nfloat hash(vec2 p){ return fract(sin(dot(p, ve
 
 [sub_resource type="ShaderMaterial" id="CreditsCRTMaterial"]
 shader = SubResource("CreditsCRTShader")
+
+[sub_resource type="Shader" id="CreditsTextFadeShader"]
+code = "shader_type canvas_item;\nuniform float transparent_until : hint_range(0.0, 1.0) = 0.30;\nuniform float fully_visible_from : hint_range(0.0, 1.0) = 0.46;\nvoid fragment(){\n float title_clearance_mask = smoothstep(transparent_until, fully_visible_from, SCREEN_UV.y);\n COLOR.a *= title_clearance_mask;\n}"
+
+[sub_resource type="ShaderMaterial" id="CreditsTextFadeMaterial"]
+shader = SubResource("CreditsTextFadeShader")
 
 [sub_resource type="StyleBoxFlat" id="PlaceholderStyle"]
 bg_color = Color(0.015, 0.025, 0.055, 0.96)
@@ -262,6 +268,7 @@ mouse_filter = 2
 color = Color(0.005, 0.003, 0.014, 0.38)
 
 [node name="CreditsText" type="Label" parent="Credits"]
+material = SubResource("CreditsTextFadeMaterial")
 offset_left = 710.0
 offset_right = 1240.0
 theme_override_colors/font_color = Color(0.96, 0.95, 1, 1)
@@ -290,7 +297,7 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(0.62, 0.66, 0.76, 1)
 theme_override_fonts/font = ExtResource("14_credits_font")
 theme_override_font_sizes/font_size = 14
-text = "ENTER / E  SKIP CREDITS"
+text = "ENTER / E / SPACE  SKIP CREDITS"
 horizontal_alignment = 2
 
 [node name="CRT" type="ColorRect" parent="Credits"]
@@ -311,12 +318,12 @@ bus = &"Ambience"
 
 [node name="Gunshot" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("2_gunshot")
-volume_db = -2.0
+volume_db = -6.0
 bus = &"SFX"
 
 [node name="BodyFall" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("3_fall")
-volume_db = -3.0
+volume_db = -2.0
 bus = &"SFX"
 
 [node name="Radio" type="AudioStreamPlayer" parent="Audio"]
@@ -355,5 +362,5 @@ bus = &"SFX"
 
 [node name="DialogueBlip" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("12_dialogue_blip")
-volume_db = -2.0
+volume_db = -10.0
 bus = &"UI"

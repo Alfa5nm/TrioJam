@@ -1,26 +1,28 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://b6ivthas6i0j0"]
 
-[ext_resource type="Script" path="res://scripts/ui/day3_tv_broadcast.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/art/Broadcast/news-studio-background-v1.png" id="2_studio"]
-[ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="3_font"]
+[ext_resource type="Script" uid="uid://mgpwbofywp4p" path="res://scripts/ui/day3_tv_broadcast.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cayc6sm08ikq3" path="res://assets/art/Broadcast/news-studio-background-v1.png" id="2_studio"]
+[ext_resource type="FontFile" uid="uid://c1yvv3aj0lvq0" path="res://assets/fonts/Basic-Regular.ttf" id="3_font"]
 
 [sub_resource type="Shader" id="TVShader"]
-code = "shader_type canvas_item;\nfloat hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}\nvoid fragment(){float line=sin(UV.y*360.0*3.14159)*0.045;float noise=(hash(UV*vec2(640.0,360.0)+TIME*31.0)-0.5)*0.06;COLOR=vec4(vec3(noise-line),0.11); }"
+code = "shader_type canvas_item;
+float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+void fragment(){float line=sin(UV.y*360.0*3.14159)*0.045;float noise=(hash(UV*vec2(640.0,360.0)+TIME*31.0)-0.5)*0.06;COLOR=vec4(vec3(noise-line),0.11); }"
 
 [sub_resource type="ShaderMaterial" id="TVMaterial"]
 shader = SubResource("TVShader")
 
-[node name="Day3TVBroadcast" type="Control"]
+[node name="Day3TVBroadcast" type="Control" unique_id=1707021334]
+clip_contents = true
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 3
 anchors_preset = 0
 offset_right = 640.0
 offset_bottom = 360.0
-clip_contents = true
 mouse_filter = 2
 script = ExtResource("1_script")
 
-[node name="Studio" type="TextureRect" parent="."]
+[node name="Studio" type="TextureRect" parent="." unique_id=1282063901]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,30 +33,30 @@ texture = ExtResource("2_studio")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Presenter" type="AnimatedSprite2D" parent="."]
+[node name="Presenter" type="AnimatedSprite2D" parent="." unique_id=1883787848]
 texture_filter = 1
-position = Vector2(205, 245)
+position = Vector2(136, 232.00002)
 scale = Vector2(0.68, 0.68)
 
-[node name="StoryImage" type="TextureRect" parent="."]
+[node name="StoryImage" type="TextureRect" parent="." unique_id=1610825912]
 layout_mode = 0
 offset_left = 275.0
 offset_top = 98.0
 offset_right = 620.0
 offset_bottom = 276.0
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
-mouse_filter = 2
 
-[node name="Headline" type="ColorRect" parent="."]
+[node name="Headline" type="ColorRect" parent="." unique_id=22773451]
 layout_mode = 0
-offset_left = 270.0
+offset_left = 288.0
 offset_top = 40.0
-offset_right = 614.0
+offset_right = 616.0
 offset_bottom = 91.0
 color = Color(0.012, 0.026, 0.065, 0.91)
 
-[node name="Text" type="Label" parent="Headline"]
+[node name="Text" type="Label" parent="Headline" unique_id=1861559066]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -68,15 +70,15 @@ text = "TODAY'S NEWS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LowerThird" type="ColorRect" parent="."]
+[node name="LowerThird" type="ColorRect" parent="." unique_id=681840698]
 layout_mode = 0
-offset_left = 248.0
-offset_top = 279.0
-offset_right = 640.0
-offset_bottom = 340.0
+offset_left = 281.0
+offset_top = 266.0
+offset_right = 627.0
+offset_bottom = 324.0
 color = Color(0.015, 0.04, 0.09, 0.94)
 
-[node name="Text" type="Label" parent="LowerThird"]
+[node name="Text" type="Label" parent="LowerThird" unique_id=268979114]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -90,7 +92,7 @@ text = "STATE NEWS NETWORK    •    LIVE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="OnAir" type="Label" parent="."]
+[node name="OnAir" type="Label" parent="." unique_id=1987378857]
 layout_mode = 0
 offset_left = 492.0
 offset_top = 12.0
@@ -102,7 +104,7 @@ theme_override_font_sizes/font_size = 16
 text = "● ON AIR"
 horizontal_alignment = 2
 
-[node name="SignalNoise" type="ColorRect" parent="."]
+[node name="SignalNoise" type="ColorRect" parent="." unique_id=1218174731]
 material = SubResource("TVMaterial")
 layout_mode = 1
 anchors_preset = 15
@@ -110,5 +112,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+rotation = -0.0005181468
 mouse_filter = 2
 color = Color(1, 1, 1, 0.08)

@@ -16,6 +16,7 @@ func _render_previews() -> void:
 	await _capture_scope()
 	await _capture_tv()
 	await _capture_finale_caption()
+	await _capture_credits_gradient()
 	print("DAY3_VISUAL_PREVIEW_PASS")
 	quit()
 
@@ -84,6 +85,8 @@ func _capture_briefing_cg_caption() -> void:
 	room.cg_image.texture = load("res://assets/art/Day3/mc-stressing.png")
 	room.cg_image.modulate.a = 1.0
 	room.stress_grade.modulate.a = 0.22
+	room._cg_uses_dialogue_boxes = true
+	room._apply_cg_panel_styles()
 	room.cg_top_text.text = "You don’t have time. Go now, or we will decide for you."
 	room._layout_cg_panel(room.cg_top_panel, room.cg_top_text, room.cg_top_text.text, &"top")
 	room.cg_top_panel.visible = true
@@ -124,6 +127,24 @@ func _capture_finale_caption() -> void:
 	finale.caption_panel.visible = true
 	await process_frame
 	_save("finale-dynamic-caption.png")
+	finale.queue_free()
+	await process_frame
+
+
+func _capture_credits_gradient() -> void:
+	var finale := (load("res://scenes/Day 3/day3_finale.tscn") as PackedScene).instantiate() as Day3Finale
+	finale.play_on_ready = false
+	root.add_child(finale)
+	await process_frame
+	finale.credits.visible = true
+	finale.credits_text.text = "Oroboros Route\n\n" + "\n".join(Day3Finale.CREDITS)
+	# Place multiple lines across the lowered fade band so the render verifies
+	# that copy disappears before crossing the large title in the artwork.
+	finale.credits_text.position.y = 126.0
+	finale.credits_hint.modulate.a = 1.0
+	for frame in 4:
+		await process_frame
+	_save("credits-top-gradient.png")
 	finale.queue_free()
 	await process_frame
 

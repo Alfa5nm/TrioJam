@@ -32,6 +32,7 @@ signal escape_requested
 @onready var shove: AudioStreamPlayer = $Shove
 @onready var scuffle: AudioStreamPlayer = $Scuffle
 @onready var gunshot: AudioStreamPlayer = $Gunshot
+@onready var body_fall: AudioStreamPlayer = $BodyFall
 @onready var running: AudioStreamPlayer = $Running
 @onready var breathing: AudioStreamPlayer = $Breathing
 @onready var crowd: AudioStreamPlayer = $Crowd
@@ -40,6 +41,8 @@ signal escape_requested
 var active := false
 var captured_frames := 0
 var _base_caption_style: StyleBoxFlat
+var _typing := false
+var _skip_requested := false
 
 const SOLDIER_TEXT_COLOR := Color(1.0, 0.28, 0.25, 1.0)
 const SOLDIER_BORDER_COLOR := Color(0.96, 0.16, 0.18, 0.98)
@@ -52,6 +55,9 @@ const OPPOSITION_TEXT_COLOR := Color(1.0, 0.78, 0.32, 1.0)
 
 
 func _ready() -> void:
+	_ensure_capture_layout()
+	if not overlay.resized.is_connected(_ensure_capture_layout):
+		overlay.resized.connect(_ensure_capture_layout)
 	overlay.visible = false
 	flash.modulate.a = 0.0
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -59,6 +65,17 @@ func _ready() -> void:
 	if initial_style is StyleBoxFlat:
 		_base_caption_style = (initial_style as StyleBoxFlat).duplicate() as StyleBoxFlat
 	tense.finished.connect(_restart_tense_ambience)
+
+
+func _input(event: InputEvent) -> void:
+	if not active or not _typing:
+		return
+	if event.is_action_pressed(&"interact") or event.is_action_pressed(&"ui_accept") or (
+		event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+	):
+		_skip_requested = true
+		caption.visible_characters = -1
+		get_viewport().set_input_as_handled()
 
 
 func begin_capture() -> void:
@@ -73,7 +90,7 @@ func begin_capture() -> void:
 	caption_panel.visible = false
 	frame_image.visible = true
 	blackout.visible = false
-	tense.play()
+	start_chaotic_score()
 	capture_started.emit()
 
 	await _show_frame(preload("res://assets/art/Day1 Scene 1/camera-cutscene/frame-1-soldier-hit.png"), 1)
@@ -112,6 +129,11 @@ func begin_capture() -> void:
 	running.play()
 	escape_requested.emit()
 	await _wait(1.0)
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null and music_director.current_cue() == &"chaotic_music":
+		# Fade under the final blackout so the street and gossip conversation
+		# return in silence when player control is restored.
+		music_director.stop_cue(_duration(0.55))
 	await _fade_out_black()
 
 	active = false
@@ -127,7 +149,17 @@ func capture_frame() -> void:
 	return
 
 
+func start_chaotic_score(restart := false) -> void:
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		# A short fade gives the camera draw a decisive musical downbeat without
+		# clicking. Calling this before begin_capture synchronizes it to the MC's
+		# physical camera animation; begin_capture keeps direct scene launches safe.
+		music_director.play_cue(&"chaotic_music", 0.18, restart)
+
+
 func _show_frame(texture: Texture2D, index: int) -> void:
+	_ensure_capture_layout()
 	blackout.visible = false
 	frame_image.visible = true
 	frame_image.texture = texture
@@ -142,6 +174,15 @@ func _show_frame(texture: Texture2D, index: int) -> void:
 	var tween := create_tween()
 	tween.tween_property(flash, "modulate:a", 0.0, _duration(0.16))
 	await _wait(0.28)
+
+
+func _ensure_capture_layout() -> void:
+	# Exported builds can restore TextureRect offsets without restoring its
+	# editor-computed size. Reassert the intended full-screen layout at runtime
+	# so the authored CG is never reduced to a 0x0 rect behind the REC chrome.
+	if not is_instance_valid(overlay) or not is_instance_valid(frame_image):
+		return
+	frame_image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 func _show_gunshot_frame() -> void:
@@ -162,7 +203,9 @@ func _show_gunshot_frame() -> void:
 	flash.modulate.a = 1.0
 	var tween := create_tween()
 	tween.tween_property(flash, "modulate:a", 0.0, _duration(0.32))
-	await _wait(0.22)
+	await _wait(0.14)
+	body_fall.play()
+	await _wait(0.08)
 
 
 func _black_mc_line(text: String, hold: float) -> void:
@@ -188,6 +231,8 @@ func _line(
 	caption_panel.modulate.a = 1.0 if instant_mode else 0.0
 	caption.text = text
 	caption.visible_characters = 0
+	_typing = not instant_mode
+	_skip_requested = false
 	if instant_mode:
 		caption.visible_characters = -1
 		await get_tree().process_frame
@@ -197,15 +242,19 @@ func _line(
 		await reveal.finished
 		var character_delay := 1.0 / characters_per_second
 		for index in text.length():
+			if _skip_requested:
+				break
 			caption.visible_characters = index + 1
 			var character := text.substr(index, 1)
-			if not character.strip_edges().is_empty() and character not in ".,…!?—–-":
-				blip.pitch_scale = randf_range(0.94, 1.04)
+			if index % 4 == 0 and not character.strip_edges().is_empty() and character not in ".,…!?—–-":
+				blip.pitch_scale = randf_range(0.985, 1.015)
 				blip.play()
 			var delay := character_delay
 			if character in ".,â€¦!?":
 				delay += punctuation_pause
 			await get_tree().create_timer(_duration(delay)).timeout
+		caption.visible_characters = -1
+	_typing = false
 	var readable_hold := maxf(hold, clampf(float(text.length()) * 0.017, 0.9, 1.9))
 	await _wait(readable_hold)
 	if not instant_mode:
@@ -313,7 +362,7 @@ func _restart_tense_ambience() -> void:
 
 
 func _stop_audio() -> void:
-	for player in [blip, camera_click, hit, shove, scuffle, gunshot, running, breathing, crowd, tense]:
+	for player in [blip, camera_click, hit, shove, scuffle, gunshot, body_fall, running, breathing, crowd, tense]:
 		player.stop()
 
 

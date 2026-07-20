@@ -8,10 +8,16 @@ extends Resource
 
 
 static func from_sequence(report_id_value: StringName, sequence: BroadcastSequence) -> BroadcastPackage:
+	return from_shots(report_id_value, sequence.headline, sequence.shots())
+
+
+## Captures the frames exactly as the player assembled them. Character IDs stay
+## in placement order because several actions use that order to select poses.
+static func from_shots(report_id_value: StringName, headline_value: String, shots: Array[ShotElement]) -> BroadcastPackage:
 	var package := BroadcastPackage.new()
 	package.report_id = report_id_value
-	package.headline = sequence.headline
-	for shot in sequence.shots():
+	package.headline = headline_value
+	for shot in shots:
 		package.action_ids.append(shot.action.id if shot.action != null else &"")
 		var ids: Array[StringName] = []
 		for character in shot.characters:

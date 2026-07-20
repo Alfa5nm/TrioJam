@@ -80,6 +80,11 @@ func start_sequence() -> void:
 	if has_triggered or _player == null or _dialogue == null or _camera == null or _camera_capture == null:
 		return
 	has_triggered = true
+	var music_director := get_node_or_null("/root/MusicDirector")
+	if music_director != null:
+		# Reaching the depot ends the checkpoint panic cue and restores the
+		# daytime street bed until the farmers' protest escalates.
+		music_director.play_cue(&"day1_bg", 0.65)
 	trigger.set_deferred(&"monitoring", false)
 	trigger_shape.set_deferred(&"disabled", true)
 	_player.controls_enabled = false
@@ -112,6 +117,8 @@ func start_sequence() -> void:
 	await _say("Company Representative", "This program will modernize our farms and strengthen the national food supply.", representative_anchor, 0.85)
 
 	await _focus(farmers_focus)
+	if music_director != null:
+		music_director.play_cue(&"chaotic_music", 0.45, true)
 	await _say("Farmers", "LIES!", farmers_anchor, 0.65)
 	await _say("Farmers", "They want us to use only their seeds. We can’t even use our seeds, and we cannot plant again without paying them", farmers_anchor, 0.95)
 	await _say("Opposition Volunteer", "And when the farmers resist against this foolishness, they call it opposition violence.", opposition_anchor, 0.9)
@@ -127,6 +134,8 @@ func start_sequence() -> void:
 	await _camera_capture.begin_capture()
 
 	mc_anchor.global_position = _player.global_position + Vector2(0.0, -190.0)
+	if music_director != null:
+		music_director.stop_cue(0.65)
 	await _focus(_player)
 	await _say("MC", "( I think my job here is done. I need to run to the Broastcast Room…)", mc_anchor, 0.9)
 	_restore_gameplay()

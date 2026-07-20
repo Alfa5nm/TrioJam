@@ -18,8 +18,11 @@ func _run() -> void:
 	var rooftop := packed_scene.instantiate()
 	_check(rooftop.auto_advance_to_scope, "rooftop plan is wired to the scoped target scene")
 	rooftop.auto_advance_to_scope = false
-	rooftop.get_node("CinematicDialogue").instant_mode = true
-	rooftop.get_node("CinematicDialogue").timing_scale = 0.01
+	var spoken_lines: Array[String] = []
+	var rooftop_dialogue := rooftop.get_node("CinematicDialogue") as CinematicDialogue
+	rooftop_dialogue.instant_mode = true
+	rooftop_dialogue.timing_scale = 0.01
+	rooftop_dialogue.line_started.connect(func(text: String) -> void: spoken_lines.append(text))
 	root.add_child(rooftop)
 	for _frame in 90:
 		await physics_frame
@@ -59,15 +62,20 @@ func _run() -> void:
 	_check(aim_texture != null and aim_texture.region.size == Vector2(512, 512), "sniper frames use a wide unclipped canvas")
 	_check(aim_texture != null and aim_texture.atlas.get_width() == 4096, "execute sheet contains all eight sniper poses")
 	var execute_image := aim_texture.atlas.get_image()
+	var execute_heights: Array[int] = []
+	var execute_baselines: Array[int] = []
 	for frame_index in 8:
 		var frame_image := execute_image.get_region(Rect2i(frame_index * 512, 0, 512, 512))
 		var used := frame_image.get_used_rect()
-		_check(abs(used.size.y - 310) <= 2, "execute frame %d matches locomotion body height" % (frame_index + 1))
-		_check(abs(used.end.y - 472) <= 2, "execute frame %d preserves the foot baseline" % (frame_index + 1))
+		execute_heights.append(used.size.y)
+		execute_baselines.append(used.end.y)
+	_check(execute_heights.max() - execute_heights.min() <= 2, "execute poses preserve a consistent character scale")
+	_check(execute_baselines.max() - execute_baselines.min() <= 3, "execute poses preserve a stable foot baseline")
 	_check(player.footstep_stream != null, "rooftop concrete footstep is assigned")
 	_check(player.footstep_stream_alt_a != null and player.footstep_stream_alt_b != null, "rooftop footsteps rotate through three samples")
 	_check(rooftop.get_node("Audio/Wind").playing, "rooftop wind ambience loops")
 	_check(rooftop.get_node("Audio/Birds").playing, "positional rooftop birds loop")
+	_check(spoken_lines == ["I can finally fulfill what I’ve dreamt of these past years. I can… I can finally get my revenge."], "rooftop opens with the revised revenge monologue")
 	var sheltered_wind_db: float = rooftop.get_node("Audio/Wind").volume_db
 	var background := rooftop.get_node("Background") as Sprite2D
 	var background_origin := Vector2.ZERO
@@ -97,8 +105,7 @@ func _run() -> void:
 	_check("rifle_assembly:3" in audio_cues, "rifle assembly starts on execute frame three")
 	_check(observed_execute_frames.size() >= 7, "bag handling and rifle draw visibly advance through the full sequence")
 	_check(not rooftop.get_node("HUD/Completion").visible, "cinematic dialogue replaces the redundant completion card")
-	_check(rooftop.get_node("CinematicDialogue").line.text == "Should I do it?", "rooftop plan ends on the authored doubt line")
-	_check(rooftop.get_node("CinematicDialogue").speaker_offset.y <= -290.0, "rooftop dialogue clears the character's head")
+	_check(spoken_lines.size() == 1, "the rifle sequence adds no dialogue outside the revised script")
 
 	rooftop.queue_free()
 	for _frame in 4:

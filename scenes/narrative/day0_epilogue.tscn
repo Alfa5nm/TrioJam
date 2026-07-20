@@ -1,30 +1,18 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://64kha8fmdy7o"]
 
-[ext_resource type="Script" path="res://scripts/narrative/day0_epilogue.gd" id="1_script"]
-[ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="3_font"]
-[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
-[ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-rustle.ogg" id="5_curtain"]
-[ext_resource type="AudioStream" path="res://assets/audio/epilogue/day0-curtain-ambience.wav" id="6_ambience"]
-[ext_resource type="AudioStream" path="res://assets/audio/epilogue/day0-curtain-music.wav" id="7_music"]
-[ext_resource type="AudioStream" path="res://assets/audio/epilogue/curtain-impact.wav" id="8_impact"]
+[ext_resource type="Script" uid="uid://c1fw5nmw3g0yo" path="res://scripts/narrative/day0_epilogue.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://24x7g0emsjib" path="res://assets/fonts/Newsreader.ttf" id="3_font"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="4_blip"]
+[ext_resource type="AudioStream" uid="uid://7u4puwawnum5" path="res://assets/audio/epilogue/curtain-rustle.ogg" id="5_curtain"]
+[ext_resource type="AudioStream" uid="uid://db4c6k6qvs7s2" path="res://assets/audio/epilogue/day0-curtain-ambience.wav" id="6_ambience"]
+[ext_resource type="AudioStream" uid="uid://dq133bpygweu5" path="res://assets/audio/epilogue/day0-curtain-music.wav" id="7_music"]
+[ext_resource type="AudioStream" uid="uid://cyfs8qqkppbgs" path="res://assets/audio/epilogue/curtain-impact.wav" id="8_impact"]
 
 [sub_resource type="StyleBoxFlat" id="DialogueStyle"]
-bg_color = Color(0.0431373, 0.113725, 0.301961, 0.96)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.133333, 0.839216, 1, 0.96)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-shadow_color = Color(0.133333, 0.839216, 1, 0.2)
-shadow_size = 10
+bg_color = Color(0, 0, 0, 0)
 
-[sub_resource type="StyleBoxEmpty" id="EmptyStyle"]
-
-[node name="Day0Epilogue" type="Control"]
+[node name="Day0Epilogue" type="Control" unique_id=587463714]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -32,31 +20,29 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Black" type="ColorRect" parent="."]
+[node name="Black" type="ColorRect" parent="." unique_id=307900744]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Bedroom" type="Control" parent="."]
+[node name="Bedroom" type="Control" parent="." unique_id=870370067]
 unique_name_in_owner = true
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 mouse_filter = 2
 
-[node name="Curtains" type="AnimatedSprite2D" parent="Bedroom"]
+[node name="Curtains" type="AnimatedSprite2D" parent="Bedroom" unique_id=1706764248]
 unique_name_in_owner = true
 visible = false
+texture_filter = 1
 position = Vector2(640, 360)
 scale = Vector2(0.666667, 0.666667)
-texture_filter = 1
 
-[node name="CurtainParticles" type="CPUParticles2D" parent="Bedroom"]
+[node name="CurtainParticles" type="CPUParticles2D" parent="Bedroom" unique_id=682155434]
 unique_name_in_owner = true
 position = Vector2(640, 360)
 emitting = false
@@ -77,19 +63,18 @@ scale_amount_min = 1.2
 scale_amount_max = 3.4
 color = Color(0.96, 0.035, 0.15, 0.42)
 
-[node name="BedroomFade" type="ColorRect" parent="Bedroom"]
+[node name="BedroomFade" type="ColorRect" parent="Bedroom" unique_id=88183008]
 unique_name_in_owner = true
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="DialoguePanel" type="PanelContainer" parent="."]
+[node name="DialoguePanel" type="PanelContainer" parent="." unique_id=655199632]
 unique_name_in_owner = true
-anchors_preset = 8
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -100,79 +85,89 @@ offset_right = 440.0
 offset_bottom = 105.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("DialogueStyle")
 
-[node name="Margin" type="MarginContainer" parent="DialoguePanel"]
+[node name="Margin" type="MarginContainer" parent="DialoguePanel" unique_id=1817000671]
 layout_mode = 2
 theme_override_constants/margin_left = 34
 theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 34
 theme_override_constants/margin_bottom = 18
 
-[node name="Layout" type="VBoxContainer" parent="DialoguePanel/Margin"]
+[node name="Layout" type="VBoxContainer" parent="DialoguePanel/Margin" unique_id=403640254]
 layout_mode = 2
 theme_override_constants/separation = 9
 
-[node name="SpeakerLabel" type="Label" parent="DialoguePanel/Margin/Layout"]
+[node name="SpeakerLabel" type="Label" parent="DialoguePanel/Margin/Layout" unique_id=357948191]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.98)
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 22
 text = "Civilian 1"
+horizontal_alignment = 1
 
-[node name="DialogueLabel" type="Label" parent="DialoguePanel/Margin/Layout"]
+[node name="DialogueLabel" type="Label" parent="DialoguePanel/Margin/Layout" unique_id=1629941383]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.98)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
 theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_offset_y = 3
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 31
 text = "They murdered him!"
-autowrap_mode = 2
+horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 2
 
-[node name="AdvancePrompt" type="Label" parent="DialoguePanel/Margin/Layout"]
+[node name="AdvancePrompt" type="Label" parent="DialoguePanel/Margin/Layout" unique_id=292310975]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.72)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 15
 text = "E / CLICK"
 horizontal_alignment = 2
 
-[node name="Blip" type="AudioStreamPlayer" parent="."]
+[node name="Blip" type="AudioStreamPlayer" parent="." unique_id=1531648851]
 unique_name_in_owner = true
 stream = ExtResource("4_blip")
-volume_db = 5.0
+volume_db = -10.0
 bus = &"UI"
 
-[node name="CurtainRustle" type="AudioStreamPlayer" parent="."]
+[node name="CurtainRustle" type="AudioStreamPlayer" parent="." unique_id=2041003561]
 unique_name_in_owner = true
 stream = ExtResource("5_curtain")
 volume_db = 1.0
 bus = &"SFX"
 
-[node name="CurtainImpact" type="AudioStreamPlayer" parent="."]
+[node name="CurtainImpact" type="AudioStreamPlayer" parent="." unique_id=641694775]
 unique_name_in_owner = true
 stream = ExtResource("8_impact")
 volume_db = -2.0
 bus = &"SFX"
 
-[node name="Ambience" type="AudioStreamPlayer" parent="."]
+[node name="Ambience" type="AudioStreamPlayer" parent="." unique_id=836369073]
 unique_name_in_owner = true
 stream = ExtResource("6_ambience")
-volume_db = -15.0
+volume_db = 2.5
 autoplay = true
 bus = &"Ambience"
 
-[node name="Music" type="AudioStreamPlayer" parent="."]
+[node name="Music" type="AudioStreamPlayer" parent="." unique_id=1648933353]
 unique_name_in_owner = true
 stream = ExtResource("7_music")
-volume_db = -12.0
+volume_db = -3.922
 autoplay = true
 bus = &"Ambience"

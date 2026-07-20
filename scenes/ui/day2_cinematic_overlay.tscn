@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/day2_cinematic_overlay.gd" id="1_script"]
 [ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="2_font"]
 [ext_resource type="AudioStream" path="res://assets/audio/day1/cutscene/camera-click.wav" id="3_click"]
-[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="4_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="4_blip"]
 
 [sub_resource type="StyleBoxFlat" id="Style_caption"]
 bg_color = Color(0.025, 0.072, 0.18, 0.94)
@@ -122,5 +122,5 @@ bus = &"UI"
 
 [node name="Blip" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_blip")
-volume_db = -4.0
+volume_db = -10.0
 bus = &"UI"

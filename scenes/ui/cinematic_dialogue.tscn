@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/cinematic_dialogue.gd" id="1_script"]
 [ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="2_font"]
-[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip.ogg" id="3_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="3_blip"]
 [ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="4_chapter_font"]
 
 [sub_resource type="StyleBoxFlat" id="Dialogue_panel"]
@@ -121,5 +121,5 @@ color = Color(0.86, 0.7, 0.48, 0.68)
 
 [node name="Blip" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_blip")
-volume_db = 0.0
+volume_db = -10.0
 bus = &"UI"

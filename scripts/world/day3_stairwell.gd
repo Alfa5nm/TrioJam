@@ -102,3 +102,13 @@ func _transition_to(path: String, use_door_audio: bool) -> void:
 		transition_service.transition_to(path, use_door_audio)
 	else:
 		get_tree().change_scene_to_file(path)
+
+
+func get_pause_objective() -> String:
+	if _transitioning:
+		return "Enter the next area."
+	if _returning_from_briefing:
+		return "Climb the remaining stairs and enter the rooftop."
+	if _guard_sequence_started:
+		return "Enter the guarded briefing room."
+	return "Climb to the guard and present your identification."

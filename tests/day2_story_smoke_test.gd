@@ -41,6 +41,7 @@ func _check_world_scene() -> void:
 	var world_bubble_visibility: Array[bool] = []
 	var overlay_control_visibility: Array[bool] = []
 	var overlay_caption_visibility: Array[bool] = []
+	var warning_caption_colors: Dictionary = {}
 	var frame_ids: Array[StringName] = []
 	var signal_counts := {"reveal": 0, "armed": 0, "aftermath": 0}
 	rally.soldier_reveal_started.connect(func(): signal_counts["reveal"] += 1)
@@ -56,6 +57,8 @@ func _check_world_scene() -> void:
 	)
 	overlay.line_started.connect(func(_speaker: StringName, _text: String):
 		overlay_caption_visibility.append(overlay.visible and overlay.get_node("Root/Caption").visible)
+		if _text.begins_with("The beeping") or _text.begins_with("Wait"):
+			warning_caption_colors[_text] = (overlay.get_node("Root/Caption/Margin/Text") as Label).get_theme_color(&"font_color")
 	)
 	root.add_child(rally)
 	for _frame in range(45):
@@ -75,7 +78,11 @@ func _check_world_scene() -> void:
 	_check(not rally.get_node("Triggers/Containment").monitoring, "containment exchange is inactive before the blast")
 	_check(rally.get_node("Collision/LeftDebris/Shape").disabled, "left retreat blocker is inactive before the blast")
 	_check(rally.get_node("Audio/Explosion").bus == &"SFX", "explosion is routed through SFX")
+	_check(is_equal_approx(rally.get_node("Audio/Explosion").volume_db, 0.0), "explosion impact is raised to full SFX level")
 	_check(rally.get_node("Audio/RallyAmbience").bus == &"Ambience", "rally crowd is routed through Ambience")
+	_check(is_equal_approx(rally.get_node("Audio/RallyAmbience").volume_db, -10.0), "supplied rally crowd is balanced beneath dialogue")
+	_check(is_equal_approx(rally.get_node("Audio/PanicAmbience").volume_db, -9.0), "panic ambience is clearly audible after the blast")
+	_check(is_equal_approx(rally.get_node("Audio/AftermathRumble").volume_db, -13.0), "aftermath rumble has stronger presence")
 	_check(rally.get_node("Particles/DaylightMotes") is GPUParticles2D, "pre-blast leaves and motes are staged")
 	_check(rally.get_node("Lighting/StageOccluder") is LightOccluder2D, "stage lighting has an authored occluder")
 	var frames := 0
@@ -91,6 +98,9 @@ func _check_world_scene() -> void:
 	_check(rally.state == Day2PeaceRallyController.State.ESCAPE, "camera rally, suspicion, and explosion reach playable escape")
 	_check(frame_ids == [&"peace_leader_opening", &"suspicious_worker", &"peace_leader_warning"], "pre-blast CG frames play in authored order")
 	_check(signal_counts["reveal"] == 1 and signal_counts["armed"] == 1 and signal_counts["aftermath"] == 1, "soldier reveal, arming, and aftermath signals each fire once")
+	var warning_yellow := Color(1.0, 0.82, 0.24, 1.0)
+	_check(warning_caption_colors.size() == 2 and warning_caption_colors.values().all(func(color: Color): return color.is_equal_approx(warning_yellow)), "beeping and Wait captions use the authored yellow warning color")
+	_check(rally._bomb_warning_boost_db >= 10.0 and rally.get_node("Audio/BombBeep").volume_db >= -1.1, "bomb beep gains an audible warning boost before detonation")
 	_check(not rally.get_node("NPCs/BombPlantingSoldier").visible, "planting pose is removed at detonation")
 	_check(not overlay_control_visibility.has(false) and not overlay_caption_visibility.has(false), "CG image and dynamic caption controls are visible while frames play")
 	_check(not rally.get_node("World/NormalBackground").visible, "detonation hides the peaceful background")
@@ -156,6 +166,15 @@ func _check_world_scene() -> void:
 	_check(stopped_at_soldiers >= 4, "most right-running civilians stop at the soldier containment line")
 	_check(rally.get_node("NPCs/PeaceLeader").texture.resource_path.ends_with("peace-leader.png"), "dedicated Peace Leader sprite replaces the Seedless representative")
 	_check(rally.get_node("NPCs/PeaceLeader").z_index < rally.get_node("NPCs/ForegroundPodium").z_index, "Peace Leader is depth-occluded behind the foreground podium")
+	var camera := rally.get_node("HorizontalCamera") as Day1HorizontalCamera
+	var blockade_focus := rally.get_node("Focus/Blockade") as Node2D
+	var street_camera_y := rally.player.global_position.y + rally._previous_camera_offset.y
+	await rally._focus_on_street(blockade_focus)
+	var blockade_camera_y := blockade_focus.global_position.y + camera.framing_offset.y
+	_check(is_equal_approx(blockade_camera_y, street_camera_y), "blockade focus pans horizontally without lifting the camera off street height")
+	await rally._focus_injured_leader()
+	_check(camera.target == rally.get_node("NPCs/AftermathActors/CrouchedLeader") and camera.framing_offset.is_equal_approx(Vector2(0.0, -130.0)), "post-fight camera pans down to frame the crouched Peace Leader")
+	await rally._focus_on_street(blockade_focus)
 	rally._start_blockade()
 	frames = 0
 	while rally.state != Day2PeaceRallyController.State.EXIT and frames < 360:
@@ -178,6 +197,8 @@ func _check_world_scene() -> void:
 	_check(aftermath_cursor == aftermath_lines.size(), "containment and MC confrontation lines play in exact authored order")
 	_check(rally.get_node("NPCs/PanicCrowd/SoldierA").position.x > 2860.0, "the civilian struggle physically opens the soldier line")
 	_check(rally.get_node("NPCs/BlockadeCrowd/StrugglingCivilian").position.x < 2775.0, "the struggling civilian visibly recoils from the push")
+	_check(rally.player.animated_sprite.flip_h, "MC faces left toward the Peace Leader after the fight")
+	_check(camera.offset.is_equal_approx(Vector2.ZERO), "fight camera shake settles cleanly before the leader speaks")
 	_check(rally.get_node("Collision/EastBlockade/Shape").disabled, "the eastern passage opens after the confrontation")
 	_check(frame_ids == [&"peace_leader_opening", &"suspicious_worker", &"peace_leader_warning", &"rescue"], "all supplied CG frames play in exact order through rescue")
 	_validate_generated_assets()

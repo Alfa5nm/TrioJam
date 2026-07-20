@@ -1,9 +1,13 @@
 # Godot-generated cache and imported assets
 .godot/
 
-# Exported builds
-builds/
+# Exported builds (keep Godot's scan guard tracked)
+builds/*
+!builds/.gdignore
 exports/
+
+# Local release-validation logs
+test_artifacts/polish_sweep/
 
 # IDE and OS files
 .vscode/

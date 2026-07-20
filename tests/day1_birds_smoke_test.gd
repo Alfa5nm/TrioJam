@@ -31,7 +31,11 @@ func _run() -> void:
 	_check(flock != null and not flock.has_flown and flock.visible, "birds begin grounded and visible")
 	_check(flock != null and flock.birds.animation == &"idle", "birds begin on the pavement pose")
 	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"idle") == 4, "idle loop has four varied animation frames")
-	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"takeoff") == 4, "takeoff uses four continuity-safe animation frames")
+	_check(flock != null and flock.birds.sprite_frames.get_frame_count(&"takeoff") == 5, "takeoff uses all five authored flight frames from the supplied sheet")
+	var idle_texture := flock.birds.sprite_frames.get_frame_texture(&"idle", 0) as AtlasTexture
+	var flight_texture := flock.birds.sprite_frames.get_frame_texture(&"takeoff", 4) as AtlasTexture
+	_check(idle_texture != null and idle_texture.atlas.resource_path.ends_with("pigeon-sprite-sheet.png"), "grounded pigeons use the newly supplied sprite sheet")
+	_check(flight_texture != null and flight_texture.atlas == idle_texture.atlas, "takeoff and flight discard the previous generated pigeon artwork")
 	flock.play_idle_coo()
 	await process_frame
 	_check(flock.coo_player.playing and flock.coo_player.stream != null, "idle pigeon coo plays")

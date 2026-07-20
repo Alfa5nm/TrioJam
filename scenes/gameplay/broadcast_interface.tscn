@@ -4,11 +4,11 @@
 [ext_resource type="PackedScene" path="res://scenes/gameplay/frame_slot.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/scene_frame.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/character_roster.tscn" id="4"]
-[ext_resource type="AudioStream" uid="uid://ve3a4jeyde15" path="res://assets/audio/ui/dialogue-blip.ogg" id="6"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui/dialogue-blip-soft.ogg" id="6"]
 [ext_resource type="FontFile" path="res://assets/fonts/Newsreader.ttf" id="7"]
 [ext_resource type="AudioStream" uid="uid://dut00dyjnd4oa" path="res://assets/audio/broadcast/tv-hum-v2.wav" id="8"]
 [ext_resource type="AudioStream" uid="uid://cahhkfca4gpgn" path="res://assets/audio/broadcast/tv-power-v2.wav" id="9"]
-[ext_resource type="AudioStream" uid="uid://c5527ep7oieub" path="res://assets/audio/broadcast/card-eject-v2.wav" id="10"]
+[ext_resource type="AudioStream" path="res://assets/audio/broadcast/polaroid-eject-fast.ogg" id="10"]
 [ext_resource type="AudioStream" uid="uid://dxykvf84k7m63" path="res://assets/audio/broadcast/table-impact-v2.wav" id="11"]
 [ext_resource type="AudioStream" uid="uid://tyrqyfs8tmrj" path="res://assets/audio/broadcast/broadcast-continue-button.mp3" id="12"]
 [ext_resource type="Texture2D" uid="uid://b1q23ldwja8ex" path="res://assets/art/ui/broadcast_v2/broadcast-console-base-v4.png" id="13"]
@@ -240,6 +240,7 @@ offset_bottom = 302.0
 slot_label = "OUTCOME"
 
 [node name="SceneFrame" parent="DeskRoot" unique_id=229751326 instance=ExtResource("3")]
+ejection_time_scale = 0.72
 unique_name_in_owner = true
 anchors_preset = 0
 offset_left = 394.0
@@ -521,7 +522,7 @@ polygon = PackedVector2Array(0, 0, 38, 0, 31, -24)
 [node name="ContinueButton" type="Button" parent="CinemaRig" unique_id=731657802]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 413.0
+offset_left = 360.0
 offset_top = 551.0
 offset_right = 550.0
 offset_bottom = 588.0
@@ -529,7 +530,7 @@ focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("7")
 theme_override_font_sizes/font_size = 16
-text = "CONTINUE  [E]"
+text = "CONTINUE  [E / SPACE]"
 
 [node name="Fade" type="ColorRect" parent="." unique_id=2032018946]
 unique_name_in_owner = true
@@ -550,12 +551,12 @@ color = Color(0, 0, 0, 1)
 
 [node name="Blip" type="AudioStreamPlayer" parent="Audio" unique_id=1518838809]
 stream = ExtResource("6")
-volume_db = 5.0
+volume_db = -12.0
 bus = &"UI"
 
 [node name="GovernmentBlip" type="AudioStreamPlayer" parent="Audio" unique_id=629686475]
 stream = ExtResource("6")
-volume_db = 2.0
+volume_db = -15.0
 pitch_scale = 0.66
 bus = &"UI"
 
