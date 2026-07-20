@@ -265,8 +265,12 @@ func _start_day0_cinematic() -> void:
 	conversation_scroll.visible = true
 	desk_continue_button.visible = true
 	%Directive.visible = false
+	# Fully hidden (not just dimmed) until the interrogation finishes and
+	# _reveal_desk() bounces them in — showing ghost outlines of tools the
+	# player can't use yet read as unfinished/unprofessional.
 	for locked_piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
-		locked_piece.modulate.a = 0.22
+		locked_piece.modulate.a = 0.0
+	broadcast_button.visible = false
 	fade.visible = true
 	fade.color.a = 1.0
 	room_dimmer.color.a = 0.12
@@ -293,8 +297,11 @@ func _show_desk_immediately() -> void:
 	desk_root.visible = true
 	desk_root.modulate.a = 1.0
 	desk_root.position = Vector2.ZERO
+	# Hidden until the intro dialogue finishes and _reveal_desk() bounces them
+	# in — otherwise the tools sit fully visible (if unusable) from frame one.
 	for piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
-		piece.modulate.a = 1.0
+		piece.modulate.a = 0.0
+	broadcast_button.visible = false
 	_set_phase(Phase.EDITING)
 
 
@@ -311,6 +318,10 @@ func _reveal_desk() -> void:
 	continue_button.visible = false
 	for hidden_piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
 		hidden_piece.modulate.a = 0.0
+	# _update_broadcast_button() manages the button's own modulate (disabled
+	# tint / ready glow) independently once visible, so its hidden-during-intro
+	# state has to be the separate `visible` flag instead of relying on alpha.
+	broadcast_button.visible = true
 	if not instant_mode:
 		await _drop_desk_components()
 	else:
