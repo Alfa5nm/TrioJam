@@ -114,6 +114,21 @@ func _run() -> void:
 	var second_polaroid := reprinted_stack[1] as Control
 	var second_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, second_polaroid, false)
 	_check(typeof(second_payload) == TYPE_DICTIONARY, "the second printed copy is draggable even though the first copy is already placed")
+
+	# Right-click shreds an un-placed printed copy — the fix for unlimited
+	# reprints otherwise piling into unremovable clutter on the desk. A copy
+	# that's actually placed must be untouchable here; it only leaves via the
+	# frame's own return-footage flow.
+	var right_click := InputEventMouseButton.new()
+	right_click.button_index = MOUSE_BUTTON_RIGHT
+	right_click.pressed = true
+	ui.scene_frame._on_polaroid_input(right_click, ui.scene_frame.current_action, emitted_polaroid)
+	_check(reprinted_stack.size() == 2 and is_instance_valid(emitted_polaroid), "right-clicking a placed copy does not shred it")
+	ui.scene_frame._on_polaroid_input(right_click, ui.scene_frame.current_action, second_polaroid)
+	_check(reprinted_stack.size() == 1, "right-clicking an un-placed copy shreds just that one")
+	await process_frame # queue_free() only takes effect once the frame's deferred calls run
+	_check(not is_instance_valid(second_polaroid), "shredded polaroid is freed")
+
 	ui.scene_frame.set_interaction_enabled(false)
 	_check(ui.scene_frame.caption_label.text == "ARCHIVED", "the camera archives once interaction locks, not the instant a scene is first printed")
 	ui.scene_frame.set_interaction_enabled(true)

@@ -124,6 +124,36 @@ func is_ejected(action: ActionDef) -> bool:
 	return action != null and _ejected.has(action.id)
 
 
+func _on_polaroid_input(event: InputEvent, action: ActionDef, card: Control) -> void:
+	if not interaction_enabled or not is_instance_valid(card):
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		# Only an un-placed copy can be shredded from here — a placed one belongs
+		# to its frame and must be returned (right-click on the frame) first.
+		if not card.get_meta("placed", false):
+			_shred_card(action, card)
+
+
+## Destroys one specific printed-but-never-placed copy — the fix for unlimited
+## reprints otherwise piling into an unremovable stack of clutter on the desk.
+func _shred_card(action: ActionDef, card: Control) -> void:
+	if action.id in _polaroids:
+		(_polaroids[action.id] as Array).erase(card)
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if is_zero_approx(ejection_time_scale):
+		card.queue_free()
+		_refresh_visual()
+		return
+	var tween := create_tween().set_parallel()
+	tween.tween_property(card, "modulate:a", 0.0, 0.14 * ejection_time_scale)
+	tween.tween_property(card, "scale", card.scale * 0.7, 0.14 * ejection_time_scale).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(card, "rotation", card.rotation + deg_to_rad(14.0), 0.14 * ejection_time_scale)
+	await tween.finished
+	if is_instance_valid(card):
+		card.queue_free()
+	_refresh_visual()
+
+
 func set_interaction_enabled(enabled: bool) -> void:
 	interaction_enabled = enabled
 	click_region.disabled = not enabled
@@ -281,8 +311,9 @@ func _build_polaroid(action: ActionDef) -> PanelContainer:
 	card.custom_minimum_size = Vector2(190, 132)
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.pivot_offset = Vector2(95, 126)
-	card.tooltip_text = "Drag this archived footage into a frame"
+	card.tooltip_text = "Drag this archived footage into a frame — right-click to shred it"
 	card.set_drag_forwarding(_get_polaroid_drag_data.bind(action, card), Callable(), Callable())
+	card.gui_input.connect(_on_polaroid_input.bind(action, card))
 	var paper := StyleBoxFlat.new()
 	paper.bg_color = Color("e9e2d4")
 	paper.border_color = Color("777b82")
