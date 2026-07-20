@@ -128,10 +128,14 @@ func _ready() -> void:
 		slot.footage_removed.connect(scene_frame.return_card)
 		slot.footage_placed.connect(scene_frame.mark_placed)
 	broadcast_button.pressed.connect(_on_broadcast_pressed)
-	broadcast_button.mouse_entered.connect(_animate_broadcast_hover.bind(true))
-	broadcast_button.mouse_exited.connect(_animate_broadcast_hover.bind(false))
+	broadcast_button.mouse_entered.connect(_animate_button_hover.bind(broadcast_button, true))
+	broadcast_button.mouse_exited.connect(_animate_button_hover.bind(broadcast_button, false))
 	continue_button.pressed.connect(_on_continue_pressed)
+	continue_button.mouse_entered.connect(_animate_button_hover.bind(continue_button, true))
+	continue_button.mouse_exited.connect(_animate_button_hover.bind(continue_button, false))
 	desk_continue_button.pressed.connect(_on_continue_pressed)
+	desk_continue_button.mouse_entered.connect(_animate_button_hover.bind(desk_continue_button, true))
+	desk_continue_button.mouse_exited.connect(_animate_button_hover.bind(desk_continue_button, false))
 	name_input.text_changed.connect(_validate_name)
 	name_input.text_submitted.connect(func(_value: String): _confirm_name())
 	name_confirm.pressed.connect(_confirm_name)
@@ -260,7 +264,6 @@ func _start_day0_cinematic() -> void:
 	cinema_rig.visible = false
 	conversation_scroll.visible = true
 	desk_continue_button.visible = true
-	%TranscriptTitle.visible = true
 	%Directive.visible = false
 	for locked_piece in [cause_slot, conflict_slot, outcome_slot, scene_frame, character_roster, broadcast_button]:
 		locked_piece.modulate.a = 0.22
@@ -490,7 +493,7 @@ func _show_directive() -> void:
 	desk_portrait.modulate = Color.WHITE
 	dialogue_label.text = report.directive_text
 	dialogue_label.visible_characters = -1
-	_append_transcript_entry("OBJECTIVE", report.directive_text, &"system", true)
+	_append_transcript_entry(report.directive_text, &"system", true)
 	_set_phase(Phase.EDITING)
 	_set_editing_enabled(true)
 
@@ -508,6 +511,12 @@ func _show_name_entry() -> void:
 	conversation_scroll.visible = false
 	name_entry.visible = true
 	name_input.text = ""
+	# It's the player's own name being asked for — show the MC, not whichever
+	# speaker (usually the faceless government interrogator) was up before this.
+	# Same cinematic portrait MC's own lines use elsewhere in this panel.
+	desk_portrait.texture = _mc_texture(&"neutral", false)
+	desk_portrait.modulate = Color.WHITE
+	desk_portrait.visible = true
 	_validate_name("")
 	name_input.grab_focus()
 
@@ -538,7 +547,7 @@ func _confirm_name() -> void:
 	dialogue_label.text = str(session.player_name) + "."
 	dialogue_label.visible_characters = -1
 	_update_speaker_portrait(&"mc", BroadcastDialogueBeat.make(&"mc", "", &"wary"))
-	_append_transcript_entry(_speaker_caption(&"mc"), dialogue_label.text, &"mc", true)
+	_append_transcript_entry(dialogue_label.text, &"mc", true)
 	desk_continue_button.visible = true
 	desk_continue_button.disabled = false
 	_set_phase(Phase.INTERROGATION)
@@ -550,7 +559,7 @@ func _type_dialogue(text: String) -> void:
 	dialogue_label.visible_characters = 0
 	_active_transcript_label = null
 	if not _playback_is_recap:
-		_active_transcript_label = _append_transcript_entry(_speaker_caption(_current_speaker), text, _current_speaker)
+		_active_transcript_label = _append_transcript_entry(text, _current_speaker)
 	_typing_response = true
 	_skip_response = false
 	if instant_mode:
@@ -612,20 +621,21 @@ func _clear_transcript() -> void:
 	conversation_scroll.scroll_vertical = 0
 
 
-func _speaker_caption(speaker: StringName) -> String:
+## Identifies who's speaking by the dialogue text's own color instead of a
+## text label — every card keeps the original navy fill and cyan border; only
+## the text itself is red for the government interrogator or white for the MC.
+func _speaker_card_style(speaker: StringName) -> Dictionary:
 	if speaker == &"government":
-		return "GOVERNMENT"
-	if speaker == &"mc":
-		var session := get_node_or_null("/root/GameSession")
-		return str(session.player_name).to_upper() if session != null and not str(session.player_name).is_empty() else "SUBJECT"
-	return "SYSTEM"
+		return {font = Color(1.0, 0.3, 0.32, 1)}
+	return {font = Color.WHITE}
 
 
-func _append_transcript_entry(caption: String, text: String, speaker: StringName, complete := false) -> Label:
+func _append_transcript_entry(text: String, speaker: StringName, complete := false) -> Label:
 	var was_following := _transcript_follow_latest or _transcript_is_at_bottom()
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var card_style := _speaker_card_style(speaker)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.0431373, 0.113725, 0.301961, 0.97)
 	style.border_color = Color(0.133333, 0.839216, 1.0, 0.96)
@@ -648,19 +658,12 @@ func _append_transcript_entry(caption: String, text: String, speaker: StringName
 	stack.mouse_filter = Control.MOUSE_FILTER_PASS
 	stack.add_theme_constant_override("separation", 2)
 	panel.add_child(stack)
-	var header := Label.new()
-	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_theme_font_override("font", NEWSLETTER_FONT)
-	header.add_theme_font_size_override("font_size", 11)
-	header.add_theme_color_override("font_color", Color.WHITE)
-	header.text = caption
-	stack.add_child(header)
 	var body := Label.new()
 	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_font_override("font", NEWSLETTER_FONT)
-	body.add_theme_font_size_override("font_size", 15)
-	body.add_theme_color_override("font_color", Color.WHITE)
+	body.add_theme_font_size_override("font_size", 17)
+	body.add_theme_color_override("font_color", card_style.font)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.text = text
 	body.visible_characters = -1 if complete else 0
@@ -715,6 +718,10 @@ func _apply_broadcast_typography(root_control: Control) -> void:
 func _on_continue_pressed() -> void:
 	if _awaiting_name:
 		return
+	if continue_button.visible:
+		_animate_button_press(continue_button)
+	if desk_continue_button.visible:
+		_animate_button_press(desk_continue_button)
 	if _name_line_ready:
 		_name_line_ready = false
 		_advance_playback()
@@ -798,7 +805,7 @@ func _on_broadcast_pressed() -> void:
 	if not _editing_enabled:
 		return
 	button_sound.play()
-	_animate_broadcast_press()
+	_animate_button_press(broadcast_button)
 	var placed: Array[ShotElement] = [cause_slot.current_shot(), conflict_slot.current_shot(), outcome_slot.current_shot()]
 	var sequence := report.find_matching_sequence(placed)
 	if report.report_id == &"day0_rooftop_killing":
@@ -1002,18 +1009,18 @@ func _on_footage_ejected(_action: ActionDef) -> void:
 	eject_sound.play()
 
 
-func _animate_broadcast_hover(active: bool) -> void:
-	if broadcast_button.disabled:
+func _animate_button_hover(button: Button, active: bool) -> void:
+	if button.disabled:
 		return
-	broadcast_button.pivot_offset = broadcast_button.size * 0.5
-	create_tween().tween_property(broadcast_button, "scale", Vector2(1.035, 1.035) if active else Vector2.ONE, 0.1)
+	button.pivot_offset = button.size * 0.5
+	create_tween().tween_property(button, "scale", Vector2(1.035, 1.035) if active else Vector2.ONE, 0.1)
 
 
-func _animate_broadcast_press() -> void:
-	broadcast_button.pivot_offset = broadcast_button.size * 0.5
+func _animate_button_press(button: Button) -> void:
+	button.pivot_offset = button.size * 0.5
 	var tween := create_tween()
-	tween.tween_property(broadcast_button, "scale", Vector2(0.95, 0.9), 0.06)
-	tween.tween_property(broadcast_button, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(button, "scale", Vector2(0.95, 0.9), 0.06)
+	tween.tween_property(button, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _find_character(id: StringName) -> CharacterDef:

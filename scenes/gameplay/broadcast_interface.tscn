@@ -303,24 +303,12 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TranscriptTitle" type="Label" parent="DeskRoot" unique_id=2149382]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 51.0
-offset_top = 354.0
-offset_right = 321.0
-offset_bottom = 380.0
-theme_override_colors/font_color = Color(0.12, 0.16, 0.18, 0.9)
-theme_override_fonts/font = ExtResource("7")
-theme_override_font_sizes/font_size = 16
-text = "CONVERSATION LOG"
-
 [node name="ConversationScroll" type="ScrollContainer" parent="DeskRoot" unique_id=1493742467]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 47.0
-offset_top = 377.0
-offset_right = 336.0
+offset_top = 364.0
+offset_right = 328.0
 offset_bottom = 594.0
 horizontal_scroll_mode = 0
 
