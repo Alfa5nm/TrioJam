@@ -196,6 +196,12 @@ func set_highlighted(active: bool) -> void:
 func _refresh_visual() -> void:
 	scene_label.text = current_action.display_name if current_action != null else "— scene —"
 	return_button.visible = current_action != null and interaction_enabled
+	if current_action == null:
+		tooltip_text = "Drag a printed scene here"
+	elif current_characters.is_empty():
+		tooltip_text = "Now drag a character onto this frame"
+	else:
+		tooltip_text = ""
 	if current_action != null and current_action.scene_image != null:
 		scene_image.texture = _build_panned_scene_texture(current_action.scene_image)
 		scene_image.visible = true

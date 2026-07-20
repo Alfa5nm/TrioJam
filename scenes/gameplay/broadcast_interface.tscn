@@ -184,6 +184,7 @@ theme_override_fonts/font = ExtResource("7")
 theme_override_font_sizes/font_size = 17
 text = "CAUSE"
 horizontal_alignment = 1
+tooltip_text = "The event that started it"
 
 [node name="ConflictLabel" type="Label" parent="DeskRoot" unique_id=1994839112]
 layout_mode = 0
@@ -196,6 +197,7 @@ theme_override_fonts/font = ExtResource("7")
 theme_override_font_sizes/font_size = 17
 text = "CONFLICT"
 horizontal_alignment = 1
+tooltip_text = "The confrontation that followed"
 
 [node name="OutcomeLabel" type="Label" parent="DeskRoot" unique_id=1852394743]
 layout_mode = 0
@@ -208,6 +210,7 @@ theme_override_fonts/font = ExtResource("7")
 theme_override_font_sizes/font_size = 17
 text = "OUTCOME"
 horizontal_alignment = 1
+tooltip_text = "The final result"
 
 [node name="CauseSlot" parent="DeskRoot" unique_id=613890787 instance=ExtResource("2")]
 unique_name_in_owner = true

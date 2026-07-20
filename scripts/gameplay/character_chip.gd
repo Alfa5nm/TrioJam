@@ -24,6 +24,7 @@ func _refresh_visual() -> void:
 		return
 	portrait_rect.texture = character.get_display_texture()
 	name_label.text = character.display_name
+	tooltip_text = "Drag onto a frame that already has a scene"
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
