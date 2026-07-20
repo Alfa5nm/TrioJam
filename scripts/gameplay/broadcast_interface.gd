@@ -796,6 +796,7 @@ func _update_broadcast_button() -> void:
 	var ready := cause_slot.is_filled() and conflict_slot.is_filled() and outcome_slot.is_filled()
 	var active := ready and _editing_enabled
 	broadcast_button.disabled = not active
+	broadcast_button.tooltip_text = "Press to air this report" if active else "Fill all three frames first"
 	if active:
 		_start_broadcast_glow()
 	else:

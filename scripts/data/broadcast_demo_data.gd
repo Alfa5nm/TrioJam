@@ -507,7 +507,7 @@ static func rooftop_killing_report() -> BroadcastReport:
 
 	var report := BroadcastReport.new()
 	report.report_id = &"day0_rooftop_killing"
-	report.directive_text = "Objective: Create the official news report.\n\nSelect a scene, place it inside a frame, and drag the required characters into position. Arrange all three frames to construct the narrative requested by the government.\n\nThe report does not need to show what happened.\nIt only needs to show what the public is supposed to believe happened."
+	report.directive_text = "Objective: Create the official news report.\n\nUse the camera's arrows to cycle through captured scenes, then click the camera to print a photo. Drag the printed photo into a frame, then drag a character onto that same frame. Fill all three frames — CAUSE, CONFLICT, OUTCOME — this way, then press BROADCAST.\n\nThe report does not need to show what happened.\nIt only needs to show what the public is supposed to believe happened."
 	report.mistake_hints = [
 		"I need… to show that someone first got on the rooftop… and, at the end, someone dies.\n\nThe rest is history, isn't it? I should know how to frame it.",
 		"Fuck fuck fuck… What's wrong with me? I just… need to blame it on the opposition.\n\nYeah, that's all I need to do.",
