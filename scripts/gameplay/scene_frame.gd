@@ -311,7 +311,7 @@ func _build_polaroid(action: ActionDef) -> PanelContainer:
 	card.custom_minimum_size = Vector2(190, 132)
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.pivot_offset = Vector2(95, 126)
-	card.tooltip_text = "Drag this archived footage into a frame — right-click to shred it"
+	card.tooltip_text = "Drag into a frame · Right-click to shred"
 	card.set_drag_forwarding(_get_polaroid_drag_data.bind(action, card), Callable(), Callable())
 	card.gui_input.connect(_on_polaroid_input.bind(action, card))
 	var paper := StyleBoxFlat.new()
