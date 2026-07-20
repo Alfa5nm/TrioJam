@@ -729,6 +729,7 @@ func _apply_broadcast_typography(root_control: Control) -> void:
 func _on_continue_pressed() -> void:
 	if _awaiting_name:
 		return
+	button_sound.play()
 	if continue_button.visible:
 		_animate_button_press(continue_button)
 	if desk_continue_button.visible:

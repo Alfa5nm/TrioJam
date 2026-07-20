@@ -29,6 +29,7 @@ var _dragged_card: Control
 @onready var body: Control = $Body
 @onready var rear_ejection_layer: Control = %RearEjectionLayer
 @onready var front_ejection_layer: Control = %FrontEjectionLayer
+@onready var shred_sound: AudioStreamPlayer = $Audio/Shred
 
 
 func _ready() -> void:
@@ -140,6 +141,7 @@ func _shred_card(action: ActionDef, card: Control) -> void:
 	if action.id in _polaroids:
 		(_polaroids[action.id] as Array).erase(card)
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shred_sound.play()
 	if is_zero_approx(ejection_time_scale):
 		card.queue_free()
 		_refresh_visual()

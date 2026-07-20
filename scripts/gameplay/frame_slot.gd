@@ -40,6 +40,8 @@ var interaction_enabled := true
 @onready var scene_label: Label = $ContentMargin/Layout/SceneLabel
 @onready var characters_row: HBoxContainer = $ContentMargin/Layout/CharactersRow
 @onready var return_button: Button = $ReturnButton
+@onready var frame_place_sound: AudioStreamPlayer = $Audio/FramePlace
+@onready var character_place_sound: AudioStreamPlayer = $Audio/CharacterPlace
 
 var _style: StyleBoxFlat
 var _base_border_color: Color = COLOR_EMPTY_BORDER
@@ -360,8 +362,10 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 			current_scene_card = data.get("card")
 			_update_capacity_for_action()
 			footage_placed.emit(current_action, current_scene_card)
+			frame_place_sound.play()
 		"broadcast_character":
 			current_characters.append(data["character"])
+			character_place_sound.play()
 	_refresh_visual()
 	_play_drop_feedback()
 	composition_changed.emit(self)
