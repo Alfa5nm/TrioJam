@@ -44,6 +44,8 @@ func _run() -> void:
 	_check(ui.conversation_scroll.visible and ui.conversation_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "left-panel conversation history is scrollable")
 	_check(ui.tv_power.stream != null and ui.tv_hum.stream != null, "CRT power and ambience cues are assigned")
 	_check(ui.eject_sound.stream != null and ui.button_sound.stream != null, "desk hardware cues are assigned")
+	_check(ui.scene_frame.shred_sound.stream != null and ui.scene_frame.shred_sound.bus == &"SFX", "shred cue is assigned to the SFX bus")
+	_check(ui.cause_slot.frame_place_sound.stream != null and ui.cause_slot.character_place_sound.stream != null, "frame-drop cues are assigned")
 	_check((ui.get_node("DeskRoot/GeneratedConsole") as TextureRect).texture.resource_path.ends_with("broadcast-console-base-v4.png"), "desk uses the decomposed hardware-free base plate")
 	_check(ui.scene_frame.camera_body.texture.resource_path.ends_with("evidence-camera-v5.png"), "capture camera uses the flat interaction-aligned painted object")
 	_check(ui.scene_frame.previous_button.text.is_empty() and ui.scene_frame.next_button.text.is_empty(), "camera arrows use embedded painted controls rather than GUI glyph buttons")
@@ -63,7 +65,7 @@ func _run() -> void:
 	_check(ui.dialogue_label.visible_characters == -1 and ui._active_transcript_label.visible_characters == -1, "E/Continue completes both dialogue representations without truncation")
 	_check(ui._active_transcript_label.text == skip_text, "skipped transcript card retains the complete authored text")
 	for index in 4:
-		ui._append_transcript_entry("SYSTEM", "Auto-scroll verification entry %d with enough text to occupy another wrapped row." % index, &"system", true)
+		ui._append_transcript_entry("Auto-scroll verification entry %d with enough text to occupy another wrapped row." % index, &"system", true)
 	await process_frame
 	await process_frame
 	_check(ui._transcript_is_at_bottom(), "conversation log follows the latest entry after its layout grows")
@@ -114,6 +116,22 @@ func _run() -> void:
 	var second_polaroid := reprinted_stack[1] as Control
 	var second_payload: Variant = ui.scene_frame._get_polaroid_drag_data(Vector2.ZERO, ui.scene_frame.current_action, second_polaroid, false)
 	_check(typeof(second_payload) == TYPE_DICTIONARY, "the second printed copy is draggable even though the first copy is already placed")
+
+	# Right-click shreds an un-placed printed copy — the fix for unlimited
+	# reprints otherwise piling into unremovable clutter on the desk. A copy
+	# that's actually placed must be untouchable here; it only leaves via the
+	# frame's own return-footage flow.
+	var right_click := InputEventMouseButton.new()
+	right_click.button_index = MOUSE_BUTTON_RIGHT
+	right_click.pressed = true
+	ui.scene_frame._on_polaroid_input(right_click, ui.scene_frame.current_action, emitted_polaroid)
+	_check(reprinted_stack.size() == 2 and is_instance_valid(emitted_polaroid), "right-clicking a placed copy does not shred it")
+	ui.scene_frame._on_polaroid_input(right_click, ui.scene_frame.current_action, second_polaroid)
+	_check(reprinted_stack.size() == 1, "right-clicking an un-placed copy shreds just that one")
+	_check(ui.scene_frame.shred_sound.playing, "shredding plays the shred cue")
+	await process_frame # queue_free() only takes effect once the frame's deferred calls run
+	_check(not is_instance_valid(second_polaroid), "shredded polaroid is freed")
+
 	ui.scene_frame.set_interaction_enabled(false)
 	_check(ui.scene_frame.caption_label.text == "ARCHIVED", "the camera archives once interaction locks, not the instant a scene is first printed")
 	ui.scene_frame.set_interaction_enabled(true)
@@ -228,20 +246,29 @@ func _run() -> void:
 	_check(ui.desk_portrait.visible and ui.desk_portrait.texture == rooftop_report.speaker_portraits[&"government"], "Government portrait is shown in the left panel for his dialogue")
 	_check(ui.conversation_history.get_child_count() == 1, "the first interrogation line is retained in the conversation log")
 	var first_entry := ui.conversation_history.get_child(0) as PanelContainer
-	var first_body := first_entry.get_child(0).get_child(1) as Label
+	_check(first_entry.get_child(0).get_child_count() == 1, "conversation cards no longer carry a separate speaker-name label")
+	var first_body := first_entry.get_child(0).get_child(0) as Label
 	var first_style := first_entry.get_theme_stylebox("panel") as StyleBoxFlat
-	_check(first_body.get_theme_font("font") == BroadcastInterface.NEWSLETTER_FONT and first_body.get_theme_color("font_color") == Color.WHITE, "conversation text uses the news font in white")
-	_check(first_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.97)), "conversation cards use the navy backdrop")
-	_check(first_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "conversation cards use the neon-blue outline")
+	_check(first_body.get_theme_font("font") == BroadcastInterface.NEWSLETTER_FONT, "conversation text uses the news font")
+	_check(first_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.97)), "conversation cards keep the original navy backdrop")
+	_check(first_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "conversation cards keep the original neon-blue outline")
+	_check(first_body.get_theme_color("font_color").is_equal_approx(Color(1.0, 0.3, 0.32, 1)), "government's line is colored red instead of captioned")
 	_check(ui._mc_texture(&"dirty", false) == BroadcastInterface.MC_DIRTY, "dirty interrogation beats select the supplied dirty MC face")
 	for _index in range(3):
 		ui.continue_button.pressed.emit()
 	_check(ui._awaiting_name and ui.name_entry.visible, "embedded interrogation pauses at the naming prompt")
+	_check(ui.desk_portrait.visible and ui.desk_portrait.texture == BroadcastInterface.MC_NEUTRAL, "naming prompt shows the MC, not the preceding government speaker")
 	_check(ui.name_input.max_length == 10, "Broadcast naming keeps the ten-character limit")
 	ui.name_input.text = "Test MC"
 	ui._confirm_name()
 	_check(ui.dialogue_label.text == "Test MC.", "entered name is spoken as the MC response")
 	_check(ui.speaker_portrait.texture == BroadcastInterface.MC_NEUTRAL, "authored neutral MC portrait accompanies the entered name")
+	var mc_entry := ui.conversation_history.get_child(ui.conversation_history.get_child_count() - 1) as PanelContainer
+	var mc_style := mc_entry.get_theme_stylebox("panel") as StyleBoxFlat
+	var mc_body := mc_entry.get_child(0).get_child(0) as Label
+	_check(mc_style.bg_color.is_equal_approx(Color(0.0431373, 0.113725, 0.301961, 0.97)), "MC's conversation card keeps the original navy backdrop")
+	_check(mc_style.border_color.is_equal_approx(Color(0.133333, 0.839216, 1.0, 0.96)), "MC's conversation card keeps the original neon-blue outline")
+	_check(mc_body.get_theme_color("font_color") == Color.WHITE, "MC's line stays white")
 	ui.continue_button.pressed.emit()
 	for _index in range(rooftop_report.intro_lines.size() - 4):
 		ui.continue_button.pressed.emit()

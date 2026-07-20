@@ -10,7 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://cahhkfca4gpgn" path="res://assets/audio/broadcast/tv-power-v2.wav" id="9"]
 [ext_resource type="AudioStream" uid="uid://c5527ep7oieub" path="res://assets/audio/broadcast/card-eject-v2.wav" id="10"]
 [ext_resource type="AudioStream" uid="uid://dxykvf84k7m63" path="res://assets/audio/broadcast/table-impact-v2.wav" id="11"]
-[ext_resource type="AudioStream" uid="uid://wh4g80i84piy" path="res://assets/audio/broadcast/button-thunk-v2.wav" id="12"]
+[ext_resource type="AudioStream" uid="uid://tyrqyfs8tmrj" path="res://assets/audio/broadcast/broadcast-continue-button.mp3" id="12"]
 [ext_resource type="Texture2D" uid="uid://b1q23ldwja8ex" path="res://assets/art/ui/broadcast_v2/broadcast-console-base-v4.png" id="13"]
 [ext_resource type="Texture2D" uid="uid://bnbmlhcpemcei" path="res://assets/art/ui/broadcast_v2/interrogation-console-master-v3.png" id="14"]
 [ext_resource type="Texture2D" uid="uid://dv2dvpxsb62vb" path="res://assets/art/ui/broadcast_v2/broadcast-button-v4.png" id="15"]
@@ -304,24 +304,12 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TranscriptTitle" type="Label" parent="DeskRoot" unique_id=2149382]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 51.0
-offset_top = 354.0
-offset_right = 321.0
-offset_bottom = 380.0
-theme_override_colors/font_color = Color(0.12, 0.16, 0.18, 0.9)
-theme_override_fonts/font = ExtResource("7")
-theme_override_font_sizes/font_size = 16
-text = "CONVERSATION LOG"
-
 [node name="ConversationScroll" type="ScrollContainer" parent="DeskRoot" unique_id=1493742467]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 47.0
-offset_top = 377.0
-offset_right = 336.0
+offset_top = 364.0
+offset_right = 328.0
 offset_bottom = 594.0
 horizontal_scroll_mode = 0
 

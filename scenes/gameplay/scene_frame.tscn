@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/gameplay/scene_frame.gd" id="1"]
 [ext_resource type="FontFile" path="res://assets/fonts/Basic-Regular.ttf" id="2"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/broadcast_v2/evidence-camera-v5.png" id="3"]
+[ext_resource type="AudioStream" uid="uid://dpcij4i104eai" path="res://assets/audio/broadcast/polaroid-shred.mp3" id="4"]
 
 [sub_resource type="StyleBoxEmpty" id="transparent"]
 
@@ -33,6 +34,12 @@ corner_radius_bottom_left = 6
 [node name="SceneFrame" type="Control"]
 custom_minimum_size = Vector2(330, 250)
 script = ExtResource("1")
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="Shred" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("4")
+bus = &"SFX"
 
 [node name="RearEjectionLayer" type="Control" parent="."]
 unique_name_in_owner = true

@@ -191,8 +191,10 @@ func _check_per_action_cap_enforcement() -> void:
 
 	ui.conflict_slot._drop_data(Vector2.ZERO, {"type": "broadcast_scene", "action": protest})
 	_check(ui.conflict_slot.max_characters == 1, "dropping a 1-person scene lowers this slot's live cap to 1")
+	_check(ui.conflict_slot.frame_place_sound.playing, "dropping a scene plays the frame-place cue")
 	ui.conflict_slot._drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": opposition})
 	_check(ui.conflict_slot.current_characters.size() == 1, "the first character is accepted")
+	_check(ui.conflict_slot.character_place_sound.playing, "dropping a character plays the character-place cue")
 	_check(
 		not ui.conflict_slot._can_drop_data(Vector2.ZERO, {"type": "broadcast_character", "character": civilian}),
 		"a 2nd character is rejected on a scene capped at 1"

@@ -455,13 +455,17 @@ static func rooftop_killing_report() -> BroadcastReport:
 	rooftop_scene.character_overlays = {
 		mc.id: load("res://assets/art/ui/broadcast/character_mc_going.png"),
 		opposition_person.id: load("res://assets/art/ui/broadcast/character_oppo_going.png"),
+		government_official.id: load("res://assets/art/ui/broadcast/character_gov_going.png"),
 	}
 	rooftop_shoots.character_overlays = {
 		mc.id: load("res://assets/art/ui/broadcast/character_mc_shoots.png"),
 		opposition_person.id: load("res://assets/art/ui/broadcast/character_oppo_shoots.png"),
+		government_official.id: load("res://assets/art/ui/broadcast/character_gov_shoots.png"),
 	}
 	victim_shot.character_overlays = {
 		government_official.id: load("res://assets/art/ui/broadcast/character_gov_shot.png"),
+		mc.id: load("res://assets/art/ui/broadcast/character_mc_shot.png"),
+		opposition_person.id: load("res://assets/art/ui/broadcast/character_oppo_shot.png"),
 	}
 
 	var truthful := BroadcastSequence.new()

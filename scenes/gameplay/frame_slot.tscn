@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/gameplay/frame_slot.gd" id="1_slot"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/broadcast/frame_outline.png" id="2_outline"]
+[ext_resource type="AudioStream" uid="uid://d1bjiep6gsber" path="res://assets/audio/broadcast/frame-place.mp3" id="3_frame_place"]
+[ext_resource type="AudioStream" uid="uid://dit7ulhr3jp76" path="res://assets/audio/broadcast/character-place.mp3" id="4_character_place"]
 
 [sub_resource type="StyleBoxFlat" id="StateOverlayStyle"]
 bg_color = Color(0, 0, 0, 0)
@@ -53,6 +55,16 @@ corner_radius_bottom_left = 5
 
 [node name="FrameSlot" type="Control"]
 script = ExtResource("1_slot")
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="FramePlace" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("3_frame_place")
+bus = &"SFX"
+
+[node name="CharacterPlace" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("4_character_place")
+bus = &"SFX"
 
 [node name="Background" type="TextureRect" parent="."]
 visible = false
